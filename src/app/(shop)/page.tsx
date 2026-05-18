@@ -23,29 +23,29 @@ export default async function HomePage() {
       <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] rounded-full bg-cyan-400/15 blur-[120px] pointer-events-none" />
       <div className="absolute top-[30%] right-[-10%] w-[700px] h-[700px] rounded-full bg-blue-500/10 blur-[150px] pointer-events-none" />
 
-      {/* 1. HELLER HERO BEREICH (100% fokussiert auf shop4you) */}
+      {/* 1. HELLER HERO BEREICH (100% fokussiert auf High-End IT) */}
       <section className="relative pt-20 pb-16 lg:pt-28 lg:pb-24 border-b border-zinc-200/80 bg-white/40 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 mb-6 border border-blue-200/60 shadow-xs">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-            Qualität & Innovation
+            Next-Gen Computing & Tech
           </span>
           
           <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight uppercase text-zinc-950">
-            Alles für dein Projekt bei <br />
+            High-End Hardware bei <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 drop-shadow-sm">
               shop4you.
             </span>
           </h1>
           
           <p className="mt-6 text-lg text-zinc-600 max-w-xl mx-auto font-medium leading-relaxed">
-            Entdecke hochwertige Produkte, erstklassige Materialien und moderne Highlights für dein Zuhause und deinen Lifestyle.
+            Entdecke ultimative Performance. Erstklassige Notebooks, Smartphones und Tablets, perfekt abgestimmt auf deinen digitalen Lifestyle.
           </p>
           
           <div className="mt-8 flex justify-center">
             <a href="#produkte" className="h-11 px-6 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-all flex items-center shadow-md shadow-blue-600/10 hover:scale-102 duration-200 text-sm tracking-wide">
-              PRODUKTE ANSEHEN
+              HARDWARE ENTDECKEN
             </a>
           </div>
         </div>
@@ -59,14 +59,14 @@ export default async function HomePage() {
           <div>
             <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-zinc-950 flex items-center gap-2.5">
               <span className="w-1 h-7 bg-blue-600 rounded-full inline-block" />
-              Unsere Produkt-Highlights
+              Unsere Tech-Highlights
             </h2>
             <p className="text-zinc-500 text-sm mt-1 font-medium">
-              Ausgewählte Artikel im modernen Kacheldesign.
+              Ausgewählte Premium-Geräte im modernen Kacheldesign.
             </p>
           </div>
           <span className="text-xs font-black tracking-wider text-zinc-500 bg-white border border-zinc-200 px-3 py-1.5 rounded-xl shadow-xs">
-            {products.length} Artikel verfügbar
+            {products.length} Modelle verfügbar
           </span>
         </div>
 

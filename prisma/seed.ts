@@ -9,7 +9,6 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🔄 Bereinige alte Produktdaten...');
-  // Löscht alle alten Einträge (Sneaker, Bürostuhl, Rucksack), damit die DB sauber ist
   await prisma.product.deleteMany({});
   console.log('✅ Datenbank geleert.');
 
@@ -22,9 +21,9 @@ async function main() {
       price: 2499.00,
       category: 'Notebooks',
       images: [
-        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800', // Hauptbild (Laptop)
-        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800', // Detail 1 (Tastatur)
-        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800'  // Detail 2 (Arbeitsplatz)
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
+        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800',
+        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800'
       ]
     },
     {
@@ -33,9 +32,9 @@ async function main() {
       price: 1249.00,
       category: 'Smartphones',
       images: [
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', // Hauptbild (Phone)
-        'https://images.unsplash.com/photo-1565849553881-477123dee815?w=800', // Detail 1 (Kamera)
-        'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=800'  // Detail 2 (Rückseite)
+        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800',
+        'https://images.unsplash.com/photo-1565849553881-477123dee815?w=800',
+        'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=800'
       ]
     },
     {
@@ -44,9 +43,9 @@ async function main() {
       price: 949.00,
       category: 'Tablets',
       images: [
-        'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800', // Hauptbild (Tablet)
-        'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800', // Detail 1 (Stift)
-        'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?w=800'  // Detail 2 (Rücken)
+        'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800',
+        'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800',
+        'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?w=800'
       ]
     },
     {
@@ -55,7 +54,7 @@ async function main() {
       price: 1099.00,
       category: 'Notebooks',
       images: [
-        'https://images.unsplash.com/photo-1496181130204-755241524eab?w=800',
+        'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800',
         'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800',
         'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800'
       ]
@@ -103,7 +102,7 @@ async function main() {
         'https://images.unsplash.com/photo-1589561253898-768105ca91a8?w=800',
         'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800'
       ]
-    },
+    }
   ];
 
   for (const product of itProducts) {
@@ -112,7 +111,7 @@ async function main() {
     });
   }
 
-  console.log('🎉 Seed erfolgreich! 8 IT-Artikel wurden in Supabase eingepflegt.');
+  console.log('🎉 Seed erfolgreich! 8 IT-Artikel wurden eingepflegt.');
 }
 
 main()
