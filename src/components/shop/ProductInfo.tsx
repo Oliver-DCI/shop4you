@@ -2,17 +2,22 @@
 'use client';
 
 import React from 'react';
+import { useCart } from '@/store/cartStore'; // ✨ Neu importiert
 
 interface ProductInfoProps {
   product: {
+    id: string;       // ✨ ID hinzugefügt
     title: string;
     description: string;
     price: number;
     category: string;
+    images: string[]; // ✨ Images hinzugefügt
   };
 }
 
 export default function ProductInfo({ product }: ProductInfoProps) {
+  const { addToCart } = useCart(); // ✨ Holt die globale Hinzufügen-Funktion aus dem Store
+
   return (
     <div className="flex flex-col justify-between h-full py-2">
       
@@ -54,7 +59,10 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         </div>
 
         {/* Der massive, eisblaue Warenkorb-Button */}
-        <button className="w-full h-12 rounded-xl bg-blue-600 text-white font-black hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/10 tracking-wider text-sm uppercase">
+        <button 
+          onClick={() => addToCart(product)} // ✨ Triggert die Warenkorb-Öffnung und fügt das Item hinzu
+          className="w-full h-12 rounded-xl bg-blue-600 text-white font-black hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/10 tracking-wider text-sm uppercase"
+        >
           <span>🛒</span> IN DEN WARENKORB LEGEN
         </button>
       </div>

@@ -3,27 +3,13 @@ import React from 'react';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
-import { notFound } from 'next/navigation'; // ✨ KORREKTUR 1: Richtiger Next.js Import
+import { notFound } from 'next/navigation';
 import ProductImages from '@/components/shop/ProductImages';
 import ProductInfo from '@/components/shop/ProductInfo';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
-
-const MOCK_PRODUCT = {
-  id: '1',
-  title: 'QuantumBook Pro 16 Preview',
-  description: 'Erlebe den Komfort der nächsten Generation mit adaptiver Dämpfung und recycelten Materialien. Perfekt für den urbanen Lifestyle.',
-  price: 2499.00,
-  images: [
-    'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
-    'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800',
-    'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800'
-  ],
-  category: 'Notebooks',
-  stock: 12
-};
 
 interface ProductPageProps {
   params: Promise<{
@@ -33,19 +19,13 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
-  let product = null;
 
-  if (id === '1') {
-    product = MOCK_PRODUCT;
-  } else {
-    product = await prisma.product.findUnique({
-      where: { id },
-    });
-  }
+  // 100% Datenbank-Fokus: Wir holen das Produkt direkt aus PostgreSQL
+  const product = await prisma.product.findUnique({
+    where: { id },
+  });
 
-  // ✨ KORREKTUR 2 & 3: Wenn kein Produkt da ist, werfen wir notFound().
-  // Um TypeScript absolut zu garantieren, dass "product" danach NIEMALS null ist,
-  // nutzen wir zusätzlich ein explizites "return", damit der Compiler weiß: Hier bricht der Code ab!
+  // Wenn das Produkt nicht existiert, triggern wir die 404-Page
   if (!product) {
     notFound();
     return null; 
@@ -67,13 +47,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </a>
         </div>
 
-        {/* Das 2-Spalten Layout */}
+        {/* Das edle 2-Spalten Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start bg-white/40 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white/80 shadow-xs">
           
-          {/* Linke Seite: Bildergalerie */}
+          {/* Linke Seite: Bildergalerie (erhält jetzt das dynamische Array mit 5 Bildern) */}
           <ProductImages images={product.images} title={product.title} />
           
-          {/* Rechte Seite: Produkt-Details – Garantiert nicht null! */}
+          {/* Rechte Seite: Produkt-Details */}
           <ProductInfo product={product} />
           
         </div>
