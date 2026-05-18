@@ -13,20 +13,37 @@ const prisma = new PrismaClient({ adapter });
 interface HomePageProps {
   searchParams: Promise<{
     category?: string;
+    search?: string; // ✨ Suchparameter hinzugefügt
   }>;
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const activeCategory = params.category;
+  const searchQuery = params.search; // ✨ Suchbegriff auslesen
 
-  // 🚀 Wir holen ALLE Produkte ohne Limitierung!
+  // Dynamische Prisma-Where-Klausel bauen
+  const whereClause: any = {};
+
+  if (activeCategory) {
+    whereClause.category = activeCategory;
+  }
+
+  if (searchQuery) {
+    whereClause.OR = [
+      { title: { contains: searchQuery, mode: 'insensitive' } },
+      { description: { contains: searchQuery, mode: 'insensitive' } },
+      { category: { contains: searchQuery, mode: 'insensitive' } }
+    ];
+  }
+
+  // Produkte aus DB holen mit kombinierter Filter- & Suchlogik
   const products = await prisma.product.findMany({
-    where: activeCategory ? { category: activeCategory } : {},
+    where: whereClause,
     orderBy: { createdAt: 'desc' },
   });
 
-  // Dynamische Aufteilung für die 4 Produkt-Blöcke (jeweils bis zu 4 oder 6 Produkte pro Zeile)
+  // Aufteilen der gefilterten Produkte für die Reihen
   const block1 = products.slice(0, 4);
   const block2 = products.slice(4, 10);
   const block3 = products.slice(10, 16);
@@ -35,7 +52,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className="bg-zinc-50 text-zinc-900 min-h-screen relative overflow-hidden selection:bg-blue-600 selection:text-white">
       
-      {/* Massive Ambient-Glows im Hintergrund für puren High-Tech Look */}
+      {/* Ambient-Glows... (Rest bleibt exakt gleich wie vorher!) */}
       <div className="absolute top-[-5%] left-[-5%] w-[800px] h-[800px] rounded-full bg-cyan-400/10 blur-[140px] pointer-events-none animate-pulse duration-5000" />
       <div className="absolute top-[30%] right-[-10%] w-[900px] h-[900px] rounded-full bg-blue-500/5 blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[20%] left-[-10%] w-[700px] h-[700px] rounded-full bg-indigo-500/5 blur-[130px] pointer-events-none" />

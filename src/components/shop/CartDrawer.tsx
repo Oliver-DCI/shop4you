@@ -4,14 +4,16 @@
 import React from 'react';
 import { useCart } from '@/store/cartStore';
 import Image from 'next/image';
+import Link from 'next/link'; // ✨ Für die Navigation zur Kasse importiert
 
 export default function CartDrawer() {
-  const { isCartOpen, setCartOpen, cart, updateQuantity, removeFromCart, cartTotal, cartCount } = useCart(); // ✨ updateQuantity hinzugefügt
+  const { isCartOpen, setCartOpen, cart, updateQuantity, removeFromCart, cartTotal, cartCount } = useCart();
 
   if (!isCartOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop / Hintergrund-Abdunkelung */}
       <div 
         className="absolute inset-0 bg-zinc-950/40 backdrop-blur-xs transition-opacity duration-300"
         onClick={() => setCartOpen(false)}
@@ -59,7 +61,7 @@ export default function CartDrawer() {
                       <p className="text-[10px] text-zinc-400 font-bold mt-0.5">{(item.price * item.quantity).toFixed(2)} €</p>
                     </div>
 
-                    {/* ✨ NEU: Kompakter + / - Mengenwähler */}
+                    {/* Kompakter + / - Mengenwähler */}
                     <div className="flex items-center gap-1">
                       <button 
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -79,7 +81,7 @@ export default function CartDrawer() {
                     </div>
                   </div>
 
-                  {/* Löschen Mülleimer */}
+                  {/* Löschen Kreuz */}
                   <button 
                     onClick={() => removeFromCart(item.id)}
                     className="text-zinc-300 hover:text-red-500 text-[11px] font-bold px-2 py-1 transition-colors self-start"
@@ -92,15 +94,29 @@ export default function CartDrawer() {
             )}
           </div>
 
-          {/* Footer */}
+          {/* Footer (Sichtbar, wenn Artikel im Warenkorb liegen) */}
           {cart.length > 0 && (
-            <div className="p-6 border-t border-zinc-100 bg-zinc-50/50 flex flex-col gap-4">
-              <div className="flex items-center justify-between">
+            <div className="p-6 border-t border-zinc-100 bg-zinc-50/50 flex flex-col gap-3">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Gesamtsumme:</span>
                 <span className="text-lg font-black text-zinc-950">{cartTotal.toFixed(2)} €</span>
               </div>
-              <button className="w-full bg-blue-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-xs flex items-center justify-center gap-2">
+              
+              {/* Zur Kasse Button als Next.js Link */}
+              <Link 
+                href="/checkout" 
+                onClick={() => setCartOpen(false)}
+                className="w-full bg-blue-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-xs flex items-center justify-center gap-2 text-center"
+              >
                 Zur Kasse gehen ➔
+              </Link>
+
+              {/* ✨ NEU: Der gewünschte "Weiter einkaufen"-Button */}
+              <button
+                onClick={() => setCartOpen(false)}
+                className="w-full bg-white border border-zinc-200 text-zinc-700 font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-zinc-50 hover:text-zinc-950 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-xs"
+              >
+                ✕ Weiter einkaufen
               </button>
             </div>
           )}

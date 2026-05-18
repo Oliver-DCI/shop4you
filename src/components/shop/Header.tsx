@@ -1,7 +1,7 @@
 // src/components/shop/Header.tsx
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '@/store/cartStore';
@@ -11,25 +11,51 @@ export default function Header() {
   const searchParams = useSearchParams();
   const { setCartOpen, cartCount } = useCart();
 
-  // Aktuelle Kategorie aus URL ermitteln
-  const currentCategory = searchParams.get('category') || 'Alle Hardware';
+  // Suchzustand lokal verwalten
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
-  // Festgelegte Tech-Kategorien im toom-Style
+  // Wenn sich die URL von außen ändert (z.B. Zurück-Button), Input synchronisieren
+  useEffect(() => {
+    setSearchQuery(searchParams.get('search') || '');
+  }, [searchParams]);
+
+  const currentCategory = searchParams.get('category') || 'Alle Hardware';
   const categories = ['Alle Hardware', 'Notebooks', 'Smartphones', 'Tablets', 'Komponenten', 'Zubehör'];
 
-  const handleCategoryChange = (category: string) => {
-    if (category === 'Alle Hardware') {
-      router.push('/');
+  // Such-Handler beim Abschicken (Enter)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (searchQuery.trim()) {
+      params.set('search', searchQuery.trim());
     } else {
-      router.push(`/?category=${encodeURIComponent(category)}`);
+      params.delete('search');
     }
+    
+    // Zurück zur Startseite mit den neuen Such-Parametern
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    // Bei Kategorie-Wechsel löschen wir die Suche, um Verwirrung zu vermeiden
+    params.delete('search');
+
+    if (category === 'Alle Hardware') {
+      params.delete('category');
+    } else {
+      params.set('category', category);
+    }
+    
+    router.push(`/?${params.toString()}`);
   };
 
   return (
-    /* ✨ bg-white/80 und backdrop-blur-xl sorgen hier für den edlen Glas-Effekt beim Scrollen */
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200/80 bg-white/80 backdrop-blur-xl shadow-xs">
       
-      {/* OBERE EBENE: Logo, Suche, Kasse (Auf bg-transparent geändert, um den Glas-Effekt nicht zu blockieren) */}
+      {/* OBERE EBENE: Logo, Suche, Kasse */}
       <div className="bg-transparent">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-8">
           
@@ -41,19 +67,21 @@ export default function Header() {
             <span className="text-blue-600 font-serif lowercase">.</span>
           </Link>
 
-          {/* Suchleiste */}
-          <div className="flex-1 max-w-2xl hidden md:block">
+          {/* ✨ Suchleiste: Jetzt als Formular eingebunden */}
+          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl hidden md:block">
             <div className="relative">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Suchen Sie nach High-End Laptops, Tablets, Smartphones..."
                 className="w-full h-11 pl-4 pr-11 rounded-xl border border-zinc-200 bg-zinc-50/50 text-xs font-medium placeholder-zinc-400 focus:outline-hidden focus:border-blue-500/50 focus:bg-white focus:shadow-[0_0_15px_rgba(37,99,235,0.05)] transition-all"
               />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs pointer-events-none opacity-60">
+              <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-xs opacity-60 hover:opacity-100 transition-opacity">
                 🔍
-              </div>
+              </button>
             </div>
-          </div>
+          </form>
 
           {/* Rechte Aktionen */}
           <div className="flex items-center gap-4 shrink-0">
@@ -80,7 +108,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* UNTERE EBENE: Zentrierte Filter-Navigationsleiste (Ebenfalls bg-transparent für den vollen Durchblick) */}
+      {/* UNTERE EBENE: Zentrierte Filter-Navigationsleiste */}
       <div className="bg-transparent block">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-center overflow-x-auto scrollbar-none gap-2">
           {categories.map((cat) => {
