@@ -17,3 +17,22 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ✨ Maßgeschneiderte High-Tech Animationen für das Tablet-Mockup (Tailwind v4 ready) */
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 150%; }
+}
+
+@keyframes infinite-scroll {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@utility animate-shine {
+  animation: shine 2s infinite ease-in-out;
+}
+
+@utility animate-infinite-scroll {
+  animation: infinite-scroll 2.5s infinite linear;
+}
