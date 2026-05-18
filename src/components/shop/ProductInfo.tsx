@@ -1,44 +1,64 @@
+// src/components/shop/ProductInfo.tsx
 'use client';
 
-export default function ProductInfo({ product }: { product: any }) {
-  
-  const handleAddToCart = () => {
-    // Das verknüpfen wir gleich mit Zustand!
-    alert(`${product.title} wurde dem Warenkorb hinzugefügt!`);
-  };
+import React from 'react';
 
+interface ProductInfoProps {
+  product: {
+    title: string;
+    description: string;
+    price: number;
+    category: string;
+  };
+}
+
+export default function ProductInfo({ product }: ProductInfoProps) {
   return (
-    <div className="flex flex-col justify-between py-2">
-      <div>
-        <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">{product.category}</span>
-        <h1 className="text-4xl font-bold tracking-tight mt-2 text-zinc-950 dark:text-zinc-50">{product.title}</h1>
+    <div className="flex flex-col justify-between h-full py-2">
+      
+      {/* Oberer Block: Meta & Content */}
+      <div className="flex flex-col gap-4">
+        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md self-start shadow-xs">
+          {product.category}
+        </span>
         
-        <p className="text-2xl font-medium mt-4 text-zinc-900 dark:text-zinc-100">
-          {product.price.toFixed(2)} €
-        </p>
+        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-950 uppercase">
+          {product.title}
+        </h1>
         
-        <hr className="my-6 border-zinc-200 dark:border-zinc-800" />
-        
-        <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+        <p className="text-sm text-zinc-600 leading-relaxed font-medium mt-2">
           {product.description}
         </p>
       </div>
 
-      <div className="mt-8 flex flex-col gap-4">
-        {/* Verfügbarkeits-Indikator (Modern & Dezent) */}
-        <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-          <span className="h-2 w-2 rounded-full bg-green-600 dark:bg-green-400 animate-pulse" />
-          {product.stock} Stück auf Lager – Sofort lieferbar
+      {/* Unterer Block: Preis, Status & Action (Klassische toom-Struktur in Modern) */}
+      <div className="mt-8 pt-8 border-t border-zinc-200/80 flex flex-col gap-6">
+        
+        {/* Preisanzeige */}
+        <div className="bg-gradient-to-r from-blue-50/50 to-cyan-50/30 p-6 rounded-2xl border border-blue-100 flex items-baseline justify-between">
+          <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Unverbindliche Preisempfehlung:</span>
+          <span className="text-3xl font-black text-zinc-950 tracking-tight">
+            {product.price.toFixed(2)} €
+          </span>
         </div>
 
-        {/* 2026 High-End Button */}
-        <button 
-          onClick={handleAddToCart}
-          className="w-full bg-zinc-950 hover:bg-zinc-800 dark:bg-zinc-50 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 font-medium py-4 px-6 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-lg hover:shadow-xl"
-        >
-          In den Warenkorb legen
+        {/* Status-Indikator */}
+        <div className="flex items-center gap-2.5 bg-white border border-zinc-200 px-4 py-3 rounded-xl shadow-xs">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="text-xs font-bold text-zinc-700">
+            Sofort lieferbar – Online bestellen & blitzschnell erhalten
+          </span>
+        </div>
+
+        {/* Der massive, eisblaue Warenkorb-Button */}
+        <button className="w-full h-12 rounded-xl bg-blue-600 text-white font-black hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/10 tracking-wider text-sm uppercase">
+          <span>🛒</span> IN DEN WARENKORB LEGEN
         </button>
       </div>
+
     </div>
   );
 }
