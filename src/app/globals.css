@@ -1,8 +1,10 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #09090b; /* Ein edles, sehr dunkles Anthrazit statt hartem Tiefschwarz */
+  /* 🔐 Hier setzen wir die systemweiten Standardfarben auf MATTES Dunkel */
+  --background: #09090b; /* Entspricht zinc-950 (mattes Cyber-Schwarz) */
+  --foreground: #f4f4f5; /* Entspricht zinc-100 (angenehmes Weiß) */
 }
 
 @theme inline {
@@ -13,9 +15,9 @@
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
 /* ✨ Maßgeschneiderte High-Tech Animationen für das Tablet-Mockup (Tailwind v4 ready) */

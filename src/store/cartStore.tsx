@@ -17,11 +17,18 @@ interface CartStoreType {
   isCartOpen: boolean;
   setCartOpen: (open: boolean) => void;
   addToCart: (product: { id: string; title: string; price: number; images: string[]; category: string }) => void;
-  updateQuantity: (id: string, newQuantity: number) => void; // ✨ Neu
+  updateQuantity: (id: string, newQuantity: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
+  
+  // 🔐 HIER SIND DIE NEUEN FUNKTIONEN FÜR DEN LOGIN:
+  authOpen: boolean;
+  setAuthOpen: (open: boolean) => void;
+  // ✨ HIER ERWEITERT: 'admin' hinzugefügt
+  user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null;
+  setUser: (user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null) => void;
 }
 
 const CartStoreContext = createContext<CartStoreType | undefined>(undefined);
@@ -29,6 +36,12 @@ const CartStoreContext = createContext<CartStoreType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
+  
+  // 🔐 Hier speichern wir, ob das Login-Fenster offen ist und wer eingeloggt ist
+  const [authOpen, setAuthOpen] = useState(false);
+  
+  // ✨ HIER EBENSO ERWEITERT: Dem useState mitgeteilt, dass auch 'admin' erlaubt ist
+  const [user, setUser] = useState<{ firstName: string; role: 'customer' | 'seller' | 'admin' } | null>(null);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('shop4you_cart');
@@ -48,7 +61,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (product: { id: string; title: string; price: number; images: string[]; category: string }) => {
     const existingItem = cart.find((item) => item.id === product.id);
-    
     let updatedCart: CartItem[];
     if (existingItem) {
       updatedCart = cart.map((item) =>
@@ -67,12 +79,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
       ];
     }
-    
     saveCart(updatedCart);
     setCartOpen(true);
   };
 
-  // ✨ Neu: Erhöhen / Verringern Logik
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeFromCart(id);
@@ -89,12 +99,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     saveCart(updatedCart);
   };
 
-  const clearCart = () => {
-    saveCart([]);
-  };
+  const clearCart = () => saveCart([]);
 
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const count = cart.reduce((totalCount, item) => totalCount + item.quantity, 0);
 
   return (
     <CartStoreContext.Provider
@@ -103,11 +111,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         isCartOpen,
         setCartOpen,
         addToCart,
-        updateQuantity, // ✨ Neu
+        updateQuantity,
         removeFromCart,
         clearCart,
         cartTotal,
-        cartCount,
+        cartCount: count,
+        // 🔐 Diese Werte geben wir nach außen weiter:
+        authOpen,
+        setAuthOpen,
+        user,
+        setUser
       }}
     >
       {children}
