@@ -92,7 +92,7 @@ export default function SellerDashboardPage() {
             onClick={() => router.push('/')}
             className="bg-white border border-zinc-200 hover:border-black text-black font-normal text-xs uppercase tracking-widest px-5 py-3 rounded-none transition-colors cursor-pointer"
           >
-            ← Zum Shopfront
+            ← Zum Shop
           </button>
         </div>
 

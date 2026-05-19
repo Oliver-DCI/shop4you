@@ -39,15 +39,19 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
-      <div className="max-w-[1400px] mx-auto px-4 h-20 flex items-center justify-between gap-8">
+      
+      {/* Haupt-Header: 3-Spalten Grid für perfekte Symmetrie */}
+      <div className="max-w-[1400px] mx-auto px-4 h-20 grid grid-cols-3 items-center gap-4">
         
-        {/* Brand: Monochrom, flach und geometrisch */}
-        <Link href="/" className="text-2xl font-normal tracking-widest uppercase select-none text-black">
-          SHOP<span className="font-light text-zinc-400">4YOU</span>
-        </Link>
+        {/* Brand (Links) */}
+        <div className="flex justify-start">
+          <Link href="/" className="text-2xl font-normal tracking-widest uppercase select-none text-black">
+            SHOP<span className="font-light text-zinc-400">4YOU</span>
+          </Link>
+        </div>
 
-        {/* Suchfeld: Streng eckig ohne Glaseffekte */}
-        <div className="flex-1 max-w-2xl hidden md:block">
+        {/* Suchfeld (Mitte) */}
+        <div className="w-full hidden md:block">
           <div className="relative">
             <input
               type="text"
@@ -60,15 +64,47 @@ export default function Header() {
           </div>
         </div>
 
-        {/* User & Actions */}
-        <div className="flex items-center gap-4 shrink-0">
+        {/* User & Actions (Rechts) */}
+        <div className="flex items-center justify-end gap-4">
           {user ? (
-            <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 px-3 py-2 rounded-none">
-              <span className="text-[11px] font-medium text-black uppercase tracking-wider flex items-center gap-1">
-                {user.firstName} <span className="text-[10px] text-zinc-400 font-light">[{user.role}]</span>
-              </span>
-              <div className="w-px h-3 bg-zinc-200" />
-              <button onClick={logout} className="text-[10px] text-black uppercase font-medium hover:text-zinc-500 transition-colors cursor-pointer tracking-wider">Logout</button>
+            <div className="flex items-center gap-3 bg-white border border-zinc-200 p-1.5 rounded-none">
+              
+              {/* 🎯 Initialen-Badge als Link zum Profil */}
+              <Link 
+                href="/account/profile"
+                className="w-8 h-8 bg-black text-white flex items-center justify-center text-[11px] font-mono font-normal tracking-tighter select-none rounded-none hover:bg-zinc-800 transition-colors"
+                title="Zum persönlichen Profil"
+              >
+                {user.firstName.charAt(0).toUpperCase()}
+                {user.role.charAt(0).toUpperCase()}
+              </Link>
+
+              {/* Status & Dashboard-Shortcut */}
+              <div className="flex items-center gap-2 pr-1.5">
+                <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest hidden sm:inline">
+                  [{user.role}]
+                </span>
+
+                {(user.role === 'seller' || user.role === 'admin') && (
+                  <>
+                    <div className="w-px h-3 bg-zinc-200" />
+                    <Link 
+                      href={user.role === 'admin' ? '/admin' : '/seller/dashboard'}
+                      className="text-[10px] text-black font-bold uppercase tracking-wider hover:underline underline-offset-4"
+                    >
+                      Dashboard
+                    </Link>
+                  </>
+                )}
+
+                <div className="w-px h-3 bg-zinc-200" />
+                <button 
+                  onClick={logout} 
+                  className="text-[10px] text-zinc-500 uppercase font-medium hover:text-black transition-colors cursor-pointer tracking-wider"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           ) : (
             <Link 
@@ -81,7 +117,7 @@ export default function Header() {
           
           <div className="h-4 w-px bg-zinc-200 hidden sm:block" />
 
-          {/* Warenkorb-Trigger: Eckige Box */}
+          {/* Warenkorb-Trigger */}
           <button onClick={() => setCartOpen(true)} className="relative h-11 w-11 flex items-center justify-center rounded-none border border-zinc-200 bg-white transition-colors hover:bg-zinc-50 hover:border-black cursor-pointer">
             <span className="text-sm">🛒</span>
             {cartCount > 0 && (
@@ -93,7 +129,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Kategorienleiste: Trennstrich (border-t) wurde erfolgreich entfernt ✨ */}
+      {/* Kategorienleiste */}
       <div className="bg-white">
         <div className="max-w-[1400px] mx-auto px-4 h-12 flex items-center justify-center overflow-x-auto gap-1">
           {categories.map((cat) => (
@@ -118,3 +154,4 @@ export default function Header() {
     </header>
   );
 }
+
