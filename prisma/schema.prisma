@@ -1,11 +1,31 @@
+// prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
-  // url entfällt hier komplett!
+  // ⚡ FIX: Das 'url' Feld entfällt hier in Prisma 7 komplett!
 }
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"] // Aktiviert den modernen Adapter-Modus
+  previewFeatures = ["driverAdapters"]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String   
+  role      String   @default("customer") // "customer", "seller", "admin"
+  
+  street    String?
+  zipCode   String?
+  city      String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  Product[]
 }
 
 model Product {
@@ -18,5 +38,7 @@ model Product {
   stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
   sellerId    String?
+  seller      User?    @relation(fields: [sellerId], references: [id], onDelete: SetNull)
 }

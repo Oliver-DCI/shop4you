@@ -1,4 +1,3 @@
-// src/app/(auth)/login/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -17,23 +16,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // 🔀 States für die Rollen-Weichen
   const [showSellerWeiche, setShowSellerWeiche] = useState(false);
   const [showAdminWeiche, setShowAdminWeiche] = useState(false);
+  const [authenticatedUser, setAuthenticatedUser] = useState<any>(null);
 
   useEffect(() => {
-    if (urlEmail) {
-      setEmail(urlEmail);
-      const stored = localStorage.getItem(`user_${urlEmail}`);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setPassword(parsed.password || '');
-      }
-    }
+    if (urlEmail) setEmail(urlEmail);
   }, [urlEmail]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -42,73 +35,68 @@ export default function LoginPage() {
       return;
     }
 
-    // 1. 👑 CHECK: Ist es der Admin?
-    if (email === 'admin@shop4you.de' && password === 'admin') {
-      const adminUser = { firstName: 'Admin', role: 'admin' };
-      localStorage.setItem('active_user', JSON.stringify(adminUser));
-      setUser({ firstName: 'Admin', role: 'admin' });
-      
-      // Admin-Weiche zünden!
-      setShowAdminWeiche(true);
-      return;
-    }
+    setLoading(true);
 
-    // 2. 👤 CHECK: Normale registrierte User (Kunden & Verkäufer)
-    const stored = localStorage.getItem(`user_${email}`);
-    if (stored) {
-      const parsedUser = JSON.parse(stored);
-      if (parsedUser.password === password) {
-        localStorage.setItem('active_user', JSON.stringify(parsedUser));
-        setUser({ firstName: parsedUser.firstName, role: parsedUser.role });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-        // Wenn Rolle Verkäufer ist -> Händler-Weiche
-        if (parsedUser.role === 'seller') {
-          setShowSellerWeiche(true);
-        } else {
-          router.push('/'); // Kunden gehen direkt shoppen
-        }
-        return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Login fehlgeschlagen.');
       }
-    }
 
-    setErrorMsg('Ungültige E-Mail-Adresse oder falsches Passwort.');
+      localStorage.setItem('active_user', JSON.stringify(data.user));
+      setUser({ firstName: data.user.firstName, role: data.user.role });
+      setAuthenticatedUser(data.user);
+
+      if (data.user.role === 'admin') {
+        setShowAdminWeiche(true);
+      } else if (data.user.role === 'seller') {
+        setShowSellerWeiche(true);
+      } else {
+        router.push('/');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // ==========================================
-  // 🔮 MODAL 1: DIE ADMIN-WEICHE (Heller SaaS-Style)
+  // MODAL 1: DIE ADMIN-WEICHE (Eckiges Studio-Design, kein Blur)
   // ==========================================
   if (showAdminWeiche) {
     return (
-      <div className="fixed inset-0 bg-black/10 backdrop-blur-md flex items-center justify-center p-4 z-50">
-        <div className="light-glass border border-white/80 p-8 rounded-3xl max-w-sm w-full text-center shadow-xl flex flex-col gap-6 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-          <div className="w-12 h-12 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751A11.956 11.956 0 0112 2.714z" />
-            </svg>
-          </div>
+      <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50">
+        <div className="bg-white border border-zinc-200 p-8 rounded-none max-w-sm w-full text-left shadow-xl flex flex-col gap-6">
           <div>
-            <h2 className="text-lg font-black uppercase text-zinc-900 tracking-tight">Scope: Administrator</h2>
-            <p className="text-[11px] text-zinc-500 mt-1 leading-relaxed">Wähle deine Ziel-Umgebung für diese Session:</p>
+            <h2 className="text-lg font-normal text-black uppercase tracking-widest">Scope: Administrator</h2>
+            <p className="text-xs text-zinc-400 mt-1 font-mono">{authenticatedUser?.email}</p>
           </div>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             <button 
               onClick={() => router.push('/admin')} 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase py-3.5 rounded-xl transition-all shadow-sm cursor-pointer"
+              className="w-full bg-black hover:bg-zinc-900 text-white text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none"
             >
               Zur Admin-Zentrale
             </button>
             <button 
               onClick={() => router.push('/seller/dashboard')} 
-              className="w-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[11px] font-black uppercase py-3.5 rounded-xl transition-all border border-zinc-200 cursor-pointer"
+              className="w-full bg-zinc-100 hover:bg-zinc-200 text-black text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none"
             >
               Händler-Dashboard testen
             </button>
             <button 
               onClick={() => router.push('/')} 
-              className="w-full bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 text-[11px] font-black uppercase py-3.5 rounded-xl transition-all cursor-pointer"
+              className="w-full bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none"
             >
-              Zum Storefront (Live-Ansicht)
+              Zum Storefront
             </button>
           </div>
         </div>
@@ -117,32 +105,26 @@ export default function LoginPage() {
   }
 
   // ==========================================
-  // 💼 MODAL 2: DIE SELLER-WEICHE (Heller SaaS-Style)
+  // MODAL 2: DIE SELLER-WEICHE (Eckiges Studio-Design, kein Blur)
   // ==========================================
   if (showSellerWeiche) {
     return (
-      <div className="fixed inset-0 bg-black/10 backdrop-blur-md flex items-center justify-center p-4 z-50">
-        <div className="light-glass border border-white/80 p-8 rounded-3xl max-w-sm w-full text-center shadow-xl flex flex-col gap-6 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
-          <div className="w-12 h-12 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v14.25M2.25 11.25h3m-.75 3h7.5M21 21v-7.5m0 0H18m3 0h-2.25m0 0h-3m3 0V9M3 3h10.5M3 7h10.5M13.5 3v14.25" />
-            </svg>
-          </div>
+      <div className="fixed inset-0 bg-black/20 flex items-center justify-center p-4 z-50">
+        <div className="bg-white border border-zinc-200 p-8 rounded-none max-w-sm w-full text-left shadow-xl flex flex-col gap-6">
           <div>
-            <h2 className="text-lg font-black uppercase text-zinc-900 tracking-tight">Rolle erkannt: Verkäufer</h2>
-            <p className="text-[11px] text-zinc-500 mt-1 leading-relaxed">Wohin möchtest du verzweigen?</p>
+            <h2 className="text-lg font-normal text-black uppercase tracking-widest">Rolle: Verkäufer</h2>
+            <p className="text-xs text-zinc-400 mt-1 font-mono">{authenticatedUser?.email}</p>
           </div>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             <button 
               onClick={() => router.push('/seller/dashboard')} 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-black uppercase py-3.5 rounded-xl transition-all shadow-sm cursor-pointer"
+              className="w-full bg-black hover:bg-zinc-900 text-white text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none"
             >
               Zum Händler-Dashboard
             </button>
             <button 
               onClick={() => router.push('/')} 
-              className="w-full bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 text-[11px] font-black uppercase py-3.5 rounded-xl transition-all cursor-pointer"
+              className="w-full bg-zinc-100 hover:bg-zinc-200 text-black text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none"
             >
               Normal im Shop stöbern
             </button>
@@ -153,81 +135,66 @@ export default function LoginPage() {
   }
 
   // ==========================================
-  // 📝 LIGHT MODE LOGIN FORMULAR (Glass-Edition)
+  // MAIN FORMULAR
   // ==========================================
   return (
-    /* 🛍️ Äußerer Container komplett transparent-weiß mit blur, um den Shop durchscheinen zu lassen */
-    <div className="min-h-[calc(100vh-5rem)] w-full flex items-center justify-center p-6 shop-overlay-blur relative">
-      
-      {/* Sanfte Hintergrund-Lichtquellen innerhalb des Overlays */}
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-blue-200/20 rounded-full filter blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-indigo-200/15 rounded-full filter blur-[80px] pointer-events-none" />
-
-      {/* Das Login-Formulardiv selbst bleibt massiv & deckend geschützt durch light-glass */}
-      <div className="max-w-md w-full light-glass border border-white/80 p-8 rounded-3xl shadow-xl flex flex-col gap-6 text-zinc-800 relative z-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50">
+      <div className="max-w-md w-full bg-white border border-zinc-200 p-10 rounded-none shadow-sm flex flex-col gap-8 text-black relative z-10">
         
-        <div className="text-center flex flex-col gap-2">
-          <h1 className="text-2xl font-black uppercase tracking-tight text-zinc-900 select-none">
-            Willkommen zurück
+        <div className="text-left flex flex-col gap-1">
+          <h1 className="text-xl font-normal uppercase tracking-widest text-black">
+            Anmelden
           </h1>
-          <p className="text-xs text-zinc-500 leading-relaxed font-medium">
-            Logge dich ein, um deine Bestellungen oder Produkte zu verwalten
+          <p className="text-xs text-zinc-400 font-normal">
+            Nutze deine shop4you ID, um fortzufahren.
           </p>
         </div>
 
         {urlEmail && !errorMsg && (
-          <div className="p-3 bg-green-50 text-green-700 border border-green-200 rounded-xl text-center text-[11px] font-black uppercase tracking-wider shadow-inner">
-            🎉 Registrierung erfolgreich! Bitte bestätige dein Login.
+          <div className="p-3 bg-zinc-50 text-black border-l border-black text-xs font-normal rounded-none">
+            Registrierung erfolgreich! Bitte logge dich jetzt ein.
           </div>
         )}
 
         {errorMsg && (
-          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-center text-xs font-semibold">
+          <div className="p-3 bg-zinc-50 text-black border-l border-black text-xs font-normal rounded-none">
             {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
+        <form onSubmit={handleLogin} className="flex flex-col gap-5">
           
-          {/* E-Mail Input */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">E-Mail-Adresse</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">E-Mail-Adresse</label>
             <input 
               required 
               type="email" 
+              disabled={loading}
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
-              placeholder="max@mustermann.de" 
-              className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" 
+              className="w-full h-12 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors placeholder-zinc-300" 
             />
           </div>
           
-          {/* Passwort Input & "Passwort vergessen?" */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Passwort</label>
-              
-              <Link 
-                href="/forgot-password" 
-                className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 hover:text-blue-600 transition-colors"
-              >
-                Passwort vergessen?
-              </Link>
+              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Passwort</label>
+              <Link href="/forgot-password" className="text-[10px] font-normal text-zinc-400 hover:text-black underline transition-colors tracking-widest uppercase">Vergessen?</Link>
             </div>
             
             <div className="relative">
               <input 
                 required 
                 type={showPassword ? 'text' : 'password'} 
+                disabled={loading}
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••" 
-                className="w-full h-11 border border-zinc-200 rounded-xl pl-4 pr-11 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 shadow-sm" 
+                className="w-full h-12 border border-zinc-200 rounded-none pl-4 pr-11 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" 
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-blue-600 transition-colors p-1 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-black transition-colors p-1 cursor-pointer"
                 aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
               >
                 {showPassword ? (
@@ -244,19 +211,18 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider py-4 rounded-xl mt-4 transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+            disabled={loading}
+            className="w-full bg-black hover:bg-zinc-900 text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none mt-4 transition-colors disabled:bg-zinc-400 cursor-pointer"
           >
-            Einloggen ➔
+            {loading ? 'PRÜFE ID...' : 'WEITER →'}
           </button>
         </form>
 
-        {/* Footer-Wechsel */}
-        <div className="text-center border-t border-zinc-200/80 pt-4">
-          <Link href="/register" className="text-[11px] text-zinc-500 hover:text-zinc-800 transition-colors font-medium">
-            Noch kein Konto? <span className="text-blue-600 font-black underline underline-offset-4 decoration-2">Hier registrieren</span>
+        <div className="text-left border-t border-zinc-200 pt-6">
+          <Link href="/register" className="text-xs text-zinc-400 hover:text-black transition-colors font-normal">
+            Noch keine shop4you ID? <span className="text-black font-medium underline underline-offset-4">Hier erstellen</span>
           </Link>
         </div>
       </div>

@@ -1,8 +1,6 @@
-// src/components/shop/CartDrawer.tsx
 'use client';
 
 import React from 'react';
-/* ✨ FIX: Pfad auf den neuen Context angepasst, um Abstürze zu verhindern */
 import { useCart } from '@/context/cartContext';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,33 +12,27 @@ export default function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop / Hintergrund-Abdunkelung */}
+      {/* Backdrop ohne Blur, rein minimalistische Abdunkelung */}
       <div 
-        className="absolute inset-0 bg-zinc-950/40 backdrop-blur-xs transition-opacity duration-300"
+        className="absolute inset-0 bg-black/20 transition-opacity"
         onClick={() => setCartOpen(false)}
       />
 
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        {/* 🛒 HELLES PANEL MIT SUBTILEM WASSERZEICHEN */}
-        <div className="relative w-screen max-w-md bg-white border-l border-zinc-200 flex flex-col shadow-2xl animate-fade-in">
-          
-          {/* Minimalistisches n8n-Punktraster als helles Wasserzeichen (Kaum sichtbar, extrem edel) */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.015] bg-radial-[rgba(0,0,0,1)_1px,transparent_1px] [background-size:20px_20px]" />
-
-          {/* Der eigentliche Inhalt liegt sicher darüber */}
+        <div className="relative w-screen max-w-md bg-white border-l border-zinc-200 flex flex-col rounded-none shadow-xl">
           <div className="relative z-10 flex flex-col h-full">
             
             {/* Header */}
-            <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+            <div className="p-6 border-b border-zinc-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-black uppercase tracking-tight text-zinc-950">Warenkorb</h2>
-                <span className="bg-blue-50 text-blue-600 font-bold text-xs px-2 py-0.5 rounded-md border border-blue-100">
+                <h2 className="text-sm font-normal uppercase tracking-widest text-black">Warenkorb</h2>
+                <span className="bg-zinc-100 text-black font-medium text-[10px] px-2 py-0.5 border border-zinc-300 rounded-none">
                   {cartCount}
                 </span>
               </div>
               <button 
                 onClick={() => setCartOpen(false)}
-                className="h-8 w-8 rounded-lg border border-zinc-200 text-zinc-400 hover:text-zinc-950 flex items-center justify-center font-bold text-sm transition-colors"
+                className="h-8 w-8 rounded-none border border-zinc-200 text-zinc-400 hover:text-black flex items-center justify-center font-normal text-xs transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -50,50 +42,44 @@ export default function CartDrawer() {
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               {cart.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-zinc-400 text-center gap-2">
-                  <span className="text-3xl">🛒</span>
-                  <p className="text-xs font-medium uppercase tracking-wider">Dein Warenkorb ist leer</p>
+                  <p className="text-xs font-normal uppercase tracking-widest">Warenkorb leer</p>
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.id} className="flex gap-4 p-3 rounded-xl border border-zinc-100 bg-zinc-50/50 items-center justify-between">
-                    {/* Bild */}
-                    <div className="relative h-14 w-14 rounded-lg overflow-hidden border border-zinc-200 shrink-0 bg-white">
-                      <Image src={item.image} alt={item.title} fill className="object-cover" />
+                  <div key={item.id} className="flex gap-4 p-3 rounded-none border border-zinc-200 bg-white items-center justify-between">
+                    <div className="relative h-14 w-14 rounded-none overflow-hidden border border-zinc-200 shrink-0 bg-zinc-50">
+                      <Image src={item.image} alt={item.title} fill className="object-cover grayscale" />
                     </div>
                     
-                    {/* Content & Mengenregler */}
                     <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                       <div>
-                        <span className="text-[9px] font-bold text-blue-600 uppercase tracking-widest block">{item.category}</span>
-                        <h4 className="text-xs font-black text-zinc-950 truncate uppercase tracking-tight">{item.title}</h4>
-                        <p className="text-[10px] text-zinc-400 font-bold mt-0.5">{(item.price * item.quantity).toFixed(2)} €</p>
+                        <span className="text-[9px] font-medium text-zinc-400 uppercase tracking-widest block">{item.category}</span>
+                        <h4 className="text-xs font-normal text-black truncate uppercase tracking-wider">{item.title}</h4>
+                        <p className="text-[10px] text-zinc-500 font-medium mt-0.5">{item.price.toFixed(2)} €</p>
                       </div>
 
-                      {/* Kompakter + / - Mengenwähler */}
                       <div className="flex items-center gap-1">
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="h-5 w-5 rounded bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 active:bg-zinc-100 flex items-center justify-center text-xs font-bold transition-colors"
+                          className="h-5 w-5 rounded-none bg-zinc-50 border border-zinc-200 text-black hover:bg-zinc-100 flex items-center justify-center text-xs transition-colors"
                         >
                           -
                         </button>
-                        <span className="text-[11px] font-black text-zinc-950 w-6 text-center">
+                        <span className="text-xs font-medium text-black w-6 text-center">
                           {item.quantity}
                         </span>
                         <button 
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="h-5 w-5 rounded bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50 active:bg-zinc-100 flex items-center justify-center text-xs font-bold transition-colors"
+                          className="h-5 w-5 rounded-none bg-zinc-50 border border-zinc-200 text-black hover:bg-zinc-100 flex items-center justify-center text-xs transition-colors"
                         >
                           +
                         </button>
                       </div>
                     </div>
 
-                    {/* Löschen Kreuz */}
                     <button 
                       onClick={() => removeFromCart(item.id)}
-                      className="text-zinc-300 hover:text-red-500 text-[11px] font-bold px-2 py-1 transition-colors self-start"
-                      title="Artikel entfernen"
+                      className="text-zinc-300 hover:text-black text-xs font-normal px-2 py-1 transition-colors self-start cursor-pointer"
                     >
                       ✕
                     </button>
@@ -104,25 +90,25 @@ export default function CartDrawer() {
 
             {/* Footer */}
             {cart.length > 0 && (
-              <div className="p-6 border-t border-zinc-100 bg-zinc-50/50 flex flex-col gap-3">
+              <div className="p-6 border-t border-zinc-200 bg-zinc-50 flex flex-col gap-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Gesamtsumme:</span>
-                  <span className="text-lg font-black text-zinc-950">{cartTotal.toFixed(2)} €</span>
+                  <span className="text-xs font-normal text-zinc-500 uppercase tracking-widest">Gesamtsumme:</span>
+                  <span className="text-base font-normal text-black tracking-tight">{cartTotal.toFixed(2)} €</span>
                 </div>
                 
                 <Link 
                   href="/checkout" 
                   onClick={() => setCartOpen(false)}
-                  className="w-full bg-blue-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-xs flex items-center justify-center gap-2 text-center"
+                  className="w-full bg-black text-white font-normal text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors text-center"
                 >
-                  Zur Kasse gehen ➔
+                  Zur Kasse gehen →
                 </Link>
 
                 <button
                   onClick={() => setCartOpen(false)}
-                  className="w-full bg-white border border-zinc-200 text-zinc-700 font-bold text-xs uppercase tracking-wider py-3 rounded-xl hover:bg-zinc-50 hover:text-zinc-950 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full bg-white border border-zinc-200 text-zinc-600 font-normal text-xs uppercase tracking-widest py-3 rounded-none hover:bg-zinc-50 hover:text-black transition-colors cursor-pointer"
                 >
-                  ✕ Weiter einkaufen
+                  ✕ Schließen
                 </button>
               </div>
             )}

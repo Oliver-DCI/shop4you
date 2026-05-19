@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "shop4you - Next-Gen Commerce",
-  description: "Der modernste E-Commerce Store im Jahr 2026",
+  title: "shop4you | Premium Tech Showcase",
+  description: "Minimalistischer High-End E-Commerce Store",
 };
 
 export default function RootLayout({
@@ -30,23 +30,22 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased selection:bg-black selection:text-white`}
     >
-      {/* ✨ FIX: bg-white und text-zinc-950 als Standard für den Shop gesetzt. suppressHydrationWarning bleibt aktiv. */}
-      <body className="min-h-full flex flex-col bg-white text-zinc-950" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-white text-black rounded-none" suppressHydrationWarning>
         <CartProvider>
-          {/* Globaler Header oben (Passt sich dank seiner Klassen perfekt an) */}
+          {/* Globaler Header (wird im eckigen Samsung-Stil rendern) */}
           <Header />
           
-          {/* ✨ FIX: Hintergrund-Zwang entfernt, damit Pages (wie Login) ihr eigenes n8n-Theme entfalten können */}
-          <main className="flex-1 w-full">
+          {/* Hauptinhalt nimmt die volle Breite ohne störende Abrundungen */}
+          <main className="flex-1 w-full flex flex-col">
             {children}
           </main>
           
-          {/* Globaler Footer unten */}
+          {/* Globaler Footer */}
           <Footer />
 
-          {/* Der von rechts hereinfliegende Warenkorb */}
+          {/* Warenkorb-Drawer */}
           <CartDrawer />
         </CartProvider>
       </body>

@@ -1,4 +1,3 @@
-// src/app/(auth)/register/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -20,8 +19,9 @@ export default function RegisterPage() {
   
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -30,49 +30,70 @@ export default function RegisterPage() {
       return;
     }
 
-    const userData = { firstName, lastName, email, password, role, street, zipCode, city };
-    localStorage.setItem(`user_${email}`, JSON.stringify(userData));
+    setLoading(true);
 
-    router.push(`/login?email=${encodeURIComponent(email)}`);
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+          role,
+          street,
+          zipCode,
+          city,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Registrierung fehlgeschlagen.');
+      }
+
+      router.push(`/login?email=${encodeURIComponent(email)}`);
+    } catch (err: any) {
+      setErrorMsg(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    /* 🛍️ Äußerer Container komplett transparent-weiß mit blur, um den Shop im Hintergrund durchscheinen zu lassen */
-    <div className="min-h-[calc(100vh-5rem)] w-full flex items-center justify-center p-6 shop-overlay-blur relative">
-      
-      {/* Helle Hintergrund-Glows innerhalb des Overlays */}
-      <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-blue-200/20 rounded-full filter blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-indigo-200/15 rounded-full filter blur-[90px] pointer-events-none" />
-
-      {/* 🔮 Die eigentliche Registrierungskarte bleibt massiv & deckend geschützt durch light-glass */}
-      <div className="max-w-xl w-full light-glass border border-white/80 p-8 rounded-3xl shadow-xl flex flex-col gap-6 text-zinc-800 relative z-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50 overflow-y-auto">
+      <div className="max-w-xl w-full bg-white border border-zinc-200 p-10 rounded-none shadow-sm flex flex-col gap-6 text-black my-auto relative z-10">
         
-        <div className="text-center">
-          <h1 className="text-2xl font-black uppercase tracking-tight text-zinc-900 select-none">
+        <div className="text-left">
+          <h1 className="text-xl font-normal uppercase tracking-widest text-black select-none">
             Konto erstellen
           </h1>
-          <p className="text-xs text-zinc-500 mt-1 font-medium">Registrierung als verifizierter Käufer oder Händler</p>
+          <p className="text-xs text-zinc-400 mt-1 font-normal">Registrierung als verifizierter Käufer oder Händler für shop4you</p>
         </div>
 
         {errorMsg && (
-          <div className="p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-center text-xs font-semibold">
+          <div className="p-3 bg-zinc-50 text-black border-l-2 border-black text-xs font-normal rounded-none">
             {errorMsg}
           </div>
         )}
 
-        {/* Helle Rollen-Auswahl */}
-        <div className="grid grid-cols-2 p-1 bg-zinc-100/80 rounded-xl border border-zinc-200">
+        {/* Rollen-Auswahl: Absolut flach und geometrisch */}
+        <div className="grid grid-cols-2 p-0 bg-white rounded-none border border-zinc-200">
           <button 
             type="button" 
+            disabled={loading}
             onClick={() => setRole('customer')} 
-            className={`py-2.5 text-[11px] font-black uppercase rounded-lg transition-all cursor-pointer ${role === 'customer' ? 'bg-blue-600 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'customer' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
           >
             Customer (Käufer)
           </button>
           <button 
             type="button" 
+            disabled={loading}
             onClick={() => setRole('seller')} 
-            className={`py-2.5 text-[11px] font-black uppercase rounded-lg transition-all cursor-pointer ${role === 'seller' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'seller' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
           >
             Seller (Verkäufer)
           </button>
@@ -80,40 +101,39 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
           
-          <h3 className="text-[10px] font-black uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest">1. Persönliche Details</h3>
+          <h3 className="text-[9px] font-medium uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest">1. Persönliche Details</h3>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Vorname</label>
-              <input required type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Max" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Vorname</label>
+              <input required type="text" disabled={loading} value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Nachname</label>
-              <input required type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Mustermann" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Nachname</label>
+              <input required type="text" disabled={loading} value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">E-Mail-Adresse</label>
-            <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="max@mustermann.de" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">E-Mail-Adresse</label>
+            <input required type="email" disabled={loading} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
           </div>
           
-          {/* Passwort Feld mit Auge */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Passwort wählen</label>
+            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Passwort wählen</label>
             <div className="relative">
               <input 
                 required 
                 type={showPassword ? 'text' : 'password'} 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••" 
-                className="w-full h-11 border border-zinc-200 rounded-xl pl-4 pr-11 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 shadow-sm" 
+                disabled={loading}
+                className="w-full h-11 border border-zinc-200 rounded-none pl-4 pr-11 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" 
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-blue-600 transition-colors p-1 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-black transition-colors p-1 cursor-pointer"
                 aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
               >
                 {showPassword ? (
@@ -130,35 +150,36 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <h3 className="text-[10px] font-black uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest mt-2">2. Vollständige Anschrift</h3>
+          <h3 className="text-[9px] font-medium uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest mt-2">2. Anschrift</h3>
           
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Straße & Hausnummer</label>
-            <input required type="text" value={street} onChange={(e) => setStreet(e.target.value)} placeholder="Hauptstraße 12a" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Straße & Hausnummer</label>
+            <input required type="text" disabled={loading} value={street} onChange={(e) => setStreet(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">PLZ</label>
-              <input required type="text" value={zipCode} onChange={(e) => setZipCode(e.target.value)} placeholder="12345" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">PLZ</label>
+              <input required type="text" disabled={loading} value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
             <div className="col-span-2 flex flex-col gap-1.5">
-              <label className="text-[10px] font-black text-zinc-500 uppercase tracking-wider">Stadt / Ort</label>
-              <input required type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Berlin" className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs bg-white text-zinc-900 focus:outline-none focus:border-blue-500 transition-colors placeholder-zinc-400 font-medium shadow-sm" />
+              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Stadt / Ort</label>
+              <input required type="text" disabled={loading} value={city} onChange={(e) => setCity(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
           </div>
 
           <button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider py-4 rounded-xl mt-4 transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+            disabled={loading}
+            className="w-full bg-black hover:bg-zinc-900 text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none mt-4 transition-colors disabled:bg-zinc-400 cursor-pointer"
           >
-            Konto erstellen ➔
+            {loading ? 'ID WIRD ERSTELLT...' : 'ID REGISTRIEREN →'}
           </button>
         </form>
 
-        <div className="text-center border-t border-zinc-200/80 pt-4">
-          <Link href="/login" className="text-[11px] text-zinc-500 hover:text-zinc-800 transition-colors font-medium">
-            Bereits registriert? <span className="text-blue-600 font-black underline underline-offset-4 decoration-2">Hier einloggen</span>
+        <div className="text-left border-t border-zinc-200 pt-4">
+          <Link href="/login" className="text-xs text-zinc-400 hover:text-black transition-colors font-normal">
+            Bereits registriert? <span className="text-black font-medium underline underline-offset-4">Hier einloggen</span>
           </Link>
         </div>
       </div>

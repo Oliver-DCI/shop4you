@@ -1,69 +1,65 @@
-// src/components/shop/ProductInfo.tsx
 'use client';
 
 import React from 'react';
-import { useCart } from '@/context/cartContext'; // ✨ Neu importiert
+import { useCart } from '@/context/cartContext';
 
 interface ProductInfoProps {
   product: {
-    id: string;       // ✨ ID hinzugefügt
+    id: string;
     title: string;
     description: string;
     price: number;
     category: string;
-    images: string[]; // ✨ Images hinzugefügt
+    images: string[];
   };
 }
 
 export default function ProductInfo({ product }: ProductInfoProps) {
-  const { addToCart } = useCart(); // ✨ Holt die globale Hinzufügen-Funktion aus dem Store
+  const { addToCart } = useCart();
 
   return (
-    <div className="flex flex-col justify-between h-full py-2">
+    <div className="flex flex-col justify-between h-full py-2 rounded-none text-black selection:bg-black selection:text-white">
       
       {/* Oberer Block: Meta & Content */}
       <div className="flex flex-col gap-4">
-        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md self-start shadow-xs">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 bg-zinc-100 border border-zinc-200 px-3 py-1.5 rounded-none self-start">
           {product.category}
         </span>
         
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-950 uppercase">
+        <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-black uppercase">
           {product.title}
         </h1>
         
-        <p className="text-sm text-zinc-600 leading-relaxed font-medium mt-2">
+        <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed font-normal mt-2">
           {product.description}
         </p>
       </div>
 
-      {/* Unterer Block: Preis, Status & Action (Klassische toom-Struktur in Modern) */}
-      <div className="mt-8 pt-8 border-t border-zinc-200/80 flex flex-col gap-6">
+      {/* Unterer Block: Preis, Status & Action */}
+      <div className="mt-8 pt-8 border-t border-zinc-200 flex flex-col gap-6">
         
-        {/* Preisanzeige */}
-        <div className="bg-gradient-to-r from-blue-50/50 to-cyan-50/30 p-6 rounded-2xl border border-blue-100 flex items-baseline justify-between">
-          <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Unverbindliche Preisempfehlung:</span>
-          <span className="text-3xl font-black text-zinc-950 tracking-tight">
+        {/* Preisanzeige: Reduziert auf eine feine Box ohne Farbverläufe */}
+        <div className="bg-zinc-50 p-6 rounded-none border border-zinc-200 flex items-baseline justify-between">
+          <span className="text-[11px] font-normal text-zinc-400 uppercase tracking-widest">Unverbindliche Preisempfehlung:</span>
+          <span className="text-3xl font-normal text-black tracking-tight">
             {product.price.toFixed(2)} €
           </span>
         </div>
 
-        {/* Status-Indikator */}
-        <div className="flex items-center gap-2.5 bg-white border border-zinc-200 px-4 py-3 rounded-xl shadow-xs">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="text-xs font-bold text-zinc-700">
-            Sofort lieferbar – Online bestellen & blitzschnell erhalten
+        {/* Status-Indikator: Clean mit einer quadratischen Statusbox */}
+        <div className="flex items-center gap-3 bg-white border border-zinc-200 px-4 py-3 rounded-none">
+          <span className="h-2 w-2 bg-black shrink-0" />
+          <span className="text-xs font-normal text-zinc-600 uppercase tracking-wider">
+            Sofort lieferbar — Online bestellen & blitzschnell erhalten
           </span>
         </div>
 
-        {/* Der massive, eisblaue Warenkorb-Button */}
+        {/* Der massive, schwarze Kauf-Button mit harten Kanten */}
         <button 
-          onClick={() => addToCart(product)} // ✨ Triggert die Warenkorb-Öffnung und fügt das Item hinzu
-          className="w-full h-12 rounded-xl bg-blue-600 text-white font-black hover:bg-blue-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-600/10 tracking-wider text-sm uppercase"
+          onClick={() => addToCart(product)}
+          className="w-full h-14 rounded-none bg-black text-white font-medium hover:bg-zinc-900 transition-colors flex items-center justify-center gap-2 tracking-widest text-xs uppercase cursor-pointer"
         >
-          <span>🛒</span> IN DEN WARENKORB LEGEN
+          <span>🛒</span> In den Warenkorb legen
         </button>
       </div>
 
