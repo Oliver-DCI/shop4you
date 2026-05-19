@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { useCart } from '@/store/cartStore'; // ✨ Neu importiert
+import { useCart } from '@/context/cartContext'; // ✨ Neu importiert
 
 interface ProductInfoProps {
   product: {

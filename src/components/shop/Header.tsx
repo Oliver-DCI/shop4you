@@ -4,19 +4,20 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { useCart } from '@/store/cartStore';
+import { useCart } from '@/context/cartContext';
 
 export default function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pathname = usePathname(); // 🔐 Neu: Pfad auslesen
+  const pathname = usePathname(); 
   
-  const { setCartOpen, cartCount, user, setUser } = useCart();
+  // ✨ logout aus dem Context geholt, um den TS2339 Fehler endgültig zu killen!
+  const { setCartOpen, cartCount, user, logout } = useCart();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
   // Live-Suche NUR auf der Startseite ausführen
   useEffect(() => {
-    if (pathname !== '/') return; // 🔐 2026 Schutz: Blockiert das Flackern auf /login oder /register
+    if (pathname !== '/') return; 
 
     const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
@@ -41,11 +42,13 @@ export default function Header() {
   const categories = ['Alle Hardware', 'Notebooks', 'Smartphones', 'Tablets', 'Komponenten', 'Zubehör'];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/50 bg-zinc-900/90 backdrop-blur-xl shadow-xl">
+    /* 🎨 Clean White Glassmorphism Header – perfekt transparent & verschwommen */
+    <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.04)]">
       <div className="max-w-[1400px] mx-auto px-4 h-20 flex items-center justify-between gap-8">
         
+        {/* SHOP4YOU erstrahlt jetzt im markanten, zweifarbigen Live-Chat-Blauverlauf */}
         <Link href="/" className="text-3xl font-black tracking-tighter uppercase select-none">
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-400">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600 drop-shadow-[0_2px_8px_rgba(59,130,246,0.25)]">
             SHOP4YOU
           </span>
         </Link>
@@ -57,37 +60,40 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tippen zum Suchen..."
-              className="w-full h-11 pl-11 pr-4 rounded-xl border border-zinc-800 bg-zinc-950/40 text-xs text-zinc-100 focus:outline-none focus:border-zinc-700"
+              /* Helles, mattes Glas-Design für das Suchfeld */
+              className="w-full h-11 pl-11 pr-4 rounded-xl border border-zinc-200 bg-white/50 text-xs text-zinc-800 focus:outline-none focus:border-zinc-400 focus:bg-white transition-all placeholder-zinc-400 shadow-inner"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs opacity-40">🔍</span>
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs opacity-50">🔍</span>
           </div>
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
           {user ? (
-            <div className="flex items-center gap-3 bg-zinc-950/50 border border-zinc-800/60 px-3 py-1.5 rounded-xl">
-              <span className="text-xs font-bold text-zinc-300">
+            /* Das Profil-Badge im hellen Milchglas-Look */
+            <div className="flex items-center gap-3 bg-white/80 border border-zinc-200 px-3 py-1.5 rounded-xl shadow-sm">
+              <span className="text-xs font-bold text-zinc-700 flex items-center gap-1">
                 👤 {user.firstName} <span className="text-[10px] text-zinc-500 uppercase font-black">({user.role})</span>
               </span>
-              <div className="w-px h-3 bg-zinc-800" />
-              <button onClick={() => setUser(null)} className="text-[10px] text-red-400 uppercase font-black hover:text-red-300">Logout</button>
+              <div className="w-px h-3 bg-zinc-200" />
+              <button onClick={logout} className="text-[10px] text-red-600 uppercase font-black hover:text-red-500 transition-colors cursor-pointer">Logout</button>
             </div>
           ) : (
-            // 🎯 WIE GEWÜNSCHT: Nur noch "Anmelden" Beschriftung
             <Link 
               href="/login"
-              className="text-xs font-black uppercase tracking-wider text-zinc-300 hover:text-blue-400 transition-colors px-3 py-2 rounded-lg"
+              className="text-xs font-black uppercase tracking-wider text-zinc-600 hover:text-zinc-900 transition-colors px-3 py-2 rounded-lg"
             >
               Anmelden
             </Link>
           )}
           
-          <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
+          <div className="h-4 w-px bg-zinc-200 hidden sm:block" />
 
-          <button onClick={() => setCartOpen(true)} className="relative h-11 w-11 flex items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/30 group">
+          {/* Hell-mattes Warenkorb-Icon */}
+          <button onClick={() => setCartOpen(true)} className="relative h-11 w-11 flex items-center justify-center rounded-xl border border-zinc-200 bg-white/50 group transition-all hover:bg-white hover:border-zinc-300 shadow-sm cursor-pointer">
             <span className="text-base group-hover:scale-110 transition-transform">🛒</span>
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[9px] font-black h-5 w-5 rounded-md flex items-center justify-center border border-zinc-900 shadow-lg">
+              /* Schicker, minimaler Counter-Badge */
+              <span className="absolute -top-1.5 -right-1.5 bg-zinc-900 text-white text-[9px] font-black h-5 w-5 rounded-md flex items-center justify-center border border-white shadow-md">
                 {cartCount}
               </span>
             )}
@@ -95,7 +101,8 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="bg-transparent block border-t border-zinc-800/30">
+      {/* KATEGORIEN-LEISTE (Komplett ohne die obere Trennlinie) */}
+      <div className="bg-transparent block">
         <div className="max-w-[1400px] mx-auto px-4 h-12 flex items-center justify-center overflow-x-auto gap-1">
           {categories.map((cat) => (
             <button
@@ -107,8 +114,9 @@ export default function Header() {
                 else params.set('category', cat);
                 router.push(`/?${params.toString()}`);
               }}
-              className={`h-full px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center ${
-                cat === currentCategory ? 'border-blue-500 text-blue-400 bg-blue-950/20' : 'border-transparent text-zinc-400 hover:text-zinc-100'
+              /* Dezent dunkler Akzent für den aktiven Kategorie-Tab */
+              className={`h-full px-4 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center cursor-pointer ${
+                cat === currentCategory ? 'border-zinc-900 text-zinc-900 bg-zinc-900/5' : 'border-transparent text-zinc-500 hover:text-zinc-900'
               }`}
             >
               {cat}

@@ -5,7 +5,7 @@ import "./globals.css";
 import Header from "@/components/shop/Header";
 import Footer from "@/components/shop/Footer";
 import CartDrawer from "@/components/shop/CartDrawer";
-import { CartProvider } from '@/store/cartStore';
+import { CartProvider } from '@/context/cartContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +32,14 @@ export default function RootLayout({
       lang="de"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100" suppressHydrationWarning>
+      {/* ✨ FIX: bg-white und text-zinc-950 als Standard für den Shop gesetzt. suppressHydrationWarning bleibt aktiv. */}
+      <body className="min-h-full flex flex-col bg-white text-zinc-950" suppressHydrationWarning>
         <CartProvider>
-          {/* Globaler Header oben */}
+          {/* Globaler Header oben (Passt sich dank seiner Klassen perfekt an) */}
           <Header />
           
-          {/* 🔐 Hauptinhalt als mattes Element deklariert */}
-          <main className="flex-1 bg-zinc-950 w-full">
+          {/* ✨ FIX: Hintergrund-Zwang entfernt, damit Pages (wie Login) ihr eigenes n8n-Theme entfalten können */}
+          <main className="flex-1 w-full">
             {children}
           </main>
           

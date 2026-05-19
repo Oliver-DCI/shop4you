@@ -1,4 +1,4 @@
-// src/store/cartStore.tsx
+// src/context/cartContext.tsx
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -23,12 +23,14 @@ interface CartStoreType {
   cartTotal: number;
   cartCount: number;
   
-  // 🔐 HIER SIND DIE NEUEN FUNKTIONEN FÜR DEN LOGIN:
+  // 🔐 Authentifizierungs-Zustände
   authOpen: boolean;
   setAuthOpen: (open: boolean) => void;
-  // ✨ HIER ERWEITERT: 'admin' hinzugefügt
   user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null;
   setUser: (user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null) => void;
+  
+  // ✨ FIX: Hier deklarieren wir logout im Typen!
+  logout: () => void;
 }
 
 const CartStoreContext = createContext<CartStoreType | undefined>(undefined);
@@ -36,13 +38,10 @@ const CartStoreContext = createContext<CartStoreType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
-  
-  // 🔐 Hier speichern wir, ob das Login-Fenster offen ist und wer eingeloggt ist
   const [authOpen, setAuthOpen] = useState(false);
-  
-  // ✨ HIER EBENSO ERWEITERT: Dem useState mitgeteilt, dass auch 'admin' erlaubt ist
   const [user, setUser] = useState<{ firstName: string; role: 'customer' | 'seller' | 'admin' } | null>(null);
 
+  // Synchronisation mit LocalStorage beim Start
   useEffect(() => {
     const savedCart = localStorage.getItem('shop4you_cart');
     if (savedCart) {
@@ -50,6 +49,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCart(JSON.parse(savedCart));
       } catch (e) {
         console.error("Fehler beim Laden des Warenkorbs", e);
+      }
+    }
+
+    const activeUser = localStorage.getItem('active_user');
+    if (activeUser) {
+      try {
+        setUser(JSON.parse(activeUser));
+      } catch (e) {
+        console.error("Fehler beim Laden des aktiven Users", e);
       }
     }
   }, []);
@@ -101,6 +109,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => saveCart([]);
 
+  // ✨ FIX: Die echte Abmelde-Funktion umgesetzt
+  const logout = () => {
+    localStorage.removeItem('active_user');
+    setUser(null);
+  };
+
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
   const count = cart.reduce((totalCount, item) => totalCount + item.quantity, 0);
 
@@ -116,11 +130,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         cartTotal,
         cartCount: count,
-        // 🔐 Diese Werte geben wir nach außen weiter:
         authOpen,
         setAuthOpen,
         user,
-        setUser
+        setUser,
+        // ✨ FIX: Hier übergeben wir die Methode an den React Context
+        logout
       }}
     >
       {children}
