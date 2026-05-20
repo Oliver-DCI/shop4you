@@ -52,17 +52,17 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
   };
 
   const availableBrands = BRAND_MAPPING[currentCategory] || [];
+  const showBrands = currentCategory !== 'Produkte' && availableBrands.length > 0;
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white relative z-20">
       
-      {/* LEVEL 1: Hauptleiste mit relativer Positionierung für echte Zentrierung */}
-      <div className="max-w-[1400px] mx-auto px-4 h-14 relative flex items-center justify-center w-full border-b border-zinc-100">
-        
-        {/* 🎯 MITTE: Kategorien absolut zentriert, flüssig nebeneinander mit automatischer Scroll-Erlaubnis */}
+      {/* LEVEL 1: Hauptleiste */}
+      <div className="max-w-[1400px] mx-auto px-4 h-14 relative flex items-center justify-center w-full">
         <div className="flex items-center justify-start md:justify-center gap-4 overflow-x-auto scrollbar-none h-full max-w-[70%] sm:max-w-[80%] overflow-y-hidden">
           {categories.map((cat) => {
-            const isActive = cat === currentCategory;
+            const isActive = cat === currentCategory && searchParams.has('category');
+            
             return (
               <button
                 key={cat}
@@ -77,7 +77,6 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
           })}
         </div>
 
-        {/* 🎯 RECHTS: Absolut positionierte Sortierung, klaut der Mitte keinen Platz mehr */}
         <div className="absolute right-4 hidden sm:flex items-center gap-3 h-full bg-white pl-4">
           <button
             onClick={() => handleSortChange('price_asc')}
@@ -99,12 +98,12 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
         </div>
       </div>
 
-      {/* LEVEL 2: Hersteller-Slider (Bleibt perfekt zentriert) */}
+      {/* LEVEL 2: Hersteller-Slider - FIX: Negatives Margin und explizite Nulllinie */}
       <div 
-        className={`w-full overflow-hidden transition-all duration-300 bg-zinc-50 border-b border-zinc-200/50 ${
-          currentCategory !== 'Produkte' && availableBrands.length > 0
+        className={`w-full overflow-hidden transition-all duration-300 bg-white ${
+          showBrands 
             ? 'max-h-28 opacity-100 py-3' 
-            : 'max-h-0 opacity-0 py-0'
+            : 'max-h-0 opacity-0 py-0 -mb-[1px]'
         }`}
       >
         <div className="max-w-[1400px] mx-auto px-4 flex flex-col items-center justify-center gap-1.5">
@@ -132,7 +131,6 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
           </div>
         </div>
       </div>
-
     </div>
   );
 }
