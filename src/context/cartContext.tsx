@@ -1,4 +1,3 @@
-// src/context/cartContext.tsx
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
@@ -12,11 +11,20 @@ export interface CartItem {
   quantity: number;
 }
 
+interface ProductInput {
+  id: string;
+  title: string;
+  price: number;
+  images: string[];
+  category: string;
+  quantity?: number; // Optionaler Parameter für die Wunschmenge
+}
+
 interface CartStoreType {
   cart: CartItem[];
   isCartOpen: boolean;
   setCartOpen: (open: boolean) => void;
-  addToCart: (product: { id: string; title: string; price: number; images: string[]; category: string }) => void;
+  addToCart: (product: ProductInput) => void;
   updateQuantity: (id: string, newQuantity: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
@@ -28,8 +36,6 @@ interface CartStoreType {
   setAuthOpen: (open: boolean) => void;
   user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null;
   setUser: (user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null) => void;
-  
-  // ✨ FIX: Hier deklarieren wir logout im Typen!
   logout: () => void;
 }
 
@@ -41,7 +47,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<{ firstName: string; role: 'customer' | 'seller' | 'admin' } | null>(null);
 
-  // Synchronisation mit LocalStorage beim Start
   useEffect(() => {
     const savedCart = localStorage.getItem('shop4you_cart');
     if (savedCart) {
@@ -67,12 +72,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('shop4you_cart', JSON.stringify(newCart));
   };
 
-  const addToCart = (product: { id: string; title: string; price: number; images: string[]; category: string }) => {
+  const addToCart = (product: ProductInput) => {
+    const qtyToAdd = product.quantity || 1;
     const existingItem = cart.find((item) => item.id === product.id);
+    
     let updatedCart: CartItem[];
     if (existingItem) {
       updatedCart = cart.map((item) =>
-        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        item.id === product.id ? { ...item, quantity: item.quantity + qtyToAdd } : item
       );
     } else {
       updatedCart = [
@@ -83,7 +90,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           price: product.price,
           image: product.images?.[0] || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800',
           category: product.category,
-          quantity: 1,
+          quantity: qtyToAdd,
         },
       ];
     }
@@ -109,7 +116,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => saveCart([]);
 
-  // ✨ FIX: Die echte Abmelde-Funktion umgesetzt
   const logout = () => {
     localStorage.removeItem('active_user');
     setUser(null);
@@ -134,7 +140,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setAuthOpen,
         user,
         setUser,
-        // ✨ FIX: Hier übergeben wir die Methode an den React Context
         logout
       }}
     >

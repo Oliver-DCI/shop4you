@@ -46,6 +46,7 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
             alt={title}
             fill
             priority
+            loading="eager"
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover object-center transition-all duration-200 grayscale hover:grayscale-0"
             onError={() => {
@@ -82,6 +83,7 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
                     src={img}
                     alt={`${title} Ansicht ${index + 1}`}
                     fill
+                    loading="eager"
                     sizes="(max-width: 768px) 20vw, 10vw"
                     className="object-cover object-center grayscale"
                     onError={() => {

@@ -3,26 +3,34 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { notFound } from 'next/navigation';
-import Link from 'next/link'; // ✨ Next.js Link für blitzschnelles Umschalten ohne Hänger
+import Link from 'next/link';
 import ProductImages from '@/components/shop/ProductImages';
 import ProductInfo from '@/components/shop/ProductInfo';
 
+// Prisma Setup
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 interface ProductPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
+  
+  // 1. Aktuelles Produkt laden
+  const product = await prisma.product.findUnique({ where: { id } });
 
-  // Produkt direkt aus PostgreSQL holen
-  const product = await prisma.product.findUnique({
-    where: { id },
+  // 2. Highlights laden (5 Stück, exklusive dem aktuellen Produkt)
+  const highlights = await prisma.product.findMany({
+    where: {
+      NOT: { id: id }
+    },
+    take: 5,
+    orderBy: {
+      createdAt: 'desc' // Falls dein Schema createdAt hat, sonst einfach ohne orderBy
+    }
   });
 
   if (!product) {
@@ -31,30 +39,50 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   return (
-    <div className="bg-white text-black min-h-screen relative overflow-hidden py-12 md:py-20 rounded-none selection:bg-black selection:text-white">
-      
+    <div className="bg-white text-black min-h-screen py-12 md:py-20 rounded-none selection:bg-black selection:text-white">
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Back-Link: Nutzt jetzt <Link> statt <a href> für echtes Next-Routing */}
+        {/* Zurück-Navigation */}
         <div className="mb-8">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-xs font-normal uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
-          >
+          <Link href="/" className="inline-flex items-center gap-2 text-xs font-normal uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">
             ◀ ZURÜCK ZUR ÜBERSICHT
           </Link>
         </div>
 
-        {/* Das 2-Spalten Layout im rahmenlosen Studio-Look */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start bg-white p-0 rounded-none border-0">
-          
-          {/* Linke Seite: Bildergalerie */}
+        {/* Haupt-Grid: Bild & Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
           <ProductImages images={product.images} title={product.title} />
-          
-          {/* Rechte Seite: Produkt-Details */}
           <ProductInfo product={product} />
-          
         </div>
+
+        {/* Dynamischer Bereich: Unsere Empfehlungen */}
+        <section className="mt-24 border-t border-zinc-100 pt-16">
+          <h3 className="text-sm font-black uppercase tracking-widest mb-10">
+            Unsere Empfehlungen
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            {highlights.map((p) => (
+              <Link href={`/product/${p.id}`} key={p.id} className="group cursor-pointer">
+                <div className="aspect-square bg-zinc-50 mb-3 border border-zinc-100 overflow-hidden relative">
+                   <img 
+                     src={p.images[0]} 
+                     alt={p.title} 
+                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                   />
+                </div>
+                <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">
+                  {p.category}
+                </div>
+                <div className="text-xs font-bold uppercase truncate">{p.title}</div>
+                <div className="text-xs font-normal text-zinc-900 mt-1">
+                  {p.price.toFixed(2)} €
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
       </main>
     </div>
   );
