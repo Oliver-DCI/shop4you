@@ -19,6 +19,8 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link 
       href={`/product/${product.id}`}
+      prefetch={false}
+      scroll={false} // 🎯 FIX: Verhindert das automatische Hochspringen auf der Hauptseite bei asynchronen Bild-Fehlern
       className="group flex flex-col bg-white rounded-none border border-zinc-200 overflow-hidden transition-colors duration-200 max-h-[440px] hover:border-black"
     >
       {/* Bild mit harter Kante */}
@@ -28,7 +30,7 @@ export default function ProductCard({ product }: { product: Product }) {
           alt={product.title}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover object-center grayscale hover:grayscale-0 transition-all duration-300"
+          className="object-cover object-center grayscale hover:grayscale-0 transition-[filter] duration-300"
         />
         {/* Kategorie-Badge */}
         <span className="absolute top-0 left-0 bg-black text-white text-[9px] font-medium uppercase tracking-widest px-2 py-1 rounded-none z-20">
@@ -52,7 +54,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <span className="text-sm font-normal text-black tracking-tight">
             {product.price.toFixed(2)} €
           </span>
-          <div className="h-6 w-6 rounded-none bg-zinc-50 border border-zinc-200 text-black flex items-center justify-center font-normal text-xs group-hover:bg-black group-hover:text-white group-hover:border-transparent transition-colors">
+          <div className="h-6 w-6 rounded-none bg-zinc-50 border border-zinc-200 text-black flex items-center justify-center font-normal text-xs group-hover:bg-black group-hover:text-white group-hover:border-transparent transition-colors duration-200">
             →
           </div>
         </div>

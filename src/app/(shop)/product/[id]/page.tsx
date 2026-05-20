@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* Back-Link: Nutzt jetzt <Link> statt <a href> für echtes Next-Routing */}
         <div className="mb-8">
           <Link 
-            href="/#produkte" 
+            href="/" 
             className="inline-flex items-center gap-2 text-xs font-normal uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
           >
             ◀ ZURÜCK ZUR ÜBERSICHT
