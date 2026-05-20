@@ -1,70 +1,63 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full bg-white text-zinc-500 border-t border-zinc-200 mt-auto select-none rounded-none">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-xs">
+    <footer className="w-full mt-auto select-text rounded-none flex flex-col">
+      
+      {/* OBERER BEREICH: Unser edles Zink-Grau (bg-zinc-50) */}
+      <div className="w-full bg-zinc-50 border-t border-zinc-200 py-12">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center gap-8">
           
-          {/* Spalte 1: Brand */}
-          <div className="flex flex-col gap-4 items-start text-left">
-            <h3 className="text-xl font-normal tracking-widest uppercase text-black">
-              SHOP<span className="font-light text-zinc-400">4YOU</span>
-            </h3>
-            <p className="text-zinc-400 leading-relaxed font-normal max-w-sm">
-              Premium IT- und Tech-Plattform im Jahr {currentYear}. Reduzierte Ästhetik kombiniert mit kompromissloser Rechenleistung.
+          {/* Logo & Slogan */}
+          <div className="text-center">
+            <span className="text-xl font-light tracking-[0.25em] uppercase text-black">
+              SHOP<span className="text-zinc-400 font-extralight">4YOU</span>
+            </span>
+            <p className="text-[9px] text-zinc-400 tracking-[0.2em] uppercase mt-2 font-mono">
+              Premium Hardware // Lineup {currentYear}
             </p>
           </div>
 
-          {/* Spalte 2: Kategorien */}
-          <div className="flex flex-col md:items-center text-left md:text-center gap-4">
-            <div>
-              <h4 className="font-medium uppercase tracking-widest text-black text-[11px] mb-4 flex items-center justify-start md:justify-center gap-2">
-                ■ Hardware
-              </h4>
-              <ul className="space-y-3 font-normal text-zinc-400 text-left md:text-center">
-                <li><a href="#produkte" className="hover:text-black transition-colors block">Notebooks & Laptops</a></li>
-                <li><a href="#produkte" className="hover:text-black transition-colors block">Smartphones</a></li>
-                <li><a href="#produkte" className="hover:text-black transition-colors block">Tablets & iPads</a></li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Spalte 3: Support */}
-          <div className="flex flex-col md:items-end text-left md:text-right gap-4">
-            <div>
-              <h4 className="font-medium uppercase tracking-widest text-black text-[11px] mb-4 flex items-center justify-start md:justify-end gap-2">
-                ■ Legal
-              </h4>
-              <ul className="space-y-3 font-normal text-zinc-400 text-left md:text-right">
-                <li><a href="#" className="hover:text-black transition-colors block">Impressum</a></li>
-                <li><a href="#" className="hover:text-black transition-colors block">Datenschutz</a></li>
-                <li><a href="#" className="hover:text-black transition-colors block">AGB & Widerruf</a></li>
-              </ul>
-            </div>
-          </div>
+          {/* Clean Link-Leiste */}
+          <nav className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2.5 text-[11px] font-mono uppercase tracking-widest">
+            <Link href="#produkte" className="text-zinc-400 hover:text-black transition-colors">
+              Notebooks
+            </Link>
+            <Link href="#produkte" className="text-zinc-400 hover:text-black transition-colors">
+              Smartphones
+            </Link>
+            <Link href="#produkte" className="text-zinc-400 hover:text-black transition-colors">
+              Audio
+            </Link>
+            <div className="hidden sm:block w-px h-3 bg-zinc-200" />
+            <Link href="/impressum" className="text-zinc-400 hover:text-black transition-colors">
+              Impressum
+            </Link>
+            <Link href="/datenschutz" className="text-zinc-400 hover:text-black transition-colors">
+              Datenschutz
+            </Link>
+            <Link href="/agb" className="text-zinc-400 hover:text-black transition-colors">
+              AGB
+            </Link>
+          </nav>
 
         </div>
-
-        <div className="w-full h-px bg-zinc-200 my-10" />
-
-        {/* Copyright & Status */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-[10px] text-zinc-400 font-normal">
-          <div>
-            &copy; {currentYear} <span className="text-black font-medium">SHOP4YOU</span>. Alle Rechte vorbehalten.
-          </div>
-          
-          {/* Status-Badge */}
-          <div className="flex gap-2 items-center bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-none">
-            <span className="w-1.5 h-1.5 bg-black" />
-            <span className="text-black tracking-widest font-medium text-[9px] uppercase">Systems Online</span>
-          </div>
-        </div>
-
       </div>
+
+      {/* UNTERER BEREICH: Sauber und hell (bg-white) mit zentriertem Copyright */}
+      <div className="w-full bg-white border-t border-zinc-200/60 py-6">
+        <div className="max-w-[1400px] mx-auto px-4 text-center">
+          <p className="text-[10px] text-zinc-400 font-mono tracking-wider">
+            &copy; {currentYear} <span className="text-black font-light tracking-widest uppercase">SHOP4YOU</span>. Alle Rechte vorbehalten.
+          </p>
+        </div>
+      </div>
+
     </footer>
   );
 }

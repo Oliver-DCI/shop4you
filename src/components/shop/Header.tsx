@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCart } from '@/context/cartContext';
+import CategoryFilter from './CategoryFilter';
 
 export default function Header() {
   const router = useRouter();
@@ -34,8 +35,8 @@ export default function Header() {
     }
   }, [searchParams, pathname]);
 
-  const currentCategory = searchParams.get('category') || 'Alle Hardware';
-  const categories = ['Alle Hardware', 'Notebooks', 'Smartphones', 'Tablets', 'Komponenten', 'Zubehör'];
+  // 🎯 Synchronisiertes Kategorie-Array für fehlerfreies Filtern beim 1. Klick
+  const categories = ['Produkte', 'Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
@@ -43,10 +44,10 @@ export default function Header() {
       {/* Haupt-Header: 3-Spalten Grid für perfekte Symmetrie */}
       <div className="max-w-[1400px] mx-auto px-4 h-20 grid grid-cols-3 items-center gap-4">
         
-        {/* Brand (Links) */}
+        {/* Brand (Links) - 🎯 FIX: Wieder 2-farbig, komplett fett ohne Trennstich */}
         <div className="flex justify-start">
-          <Link href="/" className="text-2xl font-normal tracking-widest uppercase select-none text-black">
-            SHOP<span className="font-light text-zinc-400">4YOU</span>
+          <Link href="/" className="text-2xl font-light tracking-[0.25em] uppercase select-none text-black">
+              SHOP<span className="text-zinc-400 font-extralight">4YOU</span>
           </Link>
         </div>
 
@@ -69,7 +70,6 @@ export default function Header() {
           {user ? (
             <div className="flex items-center gap-3 bg-white border border-zinc-200 p-1.5 rounded-none">
               
-              {/* 🎯 Initialen-Badge als Link zum Profil */}
               <Link 
                 href="/account/profile"
                 className="w-8 h-8 bg-black text-white flex items-center justify-center text-[11px] font-mono font-normal tracking-tighter select-none rounded-none hover:bg-zinc-800 transition-colors"
@@ -79,7 +79,6 @@ export default function Header() {
                 {user.role.charAt(0).toUpperCase()}
               </Link>
 
-              {/* Status & Dashboard-Shortcut */}
               <div className="flex items-center gap-2 pr-1.5">
                 <span className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest hidden sm:inline">
                   [{user.role}]
@@ -129,29 +128,10 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Kategorienleiste */}
+      {/* 🎯 FIX: border-t entfernt für einen nahtlosen Übergang zu den Filter-Kategorien */}
       <div className="bg-white">
-        <div className="max-w-[1400px] mx-auto px-4 h-12 flex items-center justify-center overflow-x-auto gap-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete('search');
-                if (cat === 'Alle Hardware') params.delete('category');
-                else params.set('category', cat);
-                router.push(`/?${params.toString()}`);
-              }}
-              className={`h-full px-4 text-[11px] font-normal uppercase tracking-widest border-b-2 transition-colors flex items-center cursor-pointer ${
-                cat === currentCategory ? 'border-black text-black bg-zinc-50' : 'border-transparent text-zinc-400 hover:text-black'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <CategoryFilter categories={categories} />
       </div>
     </header>
   );
 }
-

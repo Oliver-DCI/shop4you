@@ -13,14 +13,21 @@ interface Product {
   images: string[];
 }
 
-export default function ProductCard({ product }: { product: Product }) {
+// 🎯 Interface erweitert, um das optionale priority-Prop zu erlauben
+interface ProductCardProps {
+  product: Product;
+  priority?: boolean;
+}
+
+// 🎯 Destructuring angepasst: nimmt jetzt product und priority (Standard: false) entgegen
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const displayImage = product.images?.[0] || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800';
 
   return (
     <Link 
       href={`/product/${product.id}`}
       prefetch={false}
-      scroll={false} // 🎯 FIX: Verhindert das automatische Hochspringen auf der Hauptseite bei asynchronen Bild-Fehlern
+      scroll={false} // 🎯 Verhindert das automatische Hochspringen auf der Hauptseite bei asynchronen Bild-Fehlern
       className="group flex flex-col bg-white rounded-none border border-zinc-200 overflow-hidden transition-colors duration-200 max-h-[440px] hover:border-black"
     >
       {/* Bild mit harter Kante */}
@@ -31,6 +38,7 @@ export default function ProductCard({ product }: { product: Product }) {
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover object-center grayscale hover:grayscale-0 transition-[filter] duration-300"
+          priority={priority} // 🎯 Wird jetzt fehlerfrei an die Next.js-Image-Komponente übergeben
         />
         {/* Kategorie-Badge */}
         <span className="absolute top-0 left-0 bg-black text-white text-[9px] font-medium uppercase tracking-widest px-2 py-1 rounded-none z-20">
