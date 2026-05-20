@@ -32,7 +32,7 @@ export default function Footer() {
               Smartphones
             </Link>
             <Link href="#produkte" className="text-zinc-400 hover:text-black transition-colors">
-              Audio
+              TV/Audio
             </Link>
             <div className="hidden sm:block w-px h-3 bg-zinc-200" />
             <Link href="/impressum" className="text-zinc-400 hover:text-black transition-colors">

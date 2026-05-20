@@ -29,7 +29,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
     take: 5,
     orderBy: {
-      createdAt: 'desc' // Falls dein Schema createdAt hat, sonst einfach ohne orderBy
+      createdAt: 'desc'
     }
   });
 
@@ -57,18 +57,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Dynamischer Bereich: Unsere Empfehlungen */}
         <section className="mt-24 border-t border-zinc-100 pt-16">
-          <h3 className="text-sm font-black uppercase tracking-widest mb-10">
-            Unsere Empfehlungen
+          {/* 🎯 FIX: Überschrift jetzt edel, dünn, grau und in Monospace */}
+          <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-zinc-400 font-normal mb-10">
+            // Unsere Empfehlungen
           </h3>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {highlights.map((p) => (
               <Link href={`/product/${p.id}`} key={p.id} className="group cursor-pointer">
                 <div className="aspect-square bg-zinc-50 mb-3 border border-zinc-100 overflow-hidden relative">
+                   {/* 🎯 FIX: Bild startet in Schwarz-Weiß (grayscale) und wechselt beim Hover in Farbe */}
                    <img 
                      src={p.images[0]} 
                      alt={p.title} 
-                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                     className="w-full h-full object-cover grayscale hover:grayscale-0 group-hover:scale-105 transition-all duration-500 ease-out" 
                    />
                 </div>
                 <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">

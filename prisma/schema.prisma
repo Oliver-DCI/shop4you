@@ -1,6 +1,5 @@
 datasource db {
   provider = "postgresql"
-  // 🎯 FIX: 'url' wurde hier entfernt, da Prisma v7 das über den Adapter im Code regelt
 }
 
 generator client {
@@ -36,7 +35,7 @@ model Product {
   category    String
   brand       String?
   images      String[]
-  stock       Int     @default(0)
+  stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -52,12 +51,17 @@ model Order {
   updatedAt   DateTime @updatedAt
   status      String   @default("PENDING")
   totalAmount Float
+  paymentMethod String @default("invoice") // 🎯 Wichtig für den Checkout
 
   userId      String
   user        User     @relation(fields: [userId], references: [id])
 
   items       OrderItem[]
   invoice     Invoice?
+
+  // 🎯 NEU: Relation zur abweichenden Lieferadresse (1:1 Relation)
+  shippingAddress   ShippingAddress? @relation(fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  shippingAddressId String?          @unique
 }
 
 model OrderItem {
@@ -80,4 +84,17 @@ model Invoice {
 
   orderId       String   @unique
   order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// 🎯 NEU: Die separate Tabelle für professionelles Adressmanagement
+model ShippingAddress {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  street    String
+  zip       String
+  city      String
+  createdAt DateTime @default(now())
+
+  order     Order?   // Gegenrelation für die 1:1 Verknüpfung
 }

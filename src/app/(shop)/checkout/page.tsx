@@ -1,4 +1,3 @@
-// src/app/(shop)/checkout/page.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -11,8 +10,7 @@ export default function CheckoutPage() {
   const [isOrdered, setIsOrdered] = useState(false);
   const [showDifferentShipping, setShowDifferentShipping] = useState(false);
 
-  // 📝 Fiktive Profildaten (Sobald das Login-Modal fertig ist, kommen diese Daten direkt aus der Session/DB)
-  const [savedProfile, setSavedProfile] = useState({
+  const [savedProfile] = useState({
     firstName: 'Max',
     lastName: 'Mustermann',
     email: 'max.mustermann@tech.de',
@@ -21,7 +19,6 @@ export default function CheckoutPage() {
     city: 'TechCity',
   });
 
-  // Zustände für die ABWEICHENDE Lieferadresse
   const [shippingData, setShippingData] = useState({
     firstName: '',
     lastName: '',
@@ -45,7 +42,6 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (cart.length === 0) return;
 
-    // Hier würde die payload an die DB geschickt werden
     console.log('Bestellung abgeschickt an:', {
       billingAddress: savedProfile,
       shippingAddress: showDifferentShipping ? shippingData : savedProfile,
@@ -56,19 +52,22 @@ export default function CheckoutPage() {
     clearCart();
   };
 
+  // 1. ERFOLGS-ANSICHT (Im SHOP4YOU Minimal-Look)
   if (isOrdered) {
     return (
-      <div className="bg-zinc-50 min-h-screen flex items-center justify-center p-4 selection:bg-blue-600 selection:text-white">
-        <div className="max-w-md w-full bg-white border border-zinc-200/80 p-8 rounded-3xl shadow-xl text-center flex flex-col items-center gap-4 animate-scale-up">
-          <div className="h-14 w-14 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center text-2xl font-bold animate-bounce">
+      <div className="bg-white min-h-screen flex items-center justify-center p-4 selection:bg-black selection:text-white">
+        <div className="max-w-md w-full bg-white border border-zinc-200 p-8 rounded-none text-center flex flex-col items-center gap-6">
+          <div className="h-12 w-12 rounded-none bg-black text-white flex items-center justify-center text-lg font-mono">
             ✓
           </div>
-          <h1 className="text-2xl font-black uppercase tracking-tight text-zinc-950">Vielen Dank für deine Bestellung!</h1>
-          <p className="text-zinc-500 text-xs font-medium leading-relaxed">
-            Deine Hardware-Bestellung wurde erfolgreich simuliert. Eine Bestätigung wurde an <span className="text-zinc-950 font-bold">{savedProfile.email}</span> gesendet.
-          </p>
-          <Link href="/" className="mt-4 w-full bg-blue-600 text-white font-black text-xs uppercase tracking-wider py-3.5 rounded-xl hover:bg-blue-700 transition-all shadow-xs">
-            Zurück zum Shop
+          <div className="space-y-2">
+            <h1 className="text-xl font-black uppercase tracking-widest text-black">Bestellung erfolgreich</h1>
+            <p className="text-zinc-500 text-xs leading-relaxed font-normal">
+              Deine Simulation wurde aufgezeichnet. Eine Bestätigung ging an <span className="text-black font-medium">{savedProfile.email}</span>.
+            </p>
+          </div>
+          <Link href="/" className="w-full bg-black text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors text-center">
+            Zurück zur Übersicht
           </Link>
         </div>
       </div>
@@ -76,180 +75,172 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-zinc-50 text-zinc-900 min-h-screen selection:bg-blue-600 selection:text-white pb-20">
+    <div className="bg-white text-black min-h-screen selection:bg-black selection:text-white pb-20">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         
-        <div className="mb-10">
-          <Link href="/" className="text-xs font-bold text-blue-600 uppercase tracking-widest hover:underline flex items-center gap-1 mb-2">
-            ➔ Zurück zur Übersicht
+        {/* Header */}
+        <div className="mb-12 border-b border-zinc-100 pb-6">
+          <Link href="/" className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-black transition-colors flex items-center gap-2 mb-4">
+            ◀ ZURÜCK ZUR ÜBERSICHT
           </Link>
-          <h1 className="text-3xl font-black uppercase tracking-tight text-zinc-950">Kasse / Checkout</h1>
-          <p className="text-zinc-400 text-xs font-medium mt-0.5">Schließe jetzt deine Bestellung ab.</p>
+          <h1 className="text-3xl font-light tracking-tight text-black uppercase">Kasse // Checkout</h1>
         </div>
 
         {cart.length === 0 ? (
-          <div className="bg-white border border-zinc-200/80 rounded-3xl p-12 text-center flex flex-col items-center gap-3">
-            <span className="text-4xl">🛒</span>
-            <h2 className="text-sm font-black uppercase tracking-wider text-zinc-400">Dein Warenkorb ist leer</h2>
-            <Link href="/" className="mt-2 bg-zinc-950 text-white font-black text-xs uppercase tracking-wider px-6 py-3 rounded-xl hover:bg-zinc-800 transition-all">
-              Jetzt Hardware hinzufügen
+          <div className="bg-zinc-50 border border-zinc-200 rounded-none p-16 text-center flex flex-col items-center gap-4">
+            <h2 className="text-xs font-mono uppercase tracking-widest text-zinc-400">Dein Warenkorb ist leer</h2>
+            <Link href="/" className="bg-black text-white font-medium text-xs uppercase tracking-widest px-8 py-4 rounded-none hover:bg-zinc-900 transition-colors">
+              Katalog durchsuchen
             </Link>
           </div>
         ) : (
-          <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             
-            {/* LINKS: Adress-Logik */}
-            <div className="lg:col-span-7 bg-white border border-zinc-200/80 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col gap-6">
+            {/* LINKS: Formularbereiche */}
+            <div className="lg:col-span-7 flex flex-col gap-10">
               
-              {/* 🏠 BLOCK 1: Automatisch geladene Rechnungs- & Lieferadresse */}
+              {/* BLOCK 1: Rechnungsadresse */}
               <div>
-                <h2 className="text-base font-black uppercase tracking-tight text-zinc-950 flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
-                  <span className="flex items-center gap-2">
-                    <span className="w-1 h-4 bg-blue-600 rounded-full" />
-                    1. Rechnungs- & Lieferadresse
-                  </span>
-                  <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                    Aus Profil geladen
+                <h2 className="text-xs font-mono uppercase tracking-widest text-black flex items-center justify-between border-b border-zinc-200 pb-3 mb-4">
+                  <span>01 // Rechnungsadresse</span>
+                  <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-wider">
+                    Profil-Hinterlegung
                   </span>
                 </h2>
 
-                {/* Edle Vorschau-Box der hinterlegten Adresse */}
-                <div className="p-4 rounded-xl border border-zinc-200 bg-zinc-50/50 flex flex-col gap-1 text-xs">
-                  <p className="font-black text-zinc-950">{savedProfile.firstName} {savedProfile.lastName}</p>
-                  <p className="text-zinc-600 font-medium">{savedProfile.street}</p>
-                  <p className="text-zinc-600 font-medium">{savedProfile.zip} {savedProfile.city}</p>
-                  <p className="text-zinc-400 font-bold mt-1 text-[11px]">{savedProfile.email}</p>
+                <div className="p-5 rounded-none border border-zinc-200 bg-zinc-50 flex flex-col gap-1 text-xs">
+                  <p className="font-bold text-black uppercase tracking-wide">{savedProfile.firstName} {savedProfile.lastName}</p>
+                  <p className="text-zinc-600">{savedProfile.street}</p>
+                  <p className="text-zinc-600">{savedProfile.zip} {savedProfile.city}</p>
+                  <p className="text-zinc-400 font-mono mt-2 text-[10px]">{savedProfile.email}</p>
                 </div>
 
-                {/* ✨ Der smarte Trigger-Link für die abweichende Adresse */}
-                <div className="mt-3">
+                <div className="mt-4">
                   <button
                     type="button"
                     onClick={() => setShowDifferentShipping(!showDifferentShipping)}
-                    className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1"
+                    className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
                   >
                     {showDifferentShipping ? '✕ Standard-Lieferadresse nutzen' : '➔ Abweichende Lieferadresse angeben'}
                   </button>
                 </div>
               </div>
 
-              {/* 🚚 BLOCK 1B: Abweichendes Lieferformular (Klappt dynamisch auf) */}
+              {/* BLOCK 1B: Abweichende Lieferadresse */}
               {showDifferentShipping && (
-                <div className="p-5 border border-blue-100 bg-blue-50/10 rounded-2xl flex flex-col gap-4 animate-fade-in">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-blue-600">
+                <div className="p-6 border border-zinc-200 bg-white rounded-none flex flex-col gap-4 animate-none">
+                  <h3 className="text-[10px] font-mono uppercase tracking-widest text-black mb-2">
                     Abweichende Lieferanschrift
                   </h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Vorname des Empfängers</label>
-                      <input required={showDifferentShipping} type="text" name="firstName" value={shippingData.firstName} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs font-medium focus:outline-hidden focus:border-blue-500/50 bg-white" />
+                      <label className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Vorname</label>
+                      <input required={showDifferentShipping} type="text" name="firstName" value={shippingData.firstName} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs font-normal focus:outline-none focus:border-black bg-white transition-colors" />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Nachname des Empfängers</label>
-                      <input required={showDifferentShipping} type="text" name="lastName" value={shippingData.lastName} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs font-medium focus:outline-hidden focus:border-blue-500/50 bg-white" />
+                      <label className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Nachname</label>
+                      <input required={showDifferentShipping} type="text" name="lastName" value={shippingData.lastName} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs font-normal focus:outline-none focus:border-black bg-white transition-colors" />
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Straße und Hausnummer</label>
-                    <input required={showDifferentShipping} type="text" name="street" value={shippingData.street} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs font-medium focus:outline-hidden focus:border-blue-500/50 bg-white" />
+                    <label className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Straße und Hausnummer</label>
+                    <input required={showDifferentShipping} type="text" name="street" value={shippingData.street} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs font-normal focus:outline-none focus:border-black bg-white transition-colors" />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="flex flex-col gap-1.5 sm:col-span-1">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">PLZ</label>
-                      <input required={showDifferentShipping} type="text" name="zip" value={shippingData.zip} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs font-medium focus:outline-hidden focus:border-blue-500/50 bg-white" />
+                      <label className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">PLZ</label>
+                      <input required={showDifferentShipping} type="text" name="zip" value={shippingData.zip} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs font-normal focus:outline-none focus:border-black bg-white transition-colors" />
                     </div>
                     <div className="flex flex-col gap-1.5 sm:col-span-2">
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Stadt</label>
-                      <input required={showDifferentShipping} type="text" name="city" value={shippingData.city} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-xl px-4 text-xs font-medium focus:outline-hidden focus:border-blue-500/50 bg-white" />
+                      <label className="text-[9px] font-mono text-zinc-400 uppercase tracking-widest">Stadt</label>
+                      <input required={showDifferentShipping} type="text" name="city" value={shippingData.city} onChange={handleShippingChange} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs font-normal focus:outline-none focus:border-black bg-white transition-colors" />
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* 💳 BLOCK 2: Zahlungsmethoden */}
+              {/* BLOCK 2: Zahlungsmethoden */}
               <div>
-                <h2 className="text-base font-black uppercase tracking-tight text-zinc-950 flex items-center gap-2 border-b border-zinc-100 pb-3 mb-4">
-                  <span className="w-1 h-4 bg-blue-600 rounded-full" />
-                  2. Zahlungsmethode
+                <h2 className="text-xs font-mono uppercase tracking-widest text-black border-b border-zinc-200 pb-3 mb-4">
+                  02 // Zahlungsmethode
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className={`border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all ${paymentMethod === 'invoice' ? 'border-blue-600 bg-blue-50/30' : 'border-zinc-200 hover:bg-zinc-50'}`}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-xs font-black uppercase tracking-tight text-zinc-950">Rechnung</span>
-                      <span className="text-[10px] font-bold text-zinc-400">Bequem nach Erhalt zahlen</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'invoice' ? 'border-black bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-bold uppercase tracking-wide text-black">Rechnung</span>
+                      <span className="text-[10px] text-zinc-400 font-normal">Zahlung nach Erhalt der Ware</span>
                     </div>
-                    <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-4 w-4 text-blue-600 border-zinc-300" />
+                    <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-3 w-3 accent-black" />
                   </label>
 
-                  <label className={`border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all ${paymentMethod === 'paypal' ? 'border-blue-600 bg-blue-50/30' : 'border-zinc-200 hover:bg-zinc-50'}`}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-xs font-black uppercase tracking-tight text-zinc-950">PayPal</span>
-                      <span className="text-[10px] font-bold text-zinc-400">Express Weiterleitung</span>
+                  <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-black bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-bold uppercase tracking-wide text-black">PayPal</span>
+                      <span className="text-[10px] text-zinc-400 font-normal">Direkte Transaktions-Schnittstelle</span>
                     </div>
-                    <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-4 w-4 text-blue-600 border-zinc-300" />
+                    <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-3 w-3 accent-black" />
                   </label>
                 </div>
               </div>
 
             </div>
 
-            {/* RECHTS: Zusammenfassung (Bleibt gewohnt genial) */}
-            <div className="lg:col-span-5 flex flex-col gap-6 sticky top-36">
-              <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 shadow-xs">
-                <h2 className="text-base font-black uppercase tracking-tight text-zinc-950 flex items-center gap-2 border-b border-zinc-100 pb-3 mb-4">
-                  <span className="w-1 h-4 bg-blue-600 rounded-full" />
-                  3. Bestellübersicht
+            {/* RECHTS: Zusammenfassung */}
+            <div className="lg:col-span-5 flex flex-col gap-6 sticky top-28">
+              <div className="bg-white border border-zinc-200 rounded-none p-6">
+                <h2 className="text-xs font-mono uppercase tracking-widest text-black border-b border-zinc-200 pb-3 mb-6">
+                  03 // Bestellübersicht
                 </h2>
 
-                <div className="max-h-60 overflow-y-auto flex flex-col gap-3 pr-1 scrollbar-none border-b border-zinc-100 pb-4 mb-4">
+                <div className="max-h-60 overflow-y-auto flex flex-col gap-4 pr-1 border-b border-zinc-100 pb-6 mb-6">
                   {cart.map((item) => (
                     <div key={item.id} className="flex items-center justify-between gap-4 text-xs">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative h-10 w-10 border border-zinc-200 rounded-lg overflow-hidden shrink-0 bg-zinc-50">
-                          <Image src={item.image} alt={item.title} fill className="object-cover" />
+                        <div className="relative h-12 w-12 border border-zinc-200 rounded-none overflow-hidden shrink-0 bg-zinc-50">
+                          <Image src={item.image} alt={item.title} fill className="object-cover grayscale" />
                         </div>
                         <div className="min-w-0">
-                          <h4 className="font-black text-zinc-950 truncate uppercase tracking-tight">{item.title}</h4>
-                          <p className="text-zinc-400 text-[10px] font-bold">Menge: {item.quantity} × {item.price.toFixed(2)} €</p>
+                          <h4 className="font-bold text-black truncate uppercase tracking-tight text-xs">{item.title}</h4>
+                          <p className="text-zinc-400 text-[10px] font-mono mt-0.5">QTY: {item.quantity} × {item.price.toFixed(2)} €</p>
                         </div>
                       </div>
-                      <span className="font-black text-zinc-950 shrink-0">{(item.price * item.quantity).toFixed(2)} €</span>
+                      <span className="font-medium text-black shrink-0 font-mono">{(item.price * item.quantity).toFixed(2)} €</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-col gap-2 border-b border-zinc-100 pb-4 mb-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                <div className="flex flex-col gap-2.5 border-b border-zinc-200 pb-6 mb-6 text-xs text-zinc-500 uppercase tracking-widest font-normal">
                   <div className="flex justify-between">
-                    <span>Zwischensumme:</span>
-                    <span className="text-zinc-950 font-black">{cartTotal.toFixed(2)} €</span>
+                    <span className="text-[10px] font-mono text-zinc-400">Zwischensumme:</span>
+                    <span className="text-black font-mono">{cartTotal.toFixed(2)} €</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Versandkosten:</span>
-                    <span className="text-zinc-950 font-black">
+                    <span className="text-[10px] font-mono text-zinc-400">Versand:</span>
+                    <span className="text-black font-mono">
                       {shippingCosts === 0 ? (
-                        <span className="text-emerald-600 bg-emerald-50 border border-emerald-100 text-[9px] px-1.5 py-0.5 rounded-md">Gratis</span>
+                        <span className="text-black bg-zinc-100 border border-zinc-200 text-[9px] px-2 py-0.5 rounded-none uppercase font-mono">Frei</span>
                       ) : (
                         `${shippingCosts.toFixed(2)} €`
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-zinc-400 lowercase italic normal-case">
-                    <span>Darin enthaltene 19% MwSt.:</span>
+                  <div className="flex justify-between text-[10px] text-zinc-400 normal-case font-mono lowercase tracking-normal">
+                    <span>Inkl. 19% MwSt.:</span>
                     <span>{taxAmount.toFixed(2)} €</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-xs font-black uppercase tracking-wider text-zinc-950">Gesamtsumme:</span>
-                  <span className="text-xl font-black text-blue-600">{finalTotal.toFixed(2)} €</span>
+                <div className="flex justify-between items-baseline mb-8">
+                  <span className="text-xs font-mono uppercase tracking-widest text-black">Gesamtsumme</span>
+                  <span className="text-2xl font-light text-black tracking-tight font-mono">{finalTotal.toFixed(2)} €</span>
                 </div>
 
-                <button type="submit" className="w-full bg-blue-600 text-white font-black text-xs uppercase tracking-wider py-4 rounded-xl hover:bg-blue-700 active:scale-[0.99] transition-all shadow-md text-center">
-                  Jetzt zahlungspflichtig bestellen ➔
+                <button type="submit" className="w-full bg-black text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors cursor-pointer text-center">
+                  Zahlungspflichtig bestellen
                 </button>
               </div>
             </div>
