@@ -83,7 +83,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     orderBy: orderByClause,
   });
 
-  // 👑 ALLE 5 HEROS FÜR DIE KATEGORIEN (Inklusive Zubehör!)
   const heroMap: Record<string, HeroSection> = {
     'Notebooks': {
       id: 'hero-notebooks',
@@ -144,10 +143,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     const categoriesOrder = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
     
     categoriesOrder.forEach((cat) => {
-      const catProducts = allProducts.filter(p => p.category === cat).slice(0, 4);
+      // 🎯 REPARIERT: Von .slice(0, 4) auf .slice(0, 8) erhöht, um 2 Reihen à 4 Spalten zu erlauben
+      const catProducts = allProducts.filter(p => p.category === cat).slice(0, 8);
       
       if (catProducts.length > 0) {
-        // Jeder Block wird mit seinem passenden Hero eingeleitet
         if (heroMap[cat]) {
           dynamicLayout.push({
             type: 'hero_section',
@@ -163,7 +162,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       }
     });
   } else {
-    // Wenn eine Kategorie aktiv ist, rückt deren Hero an die Spitze
     if (activeCategory && heroMap[activeCategory] && !searchQuery && !activeBrand) {
       dynamicLayout.push({
         type: 'hero_section',

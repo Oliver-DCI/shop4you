@@ -20,6 +20,12 @@ model User {
   firstName String
   lastName  String
   role      Role     @default(USER)
+  
+  // 🎯 Wichtig: Hier muss exakt 'zipCode' stehen, passend zu deinem Seed & Formular!
+  street    String
+  zipCode   String
+  city      String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   

@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-// Wir erlauben hier 'string | null', genau wie Prisma es aus der DB liefert
 interface Product {
   id: string;
   title: string;
@@ -12,7 +11,7 @@ interface Product {
   price: number;
   category: string;
   images: string[];
-  brand: string | null; // 🎯 FIX: 'string | null' statt 'brand?' löst den TS2719 Fehler
+  brand: string | null;
 }
 
 interface ProductCardProps {
@@ -27,7 +26,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     <Link 
       href={`/product/${product.id}`}
       prefetch={false}
-      scroll={false} 
+      // 🎯 REPARIERT: scroll={false} gelöscht, damit Next.js sauber auf die Detailseite routet
       className="group flex flex-col bg-white rounded-none border border-zinc-200 overflow-hidden transition-colors duration-200 max-h-[460px] hover:border-black"
     >
       {/* Bild mit harter Kante */}
@@ -49,7 +48,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       {/* Inhaltsblock */}
       <div className="p-4 flex flex-col flex-1 justify-between gap-2 bg-white">
         <div>
-          {/* 🎯 Der Hersteller im edlen Studio-Look (fängt null sicher ab) */}
+          {/* Der Hersteller im edlen Studio-Look */}
           <div className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase mb-0.5">
             {product.brand || 'Premium Brand'}
           </div>

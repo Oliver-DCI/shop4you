@@ -21,7 +21,7 @@ async function main() {
   // ==========================================
   // 👑 1. ADMIN USER SEEDING
   // ==========================================
-  console.log('👑 Erstelle globalen Administrator...');
+  console.log('👑 Erstelle globalen Administrator mit vollständiger Adresse...');
   
   const hashedAdminPassword = await bcrypt.hash('admin', 10);
 
@@ -31,19 +31,23 @@ async function main() {
       lastName: 'shop4you',
       email: 'admin@shop4you.de',
       password: hashedAdminPassword,
-      role: 'ADMIN', // Entspricht dem Enum im neuen Schema
+      role: 'ADMIN', // Entspricht dem Enum im Schema
+      // 🎯 JETZT NEU: Vollständige Adresse für Profil- & Checkout-Symmetrie
+      street: 'Berliner Straße 100',
+      zipCode: '63065',
+      city: 'Offenbach am Main',
     },
   });
 
   console.log(`✅ Administrator angelegt: ${adminUser.email}`);
 
   // ==========================================
-  // 🌱 2. PREMIUM HARDWARE (4 ARTIKEL PRO KAT.)
+  // 🌱 2. PREMIUM HARDWARE (8 bei Notebooks/Smartphones, 4 bei Rest)
   // ==========================================
-  console.log('🌱 Erstelle 20 Premium-Produkte (4 pro Kategorie mit je 5 Bildern & Brand)...');
+  console.log('🌱 Erstelle Premium-Produkte für den Grid-Test (8 bei Notebooks & Smartphones)...');
 
   const premiumProducts = [
-    // --- NOTEBOOKS ---
+    // --- NOTEBOOKS (Jetzt 8 Artikel für 2 vollständige Kartenreihen) ---
     {
       title: 'MacBook Pro 16" M3 Max',
       description: 'Ultimative Rechenleistung für Entwickler und Kreative. 64GB Unified Memory, 2TB SSD.',
@@ -108,8 +112,72 @@ async function main() {
         'https://images.unsplash.com/photo-1552831344-f914f56f383f?w=800'
       ]
     },
+    {
+      title: 'Razer Blade 16',
+      description: 'High-End Gaming-Notebook mit Dual-Mode Mini-LED Display und NVIDIA RTX 4090.',
+      price: 3599.00,
+      category: 'Notebooks',
+      brand: 'Razer',
+      stock: 5,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800',
+        'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800',
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800',
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800',
+        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800'
+      ]
+    },
+    {
+      title: 'ROG Zephyrus G16 OLED',
+      description: 'Ultradünnes Gaming- und Creator-Notebook. AMD Ryzen AI 9, 240Hz OLED-Panel.',
+      price: 2499.00,
+      category: 'Notebooks',
+      brand: 'Asus',
+      stock: 10,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800',
+        'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800',
+        'https://images.unsplash.com/photo-1544731612-de7f96afe55f?w=800',
+        'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800',
+        'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=800'
+      ]
+    },
+    {
+      title: 'HP Spectre x360 14',
+      description: 'Luxuriöses 2-in-1 Convertible mit Intel Evo Plattform und brillanter 2.8K Kamera.',
+      price: 1699.00,
+      category: 'Notebooks',
+      brand: 'HP',
+      stock: 14,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800',
+        'https://images.unsplash.com/photo-1504707748692-419802cf939d?w=800',
+        'https://images.unsplash.com/photo-1602080858428-57174d9431cf?w=800',
+        'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=800',
+        'https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=800'
+      ]
+    },
+    {
+      title: 'Surface Laptop 7 Copilot+',
+      description: 'Snapdragon X Elite Prozessor sorgt für bahnbrechende Akkulaufzeit und native Windows AI.',
+      price: 1549.00,
+      category: 'Notebooks',
+      brand: 'Microsoft',
+      stock: 18,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800',
+        'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800',
+        'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800',
+        'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800',
+        'https://images.unsplash.com/photo-1552831344-f914f56f383f?w=800'
+      ]
+    },
 
-    // --- SMARTPHONES ---
+    // --- SMARTPHONES (Jetzt ebenfalls 8 Artikel für 2 vollständige Kartenreihen) ---
     {
       title: 'iPhone 15 Pro Max',
       description: 'Titan-Gehäuse, A17 Pro Chip, 5x Tele-Kamera. Das Maß aller Dinge.',
@@ -174,8 +242,72 @@ async function main() {
         'https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=800'
       ]
     },
+    {
+      title: 'OnePlus 12 Black Edition',
+      description: '100W SuperVOOC Schnellladen, Snapdragon 8 Gen 3 und exklusives Hasselblad-Kamerasystem.',
+      price: 949.00,
+      category: 'Smartphones',
+      brand: 'OnePlus',
+      stock: 12,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800',
+        'https://images.unsplash.com/photo-1565849553881-477123dee815?w=800',
+        'https://images.unsplash.com/photo-1533228891704-8f5c75e8f42a?w=800',
+        'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800',
+        'https://images.unsplash.com/photo-1546054454-aa26e2b734c7?w=800'
+      ]
+    },
+    {
+      title: 'Nothing Phone (2)',
+      description: 'Einzigartiges transparentes Design mit interaktivem Glyph-Interface auf der Rückseite.',
+      price: 649.00,
+      category: 'Smartphones',
+      brand: 'Nothing',
+      stock: 20,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800',
+        'https://images.unsplash.com/photo-1574755393849-623942496936?w=800',
+        'https://images.unsplash.com/photo-1534536281715-e28d76689b4d?w=800',
+        'https://images.unsplash.com/photo-1584438784894-089d6a128f3e?w=800',
+        'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800'
+      ]
+    },
+    {
+      title: 'Sony Xperia 1 VI',
+      description: 'Echtes optisches Zoom-Objektiv und OLED-Display im 19.5:9 Kinoformat für Cineasten.',
+      price: 1299.00,
+      category: 'Smartphones',
+      brand: 'Sony',
+      stock: 8,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800',
+        'https://images.unsplash.com/photo-1523206489230-c012c64b2b48?w=800',
+        'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800',
+        'https://images.unsplash.com/photo-1551645121-d1034da75057?w=800',
+        'https://images.unsplash.com/photo-1565630916779-e303be97b6f5?w=800'
+      ]
+    },
+    {
+      title: 'iPhone 15 Studio Edition',
+      description: 'Kompaktes Premium-Format mit mattem Glas-Finish und exzellenter Dual-Kamera.',
+      price: 949.00,
+      category: 'Smartphones',
+      brand: 'Apple',
+      stock: 15,
+      sellerId: adminUser.id,
+      images: [
+        'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800',
+        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800',
+        'https://images.unsplash.com/photo-1573148195900-7845dcb9b127?w=800',
+        'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800',
+        'https://images.unsplash.com/photo-1565849553881-477123dee815?w=800'
+      ]
+    },
 
-    // --- TV ---
+    // --- TV (4 Artikel) ---
     {
       title: 'Neo QLED 8K 75"',
       description: 'Sensationelle 8K-Auflösung dank Quantum-Mini-LEDs. Ultradünnes Infinity Design.',
@@ -241,7 +373,7 @@ async function main() {
       ]
     },
 
-    // --- AUDIO ---
+    // --- AUDIO (4 Artikel) ---
     {
       title: 'Sony WH-1000XM5',
       description: 'Marktführendes Noise Cancelling kombiniert mit brillantem High-Res Sound.',
@@ -307,7 +439,7 @@ async function main() {
       ]
     },
 
-    // --- ZUBEHÖR ---
+    // --- ZUBEHÖR (4 Artikel) ---
     {
       title: 'MX Master 3S Ergonomic',
       description: 'Die ultimative ergonomische Maus für Entwickler und Designer. Nahezu lautlose Klicks.',
@@ -380,7 +512,7 @@ async function main() {
     });
   }
 
-  console.log('🎉 Seed erfolgreich! Admin & genau 20 Premium-Artikel (4 pro Kategorie) eingepflegt.');
+  console.log(`🎉 Seed erfolgreich! Admin hat Adresse & es wurden insgesamt ${premiumProducts.length} Premium-Artikel eingepflegt.`);
 }
 
 main()

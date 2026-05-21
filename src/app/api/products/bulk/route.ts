@@ -11,10 +11,16 @@ const prisma = new PrismaClient({ adapter });
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { products, role } = body; // Wir erwarten die Produkte und die Rolle des Absenders
+    // 🎯 NEU: Wir erwarten jetzt auch die userId desjenigen, der den Import ausführt!
+    const { products, role, userId } = body; 
 
     if (!products || !Array.isArray(products)) {
       return NextResponse.json({ error: 'Ungültiges Datenformat. Erwarte ein Array.' }, { status: 400 });
+    }
+
+    // 🛡️ Sicherheits-Check: Ohne gültige User-ID dürfen wir keine Relation knüpfen
+    if (!userId) {
+      return NextResponse.json({ error: 'Fehlende Benutzer-Identifikation (userId).' }, { status: 400 });
     }
 
     // 🛡️ Rollenbasierte Limitierung (Expert-Gatekeeper)
@@ -39,8 +45,9 @@ export async function POST(request: Request) {
             price: parseFloat(prod.price),
             category: prod.category,
             description: prod.description || '',
-            // Falls Specs im JSON sind, mappen; falls dein Schema nur ein Image-Array hat, setzen wir ein Standardbild
+            brand: prod.brand || null, // 🎯 Brand optional mappen, falls im Schema vorhanden
             images: prod.images || ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'],
+            sellerId: userId, // 🎯 HIER IST DIE RETTUNG: Das Produkt wird fest dem Ersteller zugewiesen!
           },
         })
       )

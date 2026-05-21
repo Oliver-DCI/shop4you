@@ -45,6 +45,6 @@
     "unrs-resolver"
   ],
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "bun prisma/seed.ts"
   }
 }

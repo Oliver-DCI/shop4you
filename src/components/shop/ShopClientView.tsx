@@ -113,11 +113,9 @@ export default function ShopClientView({
   return (
     <div className="w-full bg-white pb-32">
       
-      {/* 🎯 DER ZURÜCKGEDREHTE WEISSE HERO BEREICH MIT SPLIT-LAYOUT */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end border-b border-zinc-100 pb-12">
           
-          {/* Linke Seite (Nimmt 2 von 3 Spalten ein) */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,7 +133,6 @@ export default function ShopClientView({
             </p>
           </motion.div>
 
-          {/* 🎯 RECHTE SEITE (Die gewünschten 2-3 Worte mit Abstand weit rechts außen) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -149,7 +146,6 @@ export default function ShopClientView({
         </div>
       </div>
 
-      {/* Grid-Inhalte */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         {(dynamicLayout || []).map((row, rowIndex) => {
           
@@ -174,11 +170,13 @@ export default function ShopClientView({
                   <h3 className="text-base font-black tracking-tight text-zinc-900 uppercase">
                     {row.categoryName}
                   </h3>
+                  {/* 🎯 REPARIERT: Emoji entfernt & auf "JETZT ENTDECKEN" geändert */}
                   <span className="text-[10px] font-mono text-zinc-400 tracking-widest">
-                    ⚡ DISCOVER NOW
+                    JETZT ENTDECKEN
                   </span>
                 </motion.div>
 
+                {/* ℹ️ Grid bricht dank lg:grid-cols-4 automatisch nach 4 Items in eine neue Zeile um! */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                   {row.products.map((product, pIndex) => (
                     <motion.div

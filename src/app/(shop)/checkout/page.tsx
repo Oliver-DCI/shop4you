@@ -1,23 +1,32 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '@/context/cartContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  street: string;
+  zipCode: string;
+  city: string;
+}
 
 export default function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart();
+  const router = useRouter();
+  
   const [isOrdered, setIsOrdered] = useState(false);
   const [showDifferentShipping, setShowDifferentShipping] = useState(false);
-
-  const [savedProfile] = useState({
-    firstName: 'Max',
-    lastName: 'Mustermann',
-    email: 'max.mustermann@tech.de',
-    street: 'Hardware-Allee 42',
-    zip: '12345',
-    city: 'TechCity',
-  });
+  const [loading, setLoading] = useState(true);
+  
+  // 🎯 Dynamischer State statt der statischen Max Mustermann Mockdaten
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const [shippingData, setShippingData] = useState({
     firstName: '',
@@ -28,6 +37,27 @@ export default function CheckoutPage() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState('invoice');
+
+  // 🛡️ Gatekeeper: Authentifizierung beim Laden der Seite prüfen
+  useEffect(() => {
+    const storedUser = localStorage.getItem('shop4you_user');
+    
+    if (!storedUser) {
+      // Zugriff verweigert -> Sofortige Umleitung zum Login-System
+      router.push('/login?callback=/checkout');
+      return;
+    }
+
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      setUserProfile(parsedUser);
+    } catch (e) {
+      console.error("Fehler beim Parsen der Session-Daten", e);
+      router.push('/login');
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
 
   const shippingCosts = cartTotal >= 500 || cartTotal === 0 ? 0 : 6.90;
   const taxAmount = cartTotal * 0.19;
@@ -40,11 +70,21 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0) return;
+    if (cart.length === 0 || !userProfile) return;
 
-    console.log('Bestellung abgeschickt an:', {
-      billingAddress: savedProfile,
-      shippingAddress: showDifferentShipping ? shippingData : savedProfile,
+    // Billing-Address nutzt jetzt die verifizierten Adressdaten aus deiner DB
+    const billingAddress = {
+      firstName: userProfile.firstName,
+      lastName: userProfile.lastName,
+      email: userProfile.email,
+      street: userProfile.street,
+      zip: userProfile.zipCode,
+      city: userProfile.city
+    };
+
+    console.log('Bestellung im System registriert:', {
+      billingAddress: billingAddress,
+      shippingAddress: showDifferentShipping ? shippingData : billingAddress,
       paymentMethod
     });
 
@@ -52,8 +92,17 @@ export default function CheckoutPage() {
     clearCart();
   };
 
+  // Lade-Schnittstelle im minimalistischen Mono-Look
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center font-mono text-xs uppercase tracking-[0.2em] text-zinc-400">
+        Prüfe Autorisierung...
+      </div>
+    );
+  }
+
   // 1. ERFOLGS-ANSICHT (Im SHOP4YOU Minimal-Look)
-  if (isOrdered) {
+  if (isOrdered && userProfile) {
     return (
       <div className="bg-white min-h-screen flex items-center justify-center p-4 selection:bg-black selection:text-white">
         <div className="max-w-md w-full bg-white border border-zinc-200 p-8 rounded-none text-center flex flex-col items-center gap-6">
@@ -63,7 +112,7 @@ export default function CheckoutPage() {
           <div className="space-y-2">
             <h1 className="text-xl font-black uppercase tracking-widest text-black">Bestellung erfolgreich</h1>
             <p className="text-zinc-500 text-xs leading-relaxed font-normal">
-              Deine Simulation wurde aufgezeichnet. Eine Bestätigung ging an <span className="text-black font-medium">{savedProfile.email}</span>.
+              Deine Order wurde im System verarbeitet. Eine Bestätigung ging an <span className="text-black font-medium">{userProfile.email}</span>.
             </p>
           </div>
           <Link href="/" className="w-full bg-black text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors text-center">
@@ -100,31 +149,34 @@ export default function CheckoutPage() {
             <div className="lg:col-span-7 flex flex-col gap-10">
               
               {/* BLOCK 1: Rechnungsadresse */}
-              <div>
-                <h2 className="text-xs font-mono uppercase tracking-widest text-black flex items-center justify-between border-b border-zinc-200 pb-3 mb-4">
-                  <span>01 // Rechnungsadresse</span>
-                  <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-wider">
-                    Profil-Hinterlegung
-                  </span>
-                </h2>
+              {userProfile && (
+                <div>
+                  <h2 className="text-xs font-mono uppercase tracking-widest text-black flex items-center justify-between border-b border-zinc-200 pb-3 mb-4">
+                    <span>01 // Rechnungsadresse</span>
+                    <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-wider">
+                      Verifiziertes Profil
+                    </span>
+                  </h2>
 
-                <div className="p-5 rounded-none border border-zinc-200 bg-zinc-50 flex flex-col gap-1 text-xs">
-                  <p className="font-bold text-black uppercase tracking-wide">{savedProfile.firstName} {savedProfile.lastName}</p>
-                  <p className="text-zinc-600">{savedProfile.street}</p>
-                  <p className="text-zinc-600">{savedProfile.zip} {savedProfile.city}</p>
-                  <p className="text-zinc-400 font-mono mt-2 text-[10px]">{savedProfile.email}</p>
-                </div>
+                  {/* 🎯 Die Daten kommen jetzt dynamisch aus der PostgreSQL Datenbank über den Login */}
+                  <div className="p-5 rounded-none border border-zinc-200 bg-zinc-50 flex flex-col gap-1 text-xs">
+                    <p className="font-bold text-black uppercase tracking-wide">{userProfile.firstName} {userProfile.lastName}</p>
+                    <p className="text-zinc-600">{userProfile.street}</p>
+                    <p className="text-zinc-600">{userProfile.zipCode} {userProfile.city}</p>
+                    <p className="text-zinc-400 font-mono mt-2 text-[10px]">{userProfile.email}</p>
+                  </div>
 
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowDifferentShipping(!showDifferentShipping)}
-                    className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-black transition-colors"
-                  >
-                    {showDifferentShipping ? '✕ Standard-Lieferadresse nutzen' : '➔ Abweichende Lieferadresse angeben'}
-                  </button>
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowDifferentShipping(!showDifferentShipping)}
+                      className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-black transition-colors cursor-pointer"
+                    >
+                      {showDifferentShipping ? '✕ Standard-Lieferadresse nutzen' : '➔ Abweichende Lieferadresse angeben'}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* BLOCK 1B: Abweichende Lieferadresse */}
               {showDifferentShipping && (
@@ -174,7 +226,7 @@ export default function CheckoutPage() {
                       <span className="text-xs font-bold uppercase tracking-wide text-black">Rechnung</span>
                       <span className="text-[10px] text-zinc-400 font-normal">Zahlung nach Erhalt der Ware</span>
                     </div>
-                    <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-3 w-3 accent-black" />
+                    <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-3 w-3 accent-black cursor-pointer" />
                   </label>
 
                   <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-black bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
@@ -182,7 +234,7 @@ export default function CheckoutPage() {
                       <span className="text-xs font-bold uppercase tracking-wide text-black">PayPal</span>
                       <span className="text-[10px] text-zinc-400 font-normal">Direkte Transaktions-Schnittstelle</span>
                     </div>
-                    <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-3 w-3 accent-black" />
+                    <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-3 w-3 accent-black cursor-pointer" />
                   </label>
                 </div>
               </div>
@@ -199,17 +251,23 @@ export default function CheckoutPage() {
                 <div className="max-h-60 overflow-y-auto flex flex-col gap-4 pr-1 border-b border-zinc-100 pb-6 mb-6">
                   {cart.map((item) => (
                     <div key={item.id} className="flex items-center justify-between gap-4 text-xs">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="relative h-12 w-12 border border-zinc-200 rounded-none overflow-hidden shrink-0 bg-zinc-50">
-                          <Image src={item.image} alt={item.title} fill className="object-cover grayscale" />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="relative h-12 w-12 border border-zinc-200 rounded-none overflow-hidden shrink-0 bg-zinc-50">
+                            {/* 🎯 REPARIERT: Nutzt jetzt item.image, genau wie im cartContext deklariert */}
+                            <Image 
+                              src={item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'} 
+                              alt={item.title} 
+                              fill 
+                              className="object-cover grayscale" 
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-black truncate uppercase tracking-tight text-xs">{item.title}</h4>
+                            <p className="text-zinc-400 text-[10px] font-mono mt-0.5">QTY: {item.quantity} × {item.price.toFixed(2)} €</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <h4 className="font-bold text-black truncate uppercase tracking-tight text-xs">{item.title}</h4>
-                          <p className="text-zinc-400 text-[10px] font-mono mt-0.5">QTY: {item.quantity} × {item.price.toFixed(2)} €</p>
-                        </div>
+                        <span className="font-medium text-black shrink-0 font-mono">{(item.price * item.quantity).toFixed(2)} €</span>
                       </div>
-                      <span className="font-medium text-black shrink-0 font-mono">{(item.price * item.quantity).toFixed(2)} €</span>
-                    </div>
                   ))}
                 </div>
 

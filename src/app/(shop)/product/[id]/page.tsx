@@ -59,7 +59,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <section className="mt-24 border-t border-zinc-100 pt-16">
           {/* 🎯 FIX: Überschrift jetzt edel, dünn, grau und in Monospace */}
           <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-zinc-400 font-normal mb-10">
-            // Unsere Empfehlungen
+            Unsere Empfehlungen
           </h3>
           
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
