@@ -30,6 +30,7 @@ export default function RootLayout({
   return (
     <html
       lang="de"
+      data-scroll-behavior="smooth" /* 🎯 FIX: Verhindert das unkontrollierte Springen bei Routenwechseln und behebt die Next.js-Warnung */
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased selection:bg-black selection:text-white`}
     >
       <body className="min-h-full flex flex-col bg-white text-black rounded-none" suppressHydrationWarning>

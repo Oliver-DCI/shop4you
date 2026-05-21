@@ -84,8 +84,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           <div className="border border-zinc-200 p-4 flex flex-col justify-between rounded-none bg-zinc-50/50">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500"></span>
-                <h4 className="text-[10px] font-mono uppercase tracking-widest text-emerald-600">02 // Abholung</h4>
+                <span className="w-1.5 h-1.5 rounded-none bg-black"></span>
+                <h4 className="text-[10px] font-mono uppercase tracking-widest text-black">02 // Abholung</h4>
               </div>
               <p className="text-xs font-bold text-zinc-950">Sofort verfügbar</p>
               <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">Im Studio Offenbach hinterlegt</p>

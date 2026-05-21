@@ -73,7 +73,7 @@ export default function Header() {
         
         {/* Spalte 1: Brand / Logo */}
         <div className="flex justify-start">
-          <Link href="/" className="text-2xl font-light tracking-[0.25em] uppercase select-none text-black">
+          <Link href="/" className="text-3xl font-light tracking-[0.25em] uppercase select-none text-black">
             SHOP<span className="text-samsung-muted font-extralight">4YOU</span>
           </Link>
         </div>

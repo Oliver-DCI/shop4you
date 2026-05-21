@@ -8,13 +8,18 @@ export default function ProfileWrapper() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Holt den frisch registrierten/eingeloggten User direkt aus dem localStorage
     const storedUser = localStorage.getItem('shop4you_user');
     if (storedUser) {
       setActiveUser(JSON.parse(storedUser));
     }
     setLoading(false);
   }, []);
+
+  // 🎯 FIX: Diese Funktion empfängt die frischen Daten und spiegelt sie sofort in den Speicher!
+  const handleProfileSync = (updatedUser: any) => {
+    setActiveUser(updatedUser);
+    localStorage.setItem('shop4you_user', JSON.stringify(updatedUser));
+  };
 
   if (loading) {
     return <p className="text-xs font-mono uppercase text-zinc-400">Lade Profildaten...</p>;
@@ -28,6 +33,6 @@ export default function ProfileWrapper() {
     );
   }
 
-  // Übergibt die ECHTEN Daten deines registrierten Kunden an das Formular
-  return <ProfileForm user={activeUser} />;
+  // Wir übergeben dem Formular den neuen Callback
+  return <ProfileForm user={activeUser} onProfileUpdate={handleProfileSync} />;
 }

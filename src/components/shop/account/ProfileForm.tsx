@@ -13,14 +13,14 @@ interface ProfileFormProps {
     zipCode?: string | null;
     city?: string | null;
   };
+  onProfileUpdate: (updatedUser: any) => void; // 🎯 NEU: Callback für den Wrapper
 }
 
-export default function ProfileForm({ user }: ProfileFormProps) {
+export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // 🎯 Alle Felder sind jetzt absolut sicher vorbelegt
   const [formData, setFormData] = useState({
     firstName: user.firstName || '',
     lastName: user.lastName || '',
@@ -45,6 +45,15 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       if (res.ok) {
         setIsSuccess(true);
         setStatus('PROFIL ERFOLGREICH AKTUALISIERT // SYSTEM GEUPDATET');
+        
+        // 🎯 FIX: Wir bauen das aktualisierte User-Objekt zusammen
+        const updatedUser = {
+          ...user,
+          ...formData
+        };
+        
+        // ... und jagen es hoch zum Wrapper, um den localStorage zu synchronisieren!
+        onProfileUpdate(updatedUser);
       } else {
         const data = await res.json();
         setStatus(`FEHLER: ${data.message || 'SPEICHERN FEHLGESCHLAGEN'}`);
@@ -117,7 +126,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
               value={formData.zipCode} 
               onChange={(e) => setFormData({...formData, zipCode: e.target.value})}
               className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
-          />
+            />
           </div>
           <div className="col-span-2 flex flex-col gap-1.5">
             <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Stadt</label>
@@ -132,7 +141,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         </div>
       </div>
 
-      {/* 🎯 STATUS-BOX: Nutzt jetzt dein favorisiertes Studio-Grün bei Erfolg! */}
       {status && (
         <div className={`text-[10px] font-mono uppercase tracking-widest p-4 border rounded-none ${
           isSuccess 

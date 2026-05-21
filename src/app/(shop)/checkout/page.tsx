@@ -24,8 +24,8 @@ export default function CheckoutPage() {
   const [isOrdered, setIsOrdered] = useState(false);
   const [showDifferentShipping, setShowDifferentShipping] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🎯 NEU: Verhindert Mehrfachklicks beim Absenden
   
-  // 🎯 Dynamischer State statt der statischen Max Mustermann Mockdaten
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const [shippingData, setShippingData] = useState({
@@ -43,7 +43,6 @@ export default function CheckoutPage() {
     const storedUser = localStorage.getItem('shop4you_user');
     
     if (!storedUser) {
-      // Zugriff verweigert -> Sofortige Umleitung zum Login-System
       router.push('/login?callback=/checkout');
       return;
     }
@@ -68,31 +67,59 @@ export default function CheckoutPage() {
     setShippingData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  // 🎯 REPARIERT: Sendet die Daten nun live an die POST-API-Route
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cart.length === 0 || !userProfile) return;
+    if (cart.length === 0 || !userProfile || isSubmitting) return;
 
-    // Billing-Address nutzt jetzt die verifizierten Adressdaten aus deiner DB
-    const billingAddress = {
-      firstName: userProfile.firstName,
-      lastName: userProfile.lastName,
-      email: userProfile.email,
-      street: userProfile.street,
-      zip: userProfile.zipCode,
-      city: userProfile.city
-    };
+    try {
+      setIsSubmitting(true);
 
-    console.log('Bestellung im System registriert:', {
-      billingAddress: billingAddress,
-      shippingAddress: showDifferentShipping ? shippingData : billingAddress,
-      paymentMethod
-    });
+      // Datenpaket für die API schnüren
+      const orderPayload = {
+        userId: userProfile.id,
+        totalAmount: finalTotal,
+        paymentMethod: paymentMethod,
+        items: cart.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        // Nur mitschicken, wenn abweichende Adresse aktiv ist
+        shippingAddress: showDifferentShipping ? {
+          firstName: shippingData.firstName,
+          lastName: shippingData.lastName,
+          street: shippingData.street,
+          zip: shippingData.zip,
+          city: shippingData.city
+        } : null
+      };
 
-    setIsOrdered(true);
-    clearCart();
+      // POST-Request an unsere API senden
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler beim Verarbeiten der Bestellung.');
+      }
+
+      // Erfolgsfall im UI spiegeln und Cart leeren
+      setIsOrdered(true);
+      clearCart();
+    } catch (error) {
+      console.error('Checkout Fehler:', error);
+      alert(error instanceof Error ? error.message : 'Etwas ist schiefgelaufen.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Lade-Schnittstelle im minimalistischen Mono-Look
   if (loading) {
     return (
       <div className="bg-white min-h-screen flex items-center justify-center font-mono text-xs uppercase tracking-[0.2em] text-zinc-400">
@@ -101,7 +128,6 @@ export default function CheckoutPage() {
     );
   }
 
-  // 1. ERFOLGS-ANSICHT (Im SHOP4YOU Minimal-Look)
   if (isOrdered && userProfile) {
     return (
       <div className="bg-white min-h-screen flex items-center justify-center p-4 selection:bg-black selection:text-white">
@@ -158,7 +184,6 @@ export default function CheckoutPage() {
                     </span>
                   </h2>
 
-                  {/* 🎯 Die Daten kommen jetzt dynamisch aus der PostgreSQL Datenbank über den Login */}
                   <div className="p-5 rounded-none border border-zinc-200 bg-zinc-50 flex flex-col gap-1 text-xs">
                     <p className="font-bold text-black uppercase tracking-wide">{userProfile.firstName} {userProfile.lastName}</p>
                     <p className="text-zinc-600">{userProfile.street}</p>
@@ -180,7 +205,7 @@ export default function CheckoutPage() {
 
               {/* BLOCK 1B: Abweichende Lieferadresse */}
               {showDifferentShipping && (
-                <div className="p-6 border border-zinc-200 bg-white rounded-none flex flex-col gap-4 animate-none">
+                <div className="p-6 border border-zinc-200 bg-white rounded-none flex flex-col gap-4">
                   <h3 className="text-[10px] font-mono uppercase tracking-widest text-black mb-2">
                     Abweichende Lieferanschrift
                   </h3>
@@ -253,7 +278,6 @@ export default function CheckoutPage() {
                     <div key={item.id} className="flex items-center justify-between gap-4 text-xs">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="relative h-12 w-12 border border-zinc-200 rounded-none overflow-hidden shrink-0 bg-zinc-50">
-                            {/* 🎯 REPARIERT: Nutzt jetzt item.image, genau wie im cartContext deklariert */}
                             <Image 
                               src={item.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'} 
                               alt={item.title} 
@@ -297,8 +321,13 @@ export default function CheckoutPage() {
                   <span className="text-2xl font-light text-black tracking-tight font-mono">{finalTotal.toFixed(2)} €</span>
                 </div>
 
-                <button type="submit" className="w-full bg-black text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors cursor-pointer text-center">
-                  Zahlungspflichtig bestellen
+                {/* 🎯 REPARIERT: Button sperrt sich bei 'isSubmitting', um Doppel-Käufe abzufangen */}
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full bg-black text-white font-medium text-xs uppercase tracking-widest py-4 rounded-none hover:bg-zinc-900 transition-colors cursor-pointer text-center disabled:bg-zinc-400 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Verarbeite Bestellung...' : 'Zahlungspflichtig bestellen'}
                 </button>
               </div>
             </div>
