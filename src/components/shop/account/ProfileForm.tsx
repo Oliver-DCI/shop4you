@@ -18,7 +18,9 @@ interface ProfileFormProps {
 export default function ProfileForm({ user }: ProfileFormProps) {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
+  // 🎯 Alle Felder sind jetzt absolut sicher vorbelegt
   const [formData, setFormData] = useState({
     firstName: user.firstName || '',
     lastName: user.lastName || '',
@@ -31,6 +33,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     e.preventDefault();
     setLoading(true);
     setStatus('');
+    setIsSuccess(false);
 
     try {
       const res = await fetch('/api/account/update-profile', {
@@ -40,13 +43,14 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       });
 
       if (res.ok) {
-        setStatus('✅ PROFIL ERFOLGREICH AKTUALISIERT');
+        setIsSuccess(true);
+        setStatus('PROFIL ERFOLGREICH AKTUALISIERT // SYSTEM GEUPDATET');
       } else {
         const data = await res.json();
-        setStatus(`❌ FEHLER: ${data.message || 'SPEICHERN FEHLGESCHLAGEN'}`);
+        setStatus(`FEHLER: ${data.message || 'SPEICHERN FEHLGESCHLAGEN'}`);
       }
     } catch (err) {
-      setStatus('❌ NETZWERKFEHLER');
+      setStatus('NETZWERKFEHLER // VERBINDUNG UNTERBROCHEN');
     } finally {
       setLoading(false);
     }
@@ -64,6 +68,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Vorname</label>
             <input 
               type="text" 
+              autoComplete="given-name"
               value={formData.firstName} 
               onChange={(e) => setFormData({...formData, firstName: e.target.value})}
               className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
@@ -74,6 +79,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Nachname</label>
             <input 
               type="text" 
+              autoComplete="family-name"
               value={formData.lastName} 
               onChange={(e) => setFormData({...formData, lastName: e.target.value})}
               className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
@@ -96,6 +102,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Straße & Hausnummer</label>
           <input 
             type="text" 
+            autoComplete="street-address"
             value={formData.street} 
             onChange={(e) => setFormData({...formData, street: e.target.value})}
             className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
@@ -106,6 +113,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">PLZ</label>
             <input 
               type="text" 
+              autoComplete="postal-code"
               value={formData.zipCode} 
               onChange={(e) => setFormData({...formData, zipCode: e.target.value})}
               className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
@@ -115,6 +123,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Stadt</label>
             <input 
               type="text" 
+              autoComplete="address-level2"
               value={formData.city} 
               onChange={(e) => setFormData({...formData, city: e.target.value})}
               className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-zinc-50 focus:outline-none focus:border-black focus:bg-white transition-colors" 
@@ -123,9 +132,14 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         </div>
       </div>
 
+      {/* 🎯 STATUS-BOX: Nutzt jetzt dein favorisiertes Studio-Grün bei Erfolg! */}
       {status && (
-        <div className="text-[10px] font-medium uppercase tracking-widest p-3 bg-zinc-50 border border-zinc-200 text-black">
-          {status}
+        <div className={`text-[10px] font-mono uppercase tracking-widest p-4 border rounded-none ${
+          isSuccess 
+            ? 'bg-emerald-50/50 border-emerald-500 text-emerald-700' 
+            : 'bg-zinc-50 border-zinc-200 text-black'
+        }`}>
+          {isSuccess ? '● ' : '○ '} {status}
         </div>
       )}
 
