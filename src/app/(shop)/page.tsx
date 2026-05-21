@@ -17,6 +17,7 @@ interface HeroSection {
   tag: string;
   bgImage: string;
   ctaText: string;
+  ctaLink: string; // 🎯 NEU: Der Link für den Button
 }
 
 interface HomePageProps {
@@ -102,10 +103,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
   });
 
-  // 🎯 FIX: Definiert deine gewünschte Premium-Reihenfolge
+  // Definiert deine gewünschte Premium-Reihenfolge
   const preferredOrder = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
 
-  // 🎯 FIX: Sortiert das DB-Set nach deiner Wunsch-Reihenfolge statt alphabetisch
+  // Sortiert das DB-Set nach deiner Wunsch-Reihenfolge statt alphabetisch
   const sortedCategories = Array.from(categoriesSet).sort((a, b) => {
     const indexA = preferredOrder.indexOf(a);
     const indexB = preferredOrder.indexOf(b);
@@ -123,6 +124,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     finalBrandsByCategory[cat] = Array.from(brandsByCategory[cat]).sort();
   });
 
+  // 🎯 HIER WURDEN DIE DIRETEN LINKS HINZUGEFÜGT
   const heroMap: Record<string, HeroSection> = {
     'Notebooks': {
       id: 'hero-notebooks',
@@ -133,6 +135,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       description: 'Erlebe rohe Performance verpackt in ultra-präzisem, matt-schwarzem Aluminium. Gemacht für Architekten des Codes und Pioniere des Designs.',
       bgImage: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1800',
       ctaText: 'Jetzt konfigurieren',
+      ctaLink: '/?category=Notebooks',
     },
     'Smartphones': {
       id: 'hero-smartphones',
@@ -143,6 +146,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       description: 'Hauchdünnes Titangehäuse gepaart mit einem unzerkratzbaren Saphirglas-Display. Intelligente KI, die deine Absichten erkennt.',
       bgImage: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1800',
       ctaText: 'Entdecken',
+      ctaLink: '/?category=Smartphones',
     },
     'TV': {
       id: 'hero-tv',
@@ -153,6 +157,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       description: 'Licht und Schatten in absoluter Perfektion. Quantum-Mini-LEDs erzeugen Kontraste, die du so noch nie erlebt hast.',
       bgImage: 'https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=1800',
       ctaText: 'Größen vergleichen',
+      ctaLink: '/?category=TV',
     },
     'Audio': {
       id: 'hero-audio',
@@ -163,6 +168,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       description: 'Hybrides Active Noise Cancelling blendet die Welt komplett aus. Jede Nuance deiner Musik wird spürbar.',
       bgImage: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=1800',
       ctaText: 'Probehören',
+      ctaLink: '/?category=Audio',
     },
     'Zubehör': {
       id: 'hero-accessories',
@@ -173,6 +179,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       description: 'Ergonomische Tools, ultraschnelle Konnektivität und intelligentes Power-Management. Jedes Teil ein Meisterwerk im Detail.',
       bgImage: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=1800',
       ctaText: 'Setup erweitern',
+      ctaLink: '/?category=Zubehör',
     },
   };
 
@@ -180,7 +187,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const isPureHome = (!activeCategory || activeCategory === 'Produkte') && !searchQuery && !activeSort && !activeBrand;
 
   if (isPureHome) {
-    // 🎯 Nutzt nun die exakt vorsortierte Reihenfolge aus der DB für die Reihen-Anordnung
     sortedCategories.forEach((cat) => {
       const catProducts = allProducts.filter(p => p.category === cat).slice(0, 8);
       

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
+import Link from 'next/link'; // 🎯 NEU: Link für die Weiterleitung importiert
 import ProductCard from './ProductCard';
 import CategoryFilter from './CategoryFilter';
 
@@ -28,6 +29,7 @@ interface HeroData {
   tag: string;
   bgImage: string;
   ctaText: string;
+  ctaLink: string; // 🎯 NEU: Dem Interface hinzugefügt
 }
 
 interface LayoutRow {
@@ -106,9 +108,13 @@ export default function ShopClientView({
             viewport={{ once: true, amount: 0.2 }}
             variants={slowFadeInUp}
           >
-            <button className="bg-white text-black hover:bg-black hover:text-white font-medium text-xs uppercase tracking-widest px-6 py-3.5 transition-all duration-500 border border-white rounded-none">
+            {/* 🎯 FIX: Aus dem Button einen Link gemacht mit passender ctaLink URL */}
+            <Link 
+              href={hero.ctaLink || '/'} 
+              className="inline-block bg-white text-black hover:bg-black hover:text-white font-medium text-xs uppercase tracking-widest px-6 py-3.5 transition-all duration-500 border border-white rounded-none select-none text-center"
+            >
               {hero.ctaText}
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>
