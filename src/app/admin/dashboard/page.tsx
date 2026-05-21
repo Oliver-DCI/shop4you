@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Beispiel-Daten für den Prototyp (Später komplett aus PostgreSQL geladen)
 const initialSellers = [
@@ -10,16 +11,46 @@ const initialSellers = [
 ];
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState('overview');
   const [sellers, setSellers] = useState(initialSellers);
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [timeFilter, setTimeFilter] = useState('MONAT');
+
+  // 🎯 FIX 1: Strenger Client-seitiger Schutz gekoppelt an den neuen LocalStorage-Key
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
+    const userRoleNormalized = (currentUser.role || '').toUpperCase();
+
+    // Nur Admins (oder der explizite Hardcoded Admin-Vorname als Fallback) dürfen passieren
+    if (userRoleNormalized !== 'ADMIN' && currentUser.firstName !== 'Admin') {
+      router.push('/');
+    } else {
+      setIsAdmin(true);
+    }
+    setLoading(false);
+  }, [router]);
 
   // Funktion zum Mahnen eines Sellers
   const handleMahnung = (id: number, name: string) => {
     setSellers(sellers.map(s => s.id === id ? { ...s, status: 'Gemahnt' } : s));
     alert(`⚠️ Händler "${name}" wurde offiziell gemahnt. Warnung im Seller-Dashboard hinterlegt.`);
   };
+
+  // 🎯 FIX 2: Lade-Zustand abfangen, um "Flimmern" oder ungewollten Content-Sichtbarkeiten vorzubeugen
+  if (loading) {
+    return (
+      <div className="p-20 text-center font-mono text-xs tracking-widest uppercase text-zinc-400 bg-zinc-50 min-h-screen flex items-center justify-center">
+        INITIALISIERE SECURE-CORE-SYSTEM...
+      </div>
+    );
+  }
+
+  // Sicherheits-Riegel
+  if (!isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-zinc-50 text-black font-sans selection:bg-black selection:text-white">
@@ -30,8 +61,16 @@ export default function AdminDashboard() {
           <span className="text-xs font-mono tracking-widest bg-zinc-800 px-2 py-0.5 uppercase">Core-System</span>
           <h1 className="text-xs uppercase tracking-widest font-bold">SHOP4YOU // MANAGEMENT HQ</h1>
         </div>
-        <div className="text-[11px] font-mono text-zinc-400">
-          ROLE: [SYSTEM_ADMIN]
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.push('/')}
+            className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-white border border-zinc-800 px-3 py-1 bg-zinc-900 transition-colors cursor-pointer"
+          >
+            ← Zum Shop Front-End
+          </button>
+          <div className="text-[11px] font-mono text-zinc-400 hidden sm:block">
+            ROLE: [SYSTEM_ADMIN]
+          </div>
         </div>
       </div>
 
@@ -69,18 +108,16 @@ export default function AdminDashboard() {
         {/* RECHTER BEREICH: Dynamischer Content-Workspace */}
         <div className="lg:col-span-4 bg-white border border-zinc-200 p-8">
           
-          {/* TAB 1: OVERVIEW (BUSINESS INTELLIGENCE HUB) */}
+          {/* TAB 1: OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="flex flex-col gap-8">
               
-              {/* Header & Globale Zeit-Filter-Matrix */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 pb-6">
                 <div>
                   <h2 className="text-xl uppercase tracking-wider font-light">Unternehmens-Leistung & Business Intelligence</h2>
                   <p className="text-zinc-400 text-[10px] uppercase tracking-widest mt-1">Globales Reporting für Management und Investoren</p>
                 </div>
                 
-                {/* CEO-Filterleiste */}
                 <div className="flex bg-zinc-100 p-1 border border-zinc-200 self-start sm:self-auto">
                   {['HEUTE', '7 TAGE', 'MONAT', 'JAHR'].map((filter) => (
                     <button
@@ -96,7 +133,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Hochverdichtete KPI-Kachel-Matrix */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="border border-zinc-200 p-6 bg-zinc-50">
                   <p className="text-[10px] text-zinc-400 uppercase tracking-widest">Gross Merchandise Value (GMV)</p>
@@ -120,7 +156,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Haupt-Diagramm: Umsatz-Trendlinie (SVG Engine) */}
+              {/* Haupt-Diagramm */}
               <div className="border border-zinc-200 p-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-6">
                   <div>
@@ -134,32 +170,16 @@ export default function AdminDashboard() {
                 
                 <div className="w-full h-48 relative bg-zinc-50 border border-zinc-100 p-2">
                   <svg viewBox="0 0 1000 200" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                    {/* Grid-Linien im Hintergrund */}
                     <line x1="0" y1="50" x2="1000" y2="50" stroke="#e4e4e7" strokeWidth="1" strokeDasharray="4" />
                     <line x1="0" y1="100" x2="1000" y2="100" stroke="#e4e4e7" strokeWidth="1" strokeDasharray="4" />
                     <line x1="0" y1="150" x2="1000" y2="150" stroke="#e4e4e7" strokeWidth="1" strokeDasharray="4" />
-                    
-                    {/* Trend-Fläche (Area Fill) */}
-                    <path 
-                      d="M 0,200 L 0,150 L 150,130 L 300,160 L 450,80 L 600,95 L 750,40 L 900,60 L 1000,20 L 1000,200 Z" 
-                      fill="rgba(0,0,0,0.03)" 
-                    />
-                    {/* Messerscharfe Haupt-Trendlinie */}
-                    <path 
-                      d="M 0,150 L 150,130 L 300,160 L 450,80 L 600,95 L 750,40 L 900,60 L 1000,20" 
-                      fill="none" 
-                      stroke="black" 
-                      strokeWidth="2" 
-                    />
-                    
-                    {/* Datenpunkte */}
+                    <path d="M 0,200 L 0,150 L 150,130 L 300,160 L 450,80 L 600,95 L 750,40 L 900,60 L 1000,20 L 1000,200 Z" fill="rgba(0,0,0,0.03)" />
+                    <path d="M 0,150 L 150,130 L 300,160 L 450,80 L 600,95 L 750,40 L 900,60 L 1000,20" fill="none" stroke="black" strokeWidth="2" />
                     <circle cx="450" cy="80" r="3" fill="black" />
                     <circle cx="750" cy="40" r="3" fill="black" />
                     <circle cx="1000" cy="20" r="4" fill="black" />
                   </svg>
                 </div>
-                
-                {/* X-Achse Beschriftung */}
                 <div className="flex justify-between font-mono text-[9px] text-zinc-400 uppercase tracking-widest mt-2 px-1">
                   <span>Start</span>
                   <span>Intervall Mitte</span>
@@ -167,85 +187,58 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Zweispaltige Detail-Analyse */}
+              {/* Detail-Analysen */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                {/* Spalte A: Top Artikel- & Produktumsatz */}
                 <div className="border border-zinc-200 p-6 flex flex-col gap-4">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-black">Top 3 Artikelumsatz</p>
                     <p className="text-[9px] text-zinc-400 uppercase tracking-widest">Die profitabelsten Hardware-Komponenten</p>
                   </div>
-                  
                   <div className="flex flex-col gap-4 font-mono text-[11px] mt-2">
                     <div>
                       <div className="flex justify-between text-[10px] uppercase mb-1">
                         <span className="font-sans font-medium text-black">MacBook Pro Studio M5X</span>
                         <span className="font-bold">42.100 €</span>
                       </div>
-                      <div className="w-full h-3 bg-zinc-100 rounded-none">
-                        <div className="h-full bg-black transition-all" style={{ width: '85%' }}></div>
-                      </div>
+                      <div className="w-full h-3 bg-zinc-100 rounded-none"><div className="h-full bg-black transition-all" style={{ width: '85%' }}></div></div>
                     </div>
-                    
                     <div>
                       <div className="flex justify-between text-[10px] uppercase mb-1">
                         <span className="font-sans font-medium text-black">UltraWide Quantum OLED 49"</span>
                         <span className="font-bold">28.900 €</span>
                       </div>
-                      <div className="w-full h-3 bg-zinc-100 rounded-none">
-                        <div className="h-full bg-black transition-all" style={{ width: '58%' }}></div>
-                      </div>
+                      <div className="w-full h-3 bg-zinc-100 rounded-none"><div className="h-full bg-black transition-all" style={{ width: '58%' }}></div></div>
                     </div>
-
                     <div>
                       <div className="flex justify-between text-[10px] uppercase mb-1">
                         <span className="font-sans font-medium text-black">GeForce RTX 5090 Ti Founders</span>
                         <span className="font-bold">19.400 €</span>
                       </div>
-                      <div className="w-full h-3 bg-zinc-100 rounded-none">
-                        <div className="h-full bg-zinc-400 transition-all" style={{ width: '40%' }}></div>
-                      </div>
+                      <div className="w-full h-3 bg-zinc-100 rounded-none"><div className="h-full bg-zinc-400 transition-all" style={{ width: '40%' }}></div></div>
                     </div>
                   </div>
                 </div>
 
-                {/* Spalte B: Kundenakquise & Säulen-Wachstum */}
                 <div className="border border-zinc-200 p-6 flex flex-col gap-4">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-black">Kundenakquise & Wachstum</p>
                     <p className="text-[9px] text-zinc-400 uppercase tracking-widest">Neuregistrierungen im Quartalsvergleich</p>
                   </div>
-
                   <div className="h-32 flex items-end justify-between gap-6 font-mono text-[9px] text-zinc-400 pt-4 px-4 bg-zinc-50 border border-zinc-100">
-                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <div className="w-full bg-zinc-300 transition-all hover:bg-black" style={{ height: '40%' }}></div>
-                      <span>Q1</span>
-                    </div>
-                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <div className="w-full bg-zinc-300 transition-all hover:bg-black" style={{ height: '55%' }}></div>
-                      <span>Q2</span>
-                    </div>
-                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <div className="w-full bg-zinc-400 transition-all hover:bg-black" style={{ height: '75%' }}></div>
-                      <span>Q3</span>
-                    </div>
-                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end">
-                      <div className="w-full bg-black transition-all" style={{ height: '95%' }}></div>
-                      <span className="text-black font-bold">Q4 (ACT)</span>
-                    </div>
+                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end"><div className="w-full bg-zinc-300 transition-all hover:bg-black" style={{ height: '40%' }}></div><span>Q1</span></div>
+                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end"><div className="w-full bg-zinc-300 transition-all hover:bg-black" style={{ height: '55%' }}></div><span>Q2</span></div>
+                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end"><div className="w-full bg-zinc-400 transition-all hover:bg-black" style={{ height: '75%' }}></div><span>Q3</span></div>
+                    <div className="flex-1 flex flex-col items-center gap-2 h-full justify-end"><div className="w-full bg-black transition-all" style={{ height: '95%' }}></div><span className="text-black font-bold">Q4 (ACT)</span></div>
                   </div>
                 </div>
-
               </div>
 
-              {/* Unterste Reihe: Verkäufer-Umsatzmatrix (Share of Wallet) */}
+              {/* Händler-Umsatzmatrix */}
               <div className="border border-zinc-200 p-6">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-black">Händler-Umsatzanteil (Share of Wallet)</p>
                   <p className="text-[9px] text-zinc-400 uppercase tracking-widest">Direkte Performance-Auswertung aller Seller im System</p>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs pt-4 mt-2">
                   <div className="border-l-2 border-black pl-4 py-2">
                     <p className="font-sans font-bold text-black text-xs uppercase">Alpha Hardware</p>
@@ -275,7 +268,6 @@ export default function AdminDashboard() {
                 <h2 className="text-xl uppercase tracking-wider font-light">Verkäufer-Netzwerk (Sellers)</h2>
                 <p className="text-zinc-400 text-[10px] uppercase tracking-widest mt-1">Überwachung von Artikeln, Umsätzen und Compliance</p>
               </div>
-
               <div className="overflow-x-auto">
                 <table className="w-full text-left font-mono border-collapse">
                   <thead>

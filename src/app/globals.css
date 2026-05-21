@@ -12,6 +12,9 @@
   --samsung-gray-200: #e9ecef;
   --samsung-gray-300: #dee2e6;
   --samsung-gray-700: #495057;
+
+  /* 🎯 Dunkleres Grau für Nebenschriften (bessere Lesbarkeit) */
+  --samsung-text-muted: #52525b;
 }
 
 @theme inline {
@@ -20,6 +23,7 @@
   --color-samsung-gray-100: var(--samsung-gray-100);
   --color-samsung-gray-200: var(--samsung-gray-200);
   --color-samsung-gray-300: var(--samsung-gray-300);
+  --color-samsung-muted: var(--samsung-text-muted);
 }
 
 /* Globaler Reset auf die typische, cleane Samsung-Ästhetik */
@@ -27,10 +31,10 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
-  letter-spacing: -0.02em; /* Leicht engerer Schriftschnitt für Tech-Look */
+  letter-spacing: -0.02em;
 }
 
-/* Alle Buttons und Inputs global auf eckig trimmen, falls kein Tailwind greift */
+/* Alle Buttons und Inputs global auf eckig trimmen */
 input, button, select, textarea {
   border-radius: 0px !important;
 }
@@ -39,21 +43,18 @@ input, button, select, textarea {
    ✨ SAMSUNG MINIMALISM UTILITIES
    ========================================================================== */
 
-/* 1. Ein extrem dezentes, mattes Hintergrund-Overlay statt bunten Kreisen */
 @utility shop-overlay-blur {
   background-color: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
-/* 2. Messerscharfe, feine Rahmenkonstruktion für Boxen und Modale */
 @utility samsung-box {
   background-color: #ffffff;
   border: 1px solid var(--samsung-gray-200);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
 }
 
-/* 3. Subtiler, grauer Trennbalken-Stil */
 @utility samsung-divider {
   border-color: var(--samsung-gray-200);
 }

@@ -50,17 +50,22 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login fehlgeschlagen.');
       }
 
-      // 🎯 KORREKTUR: Schlüssel auf 'shop4you_user' geändert, passend zur Checkout-Sperre!
-      localStorage.setItem('shop4you_user', JSON.stringify(data.user));
-      setUser({ firstName: data.user.firstName, role: data.user.role });
-      setAuthenticatedUser(data.user);
+      // 🎯 1. Rolle direkt vereinheitlichen (Großbuchstaben)
+      const userRoleNormalized = (data.user.role || '').toUpperCase();
 
-      if (data.user.role === 'ADMIN') { // Matcht das Prisma Enum in Großbuchstaben
+      // 🎯 2. Bereinigte Daten in LocalStorage & globalen Context spiegeln
+      const updatedUser = { ...data.user, role: userRoleNormalized };
+      localStorage.setItem('shop4you_user', JSON.stringify(updatedUser));
+      
+      setUser({ firstName: data.user.firstName, role: userRoleNormalized });
+      setAuthenticatedUser(updatedUser);
+
+      // 🎯 3. Weichen-Zustände triggern
+      if (userRoleNormalized === 'ADMIN') { 
         setShowAdminWeiche(true);
-      } else if (data.user.role === 'SELLER') {
+      } else if (userRoleNormalized === 'SELLER') {
         setShowSellerWeiche(true);
       } else {
-        // Falls eine Callback-URL (z.B. /checkout) existiert, dorthin leiten, sonst zum Storefront
         const callback = searchParams.get('callback');
         router.push(callback || '/');
       }
@@ -80,7 +85,13 @@ export default function LoginPage() {
             <p className="text-xs text-zinc-400 mt-1 font-mono">{authenticatedUser?.email}</p>
           </div>
           <div className="flex flex-col gap-2">
-            <button onClick={() => router.push('/admin')} className="w-full bg-black hover:bg-zinc-900 text-white text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none cursor-pointer">Zur Admin-Zentrale</button>
+            {/* 🎯 FIX: Zielpfad von '/admin' auf '/admin/dashboard' geändert */}
+            <button 
+              onClick={() => router.push('/admin/dashboard')} 
+              className="w-full bg-black hover:bg-zinc-900 text-white text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none cursor-pointer"
+            >
+              Zur Admin-Zentrale
+            </button>
             <button onClick={() => router.push('/seller/dashboard')} className="w-full bg-zinc-100 hover:bg-zinc-200 text-black text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none cursor-pointer">Händler-Dashboard testen</button>
             <button onClick={() => router.push('/')} className="w-full bg-white border border-zinc-200 hover:bg-zinc-50 text-zinc-600 text-[11px] uppercase py-3.5 tracking-widest font-medium transition-colors rounded-none cursor-pointer">Zum Storefront</button>
           </div>
@@ -110,7 +121,6 @@ export default function LoginPage() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50">
       <div className="max-w-md w-full bg-white border border-zinc-200 p-10 rounded-none shadow-sm flex flex-col gap-6 text-black relative z-10">
         
-        {/* 🎯 NEU: Abbruch-Button über dem Titel */}
         <div className="text-left">
           <Link 
             href="/" 

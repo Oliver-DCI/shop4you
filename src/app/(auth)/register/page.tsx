@@ -7,7 +7,8 @@ import Link from 'next/link';
 export default function RegisterPage() {
   const router = useRouter();
   
-  const [role, setRole] = useState<'customer' | 'seller'>('customer');
+  // 🎯 FIX: State direkt auf die exakten Backend-Enum-Werte setzen, um Konvertierungsfehler zu vermeiden
+  const [role, setRole] = useState<'USER' | 'SELLER'>('USER');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,7 +42,7 @@ export default function RegisterPage() {
           lastName,
           email,
           password,
-          role: role === 'seller' ? 'SELLER' : 'USER', // Synchron mit Backend Enum-Werten
+          role, // 🎯 FIX: Wird jetzt direkt und sauber als 'USER' oder 'SELLER' durchgereicht
           street,
           zipCode,
           city,
@@ -66,7 +67,6 @@ export default function RegisterPage() {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50 overflow-y-auto">
       <div className="max-w-xl w-full bg-white border border-zinc-200 p-10 rounded-none shadow-sm flex flex-col gap-6 text-black my-auto relative z-10">
         
-        {/* 🎯 NEU: Abbruch-Button über dem Titel */}
         <div className="text-left">
           <Link 
             href="/" 
@@ -91,16 +91,16 @@ export default function RegisterPage() {
           <button 
             type="button" 
             disabled={loading}
-            onClick={() => setRole('customer')} 
-            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'customer' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
+            onClick={() => setRole('USER')} 
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'USER' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
           >
             Customer (Käufer)
           </button>
           <button 
             type="button" 
             disabled={loading}
-            onClick={() => setRole('seller')} 
-            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'seller' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
+            onClick={() => setRole('SELLER')} 
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'SELLER' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
           >
             Seller (Verkäufer)
           </button>

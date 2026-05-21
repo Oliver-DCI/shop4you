@@ -17,7 +17,13 @@ interface ProductInput {
   price: number;
   images: string[];
   category: string;
-  quantity?: number; // Optionaler Parameter für die Wunschmenge
+  quantity?: number;
+}
+
+export interface User {
+  firstName: string;
+  lastName: string;
+  role: 'customer' | 'seller' | 'admin';
 }
 
 interface CartStoreType {
@@ -30,12 +36,10 @@ interface CartStoreType {
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
-  
-  // 🔐 Authentifizierungs-Zustände
   authOpen: boolean;
   setAuthOpen: (open: boolean) => void;
-  user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null;
-  setUser: (user: { firstName: string; role: 'customer' | 'seller' | 'admin' } | null) => void;
+  user: User | null;
+  setUser: (user: User | null) => void;
   logout: () => void;
 }
 
@@ -45,7 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setCartOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const [user, setUser] = useState<{ firstName: string; role: 'customer' | 'seller' | 'admin' } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('shop4you_cart');
@@ -53,16 +57,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       try {
         setCart(JSON.parse(savedCart));
       } catch (e) {
-        console.error("Fehler beim Laden des Warenkorbs", e);
+        console.error("[SHOP4YOU CORE] Fehler beim Synchronisieren des Warenkorbs:", e);
       }
     }
 
     const activeUser = localStorage.getItem('active_user');
     if (activeUser) {
       try {
-        setUser(JSON.parse(activeUser));
+        const parsedUser = JSON.parse(activeUser);
+        
+        if (!parsedUser.lastName && parsedUser.firstName.includes(' ')) {
+          const parts = parsedUser.firstName.trim().split(/\s+/);
+          parsedUser.firstName = parts[0];
+          parsedUser.lastName = parts.slice(1).join(' ');
+        }
+
+        setUser(parsedUser);
       } catch (e) {
-        console.error("Fehler beim Laden des aktiven Users", e);
+        console.error("[SHOP4YOU AUTH] Session-Wiederherstellung fehlgeschlagen:", e);
       }
     }
   }, []);

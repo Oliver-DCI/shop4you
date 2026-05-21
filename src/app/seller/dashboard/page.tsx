@@ -12,9 +12,13 @@ export default function SellerDashboardPage() {
   const [importStatus, setImportStatus] = useState('');
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('active_user') || '{}');
+    // 🎯 FIX 1: Richtigen Key 'shop4you_user' abfragen, passend zum Login
+    const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
 
-    if (currentUser.role !== 'seller' && currentUser.role !== 'admin' && currentUser.firstName !== 'Admin') {
+    // 🎯 FIX 2: Rolle in Großbuchstaben normalisieren, um 'SELLER' und 'ADMIN' sicher zu matchen
+    const userRoleNormalized = (currentUser.role || '').toUpperCase();
+
+    if (userRoleNormalized !== 'SELLER' && userRoleNormalized !== 'ADMIN' && currentUser.firstName !== 'Admin') {
       router.push('/');
     } else {
       setIsSeller(true);
@@ -32,14 +36,17 @@ export default function SellerDashboardPage() {
 
       const parsedData = JSON.parse(jsonInput);
       const articlesArray = Array.isArray(parsedData) ? parsedData : [parsedData];
-      const currentUser = JSON.parse(localStorage.getItem('active_user') || '{}');
+      
+      // 🎯 FIX 3: Auch hier den korrekten Key für den API-Payload auslesen
+      const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
+      const userRoleNormalized = (currentUser.role || '').toUpperCase();
 
       const response = await fetch('/api/products/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           products: articlesArray,
-          role: currentUser.role || 'seller'
+          role: userRoleNormalized || 'SELLER'
         }),
       });
 
@@ -96,7 +103,7 @@ export default function SellerDashboardPage() {
           </button>
         </div>
 
-        {/* 📊 Statistik-Karten (Strenge Monochrome Boxen mit linker Orientierungslinie) */}
+        {/* 📊 Statistik-Karten */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white border border-zinc-200 rounded-none p-6 flex flex-col gap-1 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-black" />
@@ -129,7 +136,6 @@ export default function SellerDashboardPage() {
         {/* 📉 Mittlere Sektion */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Datenkurve: Monochrom flach */}
           <div className="lg:col-span-2 bg-white border border-zinc-200 p-6 rounded-none flex flex-col gap-4">
             <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
               <h3 className="text-[10px] font-medium uppercase tracking-widest text-zinc-400">Sales Volatility (2026)</h3>
@@ -140,7 +146,6 @@ export default function SellerDashboardPage() {
               </div>
             </div>
 
-            {/* Eckiges Chart-Grid */}
             <div className="h-48 w-full flex items-end gap-2 pt-6 relative border-b border-zinc-200 bg-zinc-50 rounded-none px-2">
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30 px-2 py-4">
                 <div className="w-full border-t border-dashed border-zinc-300 text-[8px] font-mono text-zinc-400 pt-0.5">200 SALES</div>
@@ -148,7 +153,6 @@ export default function SellerDashboardPage() {
                 <div className="w-full text-[8px] font-mono text-zinc-400">0</div>
               </div>
               
-              {/* Rechteckige Balken ohne Rundung oder Farbverlauf */}
               {[35, 55, 45, 75, 40, 90, 65, 55, 70, 45, 65, 85].map((height, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative z-10 h-full justify-end">
                   <div 
