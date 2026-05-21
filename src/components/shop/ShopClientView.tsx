@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
 import ProductCard from './ProductCard';
+import CategoryFilter from './CategoryFilter';
 
 interface Product {
   id: string;
@@ -42,6 +43,8 @@ interface ShopClientViewProps {
   activeCategory: string | undefined;
   activeBrand: string | undefined;
   searchQuery: string | undefined;
+  categories: string[];                        
+  brandsByCategory: Record<string, string[]>;  
 }
 
 const slowFadeInUp: Variants = {
@@ -56,6 +59,8 @@ const slowFadeInUp: Variants = {
 export default function ShopClientView({
   dynamicLayout,
   activeCategory,
+  categories,          
+  brandsByCategory,    
 }: ShopClientViewProps) {
 
   const renderCategoryHero = (hero: HeroData) => {
@@ -113,7 +118,15 @@ export default function ShopClientView({
   return (
     <div className="w-full bg-white pb-32">
       
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+      {/* 🎯 Einziger, vollwertiger Filter mit Live-Marken aus der PostgreSQL */}
+      <div className="w-full border-b border-zinc-100 mb-8">
+        <CategoryFilter 
+          categories={categories} 
+          brandsByCategory={brandsByCategory} 
+        />
+      </div>
+      
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end border-b border-zinc-100 pb-12">
           
           <motion.div 
@@ -170,13 +183,11 @@ export default function ShopClientView({
                   <h3 className="text-base font-black tracking-tight text-zinc-900 uppercase">
                     {row.categoryName}
                   </h3>
-                  {/* 🎯 REPARIERT: Emoji entfernt & auf "JETZT ENTDECKEN" geändert */}
                   <span className="text-[10px] font-mono text-zinc-400 tracking-widest">
                     JETZT ENTDECKEN
                   </span>
                 </motion.div>
 
-                {/* ℹ️ Grid bricht dank lg:grid-cols-4 automatisch nach 4 Items in eine neue Zeile um! */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                   {row.products.map((product, pIndex) => (
                     <motion.div

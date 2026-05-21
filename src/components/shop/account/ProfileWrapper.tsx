@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import ProfileForm from '../../../components/shop/account/ProfileForm';
+import ProfileForm from './ProfileForm';
 
 export default function ProfileWrapper() {
   const [activeUser, setActiveUser] = useState<any>(null);

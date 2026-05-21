@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCart } from '@/context/cartContext';
-import CategoryFilter from './CategoryFilter';
 
 export default function Header() {
   const router = useRouter();
@@ -35,16 +34,14 @@ export default function Header() {
     }
   }, [searchParams, pathname]);
 
-  // 🎯 Synchronisiertes Kategorie-Array für fehlerfreies Filtern beim 1. Klick
-  const categories = ['Produkte', 'Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
-
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-zinc-200">
+    // 🎯 FIX: 'border-b border-zinc-200' wurde entfernt für einen absolut nahtlosen Look
+    <header className="sticky top-0 z-50 w-full bg-white">
       
       {/* Haupt-Header: 3-Spalten Grid für perfekte Symmetrie */}
       <div className="max-w-[1400px] mx-auto px-4 h-20 grid grid-cols-3 items-center gap-4">
         
-        {/* Brand (Links) - 🎯 FIX: Wieder 2-farbig, komplett fett ohne Trennstich */}
+        {/* Brand (Links) */}
         <div className="flex justify-start">
           <Link href="/" className="text-2xl font-light tracking-[0.25em] uppercase select-none text-black">
               SHOP<span className="text-zinc-400 font-extralight">4YOU</span>
@@ -126,11 +123,6 @@ export default function Header() {
             )}
           </button>
         </div>
-      </div>
-
-      {/* 🎯 FIX: border-t entfernt für einen nahtlosen Übergang zu den Filter-Kategorien */}
-      <div className="bg-white">
-        <CategoryFilter categories={categories} />
       </div>
     </header>
   );

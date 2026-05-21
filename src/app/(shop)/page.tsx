@@ -42,10 +42,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   if (activeBrand) {
-    whereClause.OR = [
-      { title: { contains: activeBrand, mode: 'insensitive' } },
-      { description: { contains: activeBrand, mode: 'insensitive' } }
-    ];
+    whereClause.brand = activeBrand;
   }
 
   if (searchQuery) {
@@ -78,9 +75,52 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     orderByClause = { createdAt: 'desc' };
   }
 
+  // 1. SCHRITT: Alle Produkte laden
   const allProducts = await prisma.product.findMany({
     where: whereClause,
     orderBy: orderByClause,
+  });
+
+  // 2. SCHRITT: Dynamische Filterdaten live aus der PostgreSQL generieren
+  const filterRawData = await prisma.product.findMany({
+    select: { category: true, brand: true },
+  });
+
+  const categoriesSet = new Set<string>();
+  const brandsByCategory: Record<string, Set<string>> = {};
+
+  filterRawData.forEach((p) => {
+    if (p.category) {
+      categoriesSet.add(p.category);
+      
+      if (!brandsByCategory[p.category]) {
+        brandsByCategory[p.category] = new Set();
+      }
+      if (p.brand) {
+        brandsByCategory[p.category].add(p.brand);
+      }
+    }
+  });
+
+  // 🎯 FIX: Definiert deine gewünschte Premium-Reihenfolge
+  const preferredOrder = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
+
+  // 🎯 FIX: Sortiert das DB-Set nach deiner Wunsch-Reihenfolge statt alphabetisch
+  const sortedCategories = Array.from(categoriesSet).sort((a, b) => {
+    const indexA = preferredOrder.indexOf(a);
+    const indexB = preferredOrder.indexOf(b);
+    
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    
+    return indexA - indexB;
+  });
+
+  const categories = ['Produkte', ...sortedCategories];
+  const finalBrandsByCategory: Record<string, string[]> = {};
+  
+  Object.keys(brandsByCategory).forEach((cat) => {
+    finalBrandsByCategory[cat] = Array.from(brandsByCategory[cat]).sort();
   });
 
   const heroMap: Record<string, HeroSection> = {
@@ -140,10 +180,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const isPureHome = (!activeCategory || activeCategory === 'Produkte') && !searchQuery && !activeSort && !activeBrand;
 
   if (isPureHome) {
-    const categoriesOrder = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
-    
-    categoriesOrder.forEach((cat) => {
-      // 🎯 REPARIERT: Von .slice(0, 4) auf .slice(0, 8) erhöht, um 2 Reihen à 4 Spalten zu erlauben
+    // 🎯 Nutzt nun die exakt vorsortierte Reihenfolge aus der DB für die Reihen-Anordnung
+    sortedCategories.forEach((cat) => {
       const catProducts = allProducts.filter(p => p.category === cat).slice(0, 8);
       
       if (catProducts.length > 0) {
@@ -182,6 +220,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       activeCategory={activeCategory}
       activeBrand={activeBrand}
       searchQuery={searchQuery}
+      categories={categories}
+      brandsByCategory={finalBrandsByCategory}
     />
   );
 }

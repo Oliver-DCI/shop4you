@@ -5,17 +5,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 interface CategoryFilterProps {
   categories: string[];
+  brandsByCategory?: Record<string, string[]>; // 🎯 Mit '?' optional machen!
 }
 
-const BRAND_MAPPING: Record<string, string[]> = {
-  'Notebooks': ['Apple', 'Samsung', 'Lenovo', 'Dell', 'HP'],
-  'Smartphones': ['Apple', 'Samsung', 'Google', 'Xiaomi'],
-  'TV': ['Samsung', 'LG', 'Sony', 'Philips'],
-  'Audio': ['Sony', 'Bose', 'Apple', 'Sennheiser', 'JBL'],
-  'Zubehör': ['Logitech', 'Razer', 'Anker', 'Corsair']
-};
-
-export default function CategoryFilter({ categories }: CategoryFilterProps) {
+// 🎯 Hier setzen wir direkt leere Arrays/Objekte als Fallback ein, falls nichts übergeben wird
+export default function CategoryFilter({ 
+  categories = ['Produkte'], 
+  brandsByCategory = {} 
+}: CategoryFilterProps) {
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -51,7 +49,8 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
     router.push(`/?${params.toString()}`);
   };
 
-  const availableBrands = BRAND_MAPPING[currentCategory] || [];
+  // 🎯 Absicherung: Wenn brandsByCategory undefined ist, greift das leere Objekt {}
+  const availableBrands = brandsByCategory[currentCategory] || [];
   const showBrands = currentCategory !== 'Produkte' && availableBrands.length > 0;
 
   return (
@@ -61,7 +60,7 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
       <div className="max-w-[1400px] mx-auto px-4 h-14 relative flex items-center justify-center w-full">
         <div className="flex items-center justify-start md:justify-center gap-4 overflow-x-auto scrollbar-none h-full max-w-[70%] sm:max-w-[80%] overflow-y-hidden">
           {categories.map((cat) => {
-            const isActive = cat === currentCategory && searchParams.has('category');
+            const isActive = (cat === currentCategory && searchParams.has('category')) || (cat === 'Produkte' && !searchParams.has('category'));
             
             return (
               <button
@@ -98,7 +97,7 @@ export default function CategoryFilter({ categories }: CategoryFilterProps) {
         </div>
       </div>
 
-      {/* LEVEL 2: Hersteller-Slider - FIX: Negatives Margin und explizite Nulllinie */}
+      {/* LEVEL 2: Dynamischer Hersteller-Slider */}
       <div 
         className={`w-full overflow-hidden transition-all duration-300 bg-white ${
           showBrands 
