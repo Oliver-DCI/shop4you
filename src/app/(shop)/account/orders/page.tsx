@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 interface Order {
   id: string;
@@ -12,16 +13,27 @@ interface Order {
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Hier werden wir später die echten Bestellungen des Users aus der DB laden
-    // Musterdaten für das Studio-Layout:
-    const mockOrders: Order[] = [
-      { id: 'ORD-2026-9941', createdAt: '20.05.2026', total: 1299.00, status: 'GELIEFERT' },
-      { id: 'ORD-2026-8812', createdAt: '14.04.2026', total: 45.90, status: 'IN ZUSTELLUNG' }
-    ];
-    setOrders(mockOrders);
-    setLoading(false);
+    async function loadRealOrders() {
+      try {
+        // 🎯 Echte API-Abfrage an dein PostgreSQL-Backend
+        const response = await fetch('/api/orders');
+        if (!response.ok) {
+          throw new Error('Echte Bestelldaten konnten nicht geladen werden.');
+        }
+        const data = await response.json();
+        setOrders(data);
+      } catch (err: any) {
+        console.error("FETCH_ORDERS_FAILED:", err);
+        setError(err.message || 'Verbindungsfehler zum Server.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRealOrders();
   }, []);
 
   return (
@@ -32,7 +44,11 @@ export default function OrdersPage() {
       </div>
 
       {loading ? (
-        <p className="text-xs font-mono uppercase text-zinc-400">Lade Bestellungen...</p>
+        <p className="text-xs font-mono uppercase text-zinc-400 animate-pulse">[ LADE ECHTE BESTELLDATEN... ]</p>
+      ) : error ? (
+        <p className="text-xs font-mono uppercase text-red-500 border border-red-200 p-4 bg-red-50">
+          CORE-SYSTEM-FEHLER: {error}
+        </p>
       ) : orders.length === 0 ? (
         <p className="text-xs font-mono uppercase text-zinc-400 border border-zinc-200 p-4 bg-zinc-50">
           Bisher wurden keine Bestellungen registriert.
@@ -40,14 +56,14 @@ export default function OrdersPage() {
       ) : (
         <div className="flex flex-col gap-4 border border-zinc-200 divide-y divide-zinc-200">
           {orders.map((order) => (
-            <div key={order.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
+            <div key={order.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-zinc-50 transition-colors">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-mono text-zinc-400">{order.createdAt}</span>
+                <span className="text-[10px] font-mono text-zinc-400">{order.createdAt}</span>
                 <span className="text-xs font-medium tracking-wider font-mono">{order.id}</span>
               </div>
-              <div className="flex items-center gap-6 justify-between sm:justify-end">
-                <span className="text-xs font-normal">{order.total.toFixed(2)} €</span>
-                {/* Grüner Akzent bei gelieferten Artikeln */}
+              <div className="flex items-center gap-6 justify-between sm:justify-end w-full sm:w-auto">
+                <span className="text-xs font-mono font-medium">{order.total.toFixed(2)} €</span>
+                
                 <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 border ${
                   order.status === 'GELIEFERT' 
                     ? 'bg-emerald-50/50 border-emerald-500 text-emerald-700' 
@@ -55,6 +71,14 @@ export default function OrdersPage() {
                 }`}>
                   ● {order.status}
                 </span>
+
+                {/* 🎯 Rücksprung zur "Warenkorb-Review" der Bestellung */}
+                <Link
+                  href={`/account/orders/${order.id}`}
+                  className="bg-black text-white text-[10px] font-mono tracking-widest px-3 py-2 uppercase hover:bg-zinc-950 transition-colors"
+                >
+                  Details
+                </Link>
               </div>
             </div>
           ))}

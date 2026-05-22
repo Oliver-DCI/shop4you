@@ -101,21 +101,6 @@ export default function ChatBot() {
   return (
     <div className="fixed bottom-6 right-6 z-50 font-sans text-black selection:bg-black selection:text-white flex flex-col items-end gap-1">
       
-      {/* WACKEL- & DREH-ANIMATION */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes shop4youWobble {
-          0%, 100% { transform: rotate(0deg) scale(1); }
-          90% { transform: rotate(0deg) scale(1); }
-          92% { transform: rotate(-8deg) scale(1.08); }
-          94% { transform: rotate(8deg) scale(1.08); }
-          96% { transform: rotate(-6deg) scale(1.08); }
-          98% { transform: rotate(6deg) scale(1.08); }
-        }
-        .animate-shop4you-wobble {
-          animation: shop4youWobble 6s infinite ease-in-out;
-        }
-      `}} />
-
       {/* 1. TEXT-HINWEIS (STEHT DAUERHAFT BIS ZUR ERSTEN INTERAKTION) */}
       {!isOpen && showTooltip && (
         <div className="text-[10px] font-mono tracking-[0.15em] text-black bg-transparent px-2 py-1 select-none font-medium animate-pulse">
@@ -126,15 +111,14 @@ export default function ChatBot() {
       {/* 2. DER SCHWEBENDE TRIGGER-BUTTON WITH GLOW */}
       {!isOpen && (
         <div className="relative group">
+          {/* Pulsierender Hintergrund-Ring */}
           <span className="absolute inset-0 rounded-full bg-black/10 animate-ping opacity-75 pointer-events-none scale-105"></span>
           
           <button
             onClick={() => {
               setIsOpen(true);
-              // Optional: Auch beim reinen Öffnen des Fensters könnte man den Tooltip ausblenden
-              // setShowTooltip(false);
             }}
-            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all cursor-pointer border border-zinc-800 animate-shop4you-wobble hover:bg-zinc-900"
+            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all cursor-pointer border border-zinc-800 hover:bg-zinc-900"
             title="SHOP4YOU Support Chat"
           >
             <svg className="w-7 h-7 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">

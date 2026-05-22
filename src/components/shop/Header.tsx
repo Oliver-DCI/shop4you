@@ -15,7 +15,6 @@ export default function Header() {
 
   // Optimiertes Such-Verhalten gegen ungewollte Redirect-Schleifen
   useEffect(() => {
-    // Wenn das Suchfeld leer ist und wir nicht auf der Startseite sind, tun wir nichts
     if (!searchQuery.trim() && pathname !== '/') return;
 
     const delayDebounceFn = setTimeout(() => {
@@ -24,7 +23,6 @@ export default function Header() {
       if (searchQuery.trim()) {
         params.set('search', searchQuery.trim());
       } else {
-        // Nur löschen, wenn wir bereits auf der Startseite sind und die Suche geleert wurde
         if (pathname === '/') {
           params.delete('search');
         } else {
@@ -43,38 +41,31 @@ export default function Header() {
     if (pathname === '/') {
       setSearchQuery(searchParams.get('search') || '');
     } else {
-      // Wenn wir den Shop-Bereich verlassen, leeren wir das Suchfeld im Header
       setSearchQuery('');
     }
   }, [searchParams, pathname]);
 
   const userRoleNormalized = (user?.role || '').toUpperCase();
 
+  // Liefert nur noch den ersten Buchstaben des Vornamens
   const getInitials = () => {
-    if (!user) return '??';
+    if (!user) return '?';
     
     const fName = (user.firstName || '').trim();
-    const lName = (user.lastName || '').trim();
     // @ts-ignore
     const fallbackName = (user.name || user.username || '').trim();
 
-    if (fName && lName) {
-      return (fName.charAt(0) + lName.charAt(0)).toUpperCase();
+    // 1. Prio: Erster Buchstabe des Vornamens
+    if (fName) {
+      return fName.charAt(0).toUpperCase();
     }
 
-    const combined = fName || fallbackName;
-    if (combined.includes(' ')) {
-      const parts = combined.split(/\s+/);
-      if (parts.length >= 2) {
-        return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-      }
+    // 2. Prio: Erster Buchstabe des Kombi-/Usernamens als Fallback
+    if (fallbackName) {
+      return fallbackName.charAt(0).toUpperCase();
     }
 
-    if (combined.length >= 2) {
-      return combined.substring(0, 2).toUpperCase();
-    }
-
-    return combined ? combined.toUpperCase() : '??';
+    return '?';
   };
 
   return (
