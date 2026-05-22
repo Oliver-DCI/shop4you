@@ -13,16 +13,23 @@ export default function Header() {
   const { setCartOpen, cartCount, user, logout } = useCart();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
-  // Optimiertes Such-Verhalten
+  // Optimiertes Such-Verhalten gegen ungewollte Redirect-Schleifen
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (!searchQuery.trim() && pathname !== '/') return;
+    // Wenn das Suchfeld leer ist und wir nicht auf der Startseite sind, tun wir nichts
+    if (!searchQuery.trim() && pathname !== '/') return;
 
+    const delayDebounceFn = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      
       if (searchQuery.trim()) {
         params.set('search', searchQuery.trim());
       } else {
-        params.delete('search');
+        // Nur löschen, wenn wir bereits auf der Startseite sind und die Suche geleert wurde
+        if (pathname === '/') {
+          params.delete('search');
+        } else {
+          return;
+        }
       }
       
       router.push(`/?${params.toString()}`);
@@ -35,6 +42,9 @@ export default function Header() {
   useEffect(() => {
     if (pathname === '/') {
       setSearchQuery(searchParams.get('search') || '');
+    } else {
+      // Wenn wir den Shop-Bereich verlassen, leeren wir das Suchfeld im Header
+      setSearchQuery('');
     }
   }, [searchParams, pathname]);
 
@@ -97,7 +107,7 @@ export default function Header() {
           {user ? (
             <div className="flex items-center gap-4 bg-white">
               
-              {/* Avatar-Button zum Profil (🎯 Hover-Grün entfernt -> wird jetzt zu Zink-Grau) */}
+              {/* Avatar-Button zum Profil */}
               <Link 
                 href="/account/profile"
                 className="w-8 h-8 bg-black text-white flex items-center justify-center text-[11px] font-mono font-normal tracking-tighter select-none rounded-none hover:bg-zinc-800 transition-colors"
@@ -107,7 +117,6 @@ export default function Header() {
               </Link>
 
               <div className="flex items-center gap-4">
-                {/* 🎯 Text-Grün entfernt -> ist jetzt dezent grau im Monospace-Look */}
                 <span className="text-[10px] font-mono font-normal text-zinc-400 uppercase tracking-widest hidden sm:inline">
                   [{user.role}]
                 </span>
@@ -144,7 +153,6 @@ export default function Header() {
             className="relative h-11 w-11 flex items-center justify-center rounded-none border border-samsung-gray-200 bg-white transition-colors hover:bg-samsung-gray-50 hover:border-black cursor-pointer"
           >
             <span className="text-sm">🛒</span>
-            {/* 🎯 Badge-Grün entfernt -> wird jetzt zu edlem Schwarz */}
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-black text-white text-[9px] font-medium h-4 w-4 rounded-none flex items-center justify-center">
                 {cartCount}
