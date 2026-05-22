@@ -1,38 +1,34 @@
-// src/app/api/products/bulk/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+// 🎯 FIX 1: Nutze deine existierende, globale Prisma-Instanz!
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // 🎯 NEU: Wir erwarten jetzt auch die userId desjenigen, der den Import ausführt!
     const { products, role, userId } = body; 
 
     if (!products || !Array.isArray(products)) {
       return NextResponse.json({ error: 'Ungültiges Datenformat. Erwarte ein Array.' }, { status: 400 });
     }
 
-    // 🛡️ Sicherheits-Check: Ohne gültige User-ID dürfen wir keine Relation knüpfen
     if (!userId) {
       return NextResponse.json({ error: 'Fehlende Benutzer-Identifikation (userId).' }, { status: 400 });
     }
 
-    // 🛡️ Rollenbasierte Limitierung (Expert-Gatekeeper)
-    if (role === 'admin') {
+    // 🎯 FIX 2: Rolle in Kleinbuchstaben umwandeln, damit der Vergleich unten bombensicher matched!
+    const cleanRole = (role || '').toLowerCase();
+
+    // 🛡️ Rollenbasierte Limitierung
+    if (cleanRole === 'admin') {
       if (products.length > 25) {
         return NextResponse.json({ error: '🛡️ Admin-Limit überschritten! Maximal 25 Produkte gleichzeitig erlaubt.' }, { status: 403 });
       }
-    } else if (role === 'seller') {
+    } else if (cleanRole === 'seller') {
       if (products.length > 5) {
         return NextResponse.json({ error: '💼 Seller-Limit überschritten! Als Verkäufer darfst du maximal 5 Produkte gleichzeitig importieren.' }, { status: 403 });
       }
     } else {
+      // Wenn es weder admin noch seller ist (Case-Insensitive)
       return NextResponse.json({ error: '🚫 Zugriff verweigert. Keine Berechtigung für Bulk-Import.' }, { status: 401 });
     }
 
@@ -45,9 +41,9 @@ export async function POST(request: Request) {
             price: parseFloat(prod.price),
             category: prod.category,
             description: prod.description || '',
-            brand: prod.brand || null, // 🎯 Brand optional mappen, falls im Schema vorhanden
+            brand: prod.brand || null,
             images: prod.images || ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'],
-            sellerId: userId, // 🎯 HIER IST DIE RETTUNG: Das Produkt wird fest dem Ersteller zugewiesen!
+            sellerId: userId, 
           },
         })
       )
