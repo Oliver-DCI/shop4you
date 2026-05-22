@@ -11,6 +11,7 @@ interface Message {
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false); // 🎯 Steuert das dauerhafte Einblenden
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -20,8 +21,17 @@ export default function ChatBot() {
     },
   ]);
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false); // 🎯 Neu: Zeigt an, ob der Bot gerade "nachdenkt"
+  const [isLoading, setIsLoading] = useState(false); 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // 🎯 PRÜFUNG: Hat der User den Chat schon mal genutzt?
+  useEffect(() => {
+    const hasUsedChat = localStorage.getItem('shop4you_chat_used');
+    // Wenn er ihn noch nie genutzt hat, zeigen wir den Hinweis dauerhaft an
+    if (!hasUsedChat) {
+      setShowTooltip(true);
+    }
+  }, []);
 
   // Automatisch zum Ende scrollen bei neuen Nachrichten
   useEffect(() => {
@@ -32,8 +42,12 @@ export default function ChatBot() {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
 
+    // 🎯 SOBALD DIE ERSTE NACHRICHT GEHT: Hinweis für immer ausblenden & im Browser merken
+    localStorage.setItem('shop4you_chat_used', 'true');
+    setShowTooltip(false);
+
     const currentTime = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    const userText = inputValue.toUpperCase(); // Studio-Style Caps
+    const userText = inputValue.toUpperCase(); 
     
     const userMessage: Message = {
       id: Math.random().toString(),
@@ -47,7 +61,6 @@ export default function ChatBot() {
     setIsLoading(true);
 
     try {
-      // 🎯 ECHTE API-ANBINDUNG: Schickt die Frage an unser PostgreSQL-Such-Backend
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -86,24 +99,54 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans text-black selection:bg-black selection:text-white">
+    <div className="fixed bottom-6 right-6 z-50 font-sans text-black selection:bg-black selection:text-white flex flex-col items-end gap-1">
       
-      {/* 1. DER SCHWEBENDE TRIGGER-BUTTON */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="w-14 h-14 bg-black text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-105 transition-transform cursor-pointer border border-zinc-800"
-          title="SHOP4YOU Support Chat"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </button>
+      {/* WACKEL- & DREH-ANIMATION */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes shop4youWobble {
+          0%, 100% { transform: rotate(0deg) scale(1); }
+          90% { transform: rotate(0deg) scale(1); }
+          92% { transform: rotate(-8deg) scale(1.08); }
+          94% { transform: rotate(8deg) scale(1.08); }
+          96% { transform: rotate(-6deg) scale(1.08); }
+          98% { transform: rotate(6deg) scale(1.08); }
+        }
+        .animate-shop4you-wobble {
+          animation: shop4youWobble 6s infinite ease-in-out;
+        }
+      `}} />
+
+      {/* 1. TEXT-HINWEIS (STEHT DAUERHAFT BIS ZUR ERSTEN INTERAKTION) */}
+      {!isOpen && showTooltip && (
+        <div className="text-[10px] font-mono tracking-[0.15em] text-black bg-transparent px-2 py-1 select-none font-medium animate-pulse">
+          [ ONLINE // ASSISTENT ]
+        </div>
       )}
 
-      {/* 2. DAS CHAT-FENSTER */}
+      {/* 2. DER SCHWEBENDE TRIGGER-BUTTON WITH GLOW */}
+      {!isOpen && (
+        <div className="relative group">
+          <span className="absolute inset-0 rounded-full bg-black/10 animate-ping opacity-75 pointer-events-none scale-105"></span>
+          
+          <button
+            onClick={() => {
+              setIsOpen(true);
+              // Optional: Auch beim reinen Öffnen des Fensters könnte man den Tooltip ausblenden
+              // setShowTooltip(false);
+            }}
+            className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center shadow-2xl transition-all cursor-pointer border border-zinc-800 animate-shop4you-wobble hover:bg-zinc-900"
+            title="SHOP4YOU Support Chat"
+          >
+            <svg className="w-7 h-7 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.25} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* 3. DAS CHAT-FENSTER */}
       {isOpen && (
-        <div className="w-80 sm:w-96 h-[500px] bg-white border border-black shadow-2xl flex flex-col animate-fade-in">
+        <div className="w-80 sm:w-96 h-[500px] bg-white border border-black shadow-2xl flex flex-col transition-all">
           
           {/* Chat Header */}
           <div className="bg-black text-white h-12 px-4 flex items-center justify-between border-b border-zinc-800">
@@ -146,7 +189,6 @@ export default function ChatBot() {
               );
             })}
             
-            {/* Minimalistischer Lade-Indikator im Terminal-Vibe */}
             {isLoading && (
               <div className="self-start flex flex-col items-start max-w-[80%]">
                 <div className="px-3 py-2 text-xs border border-zinc-200 bg-white text-zinc-400 rounded-none font-mono tracking-widest animate-pulse">
