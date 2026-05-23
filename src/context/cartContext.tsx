@@ -23,7 +23,8 @@ interface ProductInput {
 export interface User {
   firstName: string;
   lastName: string;
-  role: 'customer' | 'seller' | 'admin';
+  // 🎯 FIX: Rollen an die echten Backend-Werte (Großbuchstaben) angepasst
+  role: 'USER' | 'SELLER' | 'ADMIN';
 }
 
 interface CartStoreType {
@@ -61,7 +62,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    const activeUser = localStorage.getItem('active_user');
+    // 🎯 FIX: Key von 'active_user' auf 'shop4you_user' geändert, passend zum Login
+    const activeUser = localStorage.getItem('shop4you_user');
     if (activeUser) {
       try {
         const parsedUser = JSON.parse(activeUser);
@@ -129,7 +131,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => saveCart([]);
 
   const logout = () => {
-    localStorage.removeItem('active_user');
+    // 🎯 FIX: Auch hier den korrekten Key beim Logout entfernen
+    localStorage.removeItem('shop4you_user');
     setUser(null);
   };
 

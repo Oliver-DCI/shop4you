@@ -40,11 +40,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="bg-white text-black min-h-screen py-12 md:py-20 rounded-none selection:bg-black selection:text-white">
+      {/* 🎯 FIX: Padding fluchtet jetzt perfekt auf sm und lg Screens mit dem Rest der App */}
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Zurück-Navigation */}
         <div className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-xs font-normal uppercase tracking-widest text-zinc-400 hover:text-black transition-colors">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <Link href="/" className="inline-flex items-center gap-2 text-xs font-normal uppercase tracking-widest text-samsung-muted hover:text-black transition-colors">
             ◀ ZURÜCK ZUR ÜBERSICHT
           </Link>
         </div>
@@ -57,8 +59,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Dynamischer Bereich: Unsere Empfehlungen */}
         <section className="mt-24 border-t border-zinc-100 pt-16">
-          {/* 🎯 FIX: Überschrift jetzt edel, dünn, grau und in Monospace */}
-          <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-zinc-400 font-normal mb-10">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <h3 className="text-xs font-mono uppercase tracking-[0.2em] text-samsung-muted font-normal mb-10">
             Unsere Empfehlungen
           </h3>
           
@@ -73,7 +75,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                      className="w-full h-full object-cover grayscale hover:grayscale-0 group-hover:scale-105 transition-all duration-500 ease-out" 
                    />
                 </div>
-                <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 mb-1">
+                {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+                <div className="text-[10px] uppercase font-mono tracking-wider text-samsung-muted mb-1">
                   {p.category}
                 </div>
                 <div className="text-xs font-bold uppercase truncate">{p.title}</div>

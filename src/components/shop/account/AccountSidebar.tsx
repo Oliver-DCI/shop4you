@@ -16,7 +16,7 @@ export default function AccountSidebar() {
 
   return (
     <aside className="w-full md:w-64 flex flex-col gap-1 shrink-0">
-      <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest mb-4 px-2">
+      <p className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest mb-4 px-2">
         Konto-Einstellungen
       </p>
       {menuItems.map((item) => {
@@ -28,7 +28,7 @@ export default function AccountSidebar() {
             className={`flex items-center gap-3 px-4 py-3 text-xs uppercase tracking-widest transition-colors rounded-none border ${
               isActive 
                 ? 'bg-black text-white border-black' 
-                : 'bg-white text-zinc-500 border-transparent hover:border-zinc-200 hover:text-black'
+                : 'bg-white text-samsung-muted border-transparent hover:border-zinc-200 hover:text-black'
             }`}
           >
             <span className="text-sm opacity-70">{item.icon}</span>

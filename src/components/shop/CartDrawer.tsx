@@ -30,9 +30,10 @@ export default function CartDrawer() {
                   {cartCount}
                 </span>
               </div>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
               <button 
                 onClick={() => setCartOpen(false)}
-                className="h-8 w-8 rounded-none border border-zinc-200 text-zinc-400 hover:text-black flex items-center justify-center font-normal text-xs transition-colors cursor-pointer"
+                className="h-8 w-8 rounded-none border border-zinc-200 text-samsung-muted hover:text-black flex items-center justify-center font-normal text-xs transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -41,7 +42,8 @@ export default function CartDrawer() {
             {/* Produktliste */}
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
               {cart.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-zinc-400 text-center gap-2">
+                /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
+                <div className="flex flex-col items-center justify-center h-full text-samsung-muted text-center gap-2">
                   <p className="text-xs font-normal uppercase tracking-widest">Warenkorb leer</p>
                 </div>
               ) : (
@@ -53,9 +55,11 @@ export default function CartDrawer() {
                     
                     <div className="flex-1 min-w-0 flex flex-col gap-1.5">
                       <div>
-                        <span className="text-[9px] font-medium text-zinc-400 uppercase tracking-widest block">{item.category}</span>
+                        {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+                        <span className="text-[9px] font-medium text-samsung-muted uppercase tracking-widest block">{item.category}</span>
                         <h4 className="text-xs font-normal text-black truncate uppercase tracking-wider">{item.title}</h4>
-                        <p className="text-[10px] text-zinc-500 font-medium mt-0.5">{item.price.toFixed(2)} €</p>
+                        {/* 🎯 KOSMETIK: text-zinc-500 -> text-samsung-muted */}
+                        <p className="text-[10px] text-samsung-muted font-medium mt-0.5">{item.price.toFixed(2)} €</p>
                       </div>
 
                       <div className="flex items-center gap-1">
@@ -92,7 +96,8 @@ export default function CartDrawer() {
             {cart.length > 0 && (
               <div className="p-6 border-t border-zinc-200 bg-zinc-50 flex flex-col gap-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-normal text-zinc-500 uppercase tracking-widest">Gesamtsumme:</span>
+                  {/* 🎯 KOSMETIK: text-zinc-500 -> text-samsung-muted */}
+                  <span className="text-xs font-normal text-samsung-muted uppercase tracking-widest">Gesamtsumme:</span>
                   <span className="text-base font-normal text-black tracking-tight">{cartTotal.toFixed(2)} €</span>
                 </div>
                 

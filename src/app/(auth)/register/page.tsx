@@ -70,14 +70,16 @@ export default function RegisterPage() {
         <div className="text-left">
           <Link 
             href="/" 
-            className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-black transition-colors mb-4 inline-block"
+            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
+            className="text-[10px] font-mono uppercase tracking-widest text-samsung-muted hover:text-black transition-colors mb-4 inline-block"
           >
             ◀ ABBRECHEN // ZURÜCK ZUM SHOP
           </Link>
           <h1 className="text-xl font-normal uppercase tracking-widest text-black select-none">
             Konto erstellen
           </h1>
-          <p className="text-xs text-zinc-400 mt-0.5 font-normal">Registrierung als verifizierter Käufer oder Händler für shop4you</p>
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <p className="text-xs text-samsung-muted mt-0.5 font-normal">Registrierung als verifizierter Käufer oder Händler für shop4you</p>
         </div>
 
         {errorMsg && (
@@ -92,7 +94,8 @@ export default function RegisterPage() {
             type="button" 
             disabled={loading}
             onClick={() => setRole('USER')} 
-            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'USER' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
+            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'USER' ? 'bg-black text-white' : 'text-samsung-muted bg-white hover:text-black'}`}
           >
             Customer (Käufer)
           </button>
@@ -100,36 +103,43 @@ export default function RegisterPage() {
             type="button" 
             disabled={loading}
             onClick={() => setRole('SELLER')} 
-            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'SELLER' ? 'bg-black text-white' : 'text-zinc-400 bg-white hover:text-black'}`}
+            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
+            className={`py-3 text-[10px] tracking-widest font-medium uppercase rounded-none transition-colors cursor-pointer ${role === 'SELLER' ? 'bg-black text-white' : 'text-samsung-muted bg-white hover:text-black'}`}
           >
             Seller (Verkäufer)
           </button>
         </div>
 
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
-          <h3 className="text-[9px] font-medium uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest">1. Persönliche Details</h3>
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <h3 className="text-[9px] font-medium uppercase text-samsung-muted border-b border-zinc-200 pb-1 tracking-widest">1. Persönliche Details</h3>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Vorname</label>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Vorname</label>
               <input required type="text" disabled={loading} value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Nachname</label>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Nachname</label>
               <input required type="text" disabled={loading} value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">E-Mail-Adresse</label>
+            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">E-Mail-Adresse</label>
             <input required type="email" disabled={loading} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
           </div>
           
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Passwort wählen</label>
+            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Passwort wählen</label>
             <div className="relative">
               <input required type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} className="w-full h-11 border border-zinc-200 rounded-none pl-4 pr-11 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-black transition-colors p-1 cursor-pointer">
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-samsung-muted hover:text-black transition-colors p-1 cursor-pointer">
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
                 ) : (
@@ -139,20 +149,24 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <h3 className="text-[9px] font-medium uppercase text-zinc-400 border-b border-zinc-200 pb-1 tracking-widest mt-2">2. Anschrift</h3>
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <h3 className="text-[9px] font-medium uppercase text-samsung-muted border-b border-zinc-200 pb-1 tracking-widest mt-2">2. Anschrift</h3>
           
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Straße & Hausnummer</label>
+            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Straße & Hausnummer</label>
             <input required type="text" disabled={loading} value={street} onChange={(e) => setStreet(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">PLZ</label>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">PLZ</label>
               <input required type="text" disabled={loading} value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
             <div className="col-span-2 flex flex-col gap-1.5">
-              <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Stadt / Ort</label>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Stadt / Ort</label>
               <input required type="text" disabled={loading} value={city} onChange={(e) => setCity(e.target.value)} className="w-full h-11 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
             </div>
           </div>
@@ -163,7 +177,8 @@ export default function RegisterPage() {
         </form>
 
         <div className="text-left border-t border-zinc-200 pt-4">
-          <Link href="/login" className="text-xs text-zinc-400 hover:text-black transition-colors font-normal">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <Link href="/login" className="text-xs text-samsung-muted hover:text-black transition-colors font-normal">
             Bereits registriert? <span className="text-black font-medium underline underline-offset-4">Hier einloggen</span>
           </Link>
         </div>

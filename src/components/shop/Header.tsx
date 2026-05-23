@@ -70,12 +70,30 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white">
-      <div className="max-w-[1400px] mx-auto px-4 h-20 grid grid-cols-3 items-center gap-4">
+      {/* 🎯 FIX: Padding auf px-4 sm:px-6 lg:px-8 angepasst, damit es perfekt mit der Seite fluchtet */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-3 items-center gap-4">
         
-        {/* Spalte 1: Brand / Logo */}
+        {/* Spalte 1: Brand / Logo (Symmetrisch & Gleichmäßig) */}
         <div className="flex justify-start">
-          <Link href="/" className="text-3xl font-light tracking-[0.25em] uppercase select-none text-black">
-            SHOP<span className="text-samsung-muted font-extralight">4YOU</span>
+          <Link href="/" className="flex items-center select-none text-black group">
+            {/* "SHOP" - font-light */}
+            <span className="text-3xl font-light tracking-[0.15em] uppercase text-black">
+              SHOP
+            </span>
+            
+            {/* Die "4" im Tech-Klammer-Look */}
+            <span className="inline-flex items-center text-black font-mono font-light text-3xl tracking-tighter ">
+              [
+              <span className="text-black font-black text-4xl font-sans inline-block transform translate-y-[0.5px] px-0.5">
+                4
+              </span>
+              ]
+            </span>
+
+            {/* "YOU" - Jetzt exakt genau so eingestellt wie SHOP (font-light) */}
+            <span className="text-3xl font-extralight tracking-[0.2em] uppercase text-black px-1">
+              YOU
+            </span>
           </Link>
         </div>
 

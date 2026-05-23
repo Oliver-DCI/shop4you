@@ -13,7 +13,7 @@ interface ProfileFormProps {
     zipCode?: string | null;
     city?: string | null;
   };
-  onProfileUpdate: (updatedUser: any) => void; // 🎯 NEU: Callback für den Wrapper
+  onProfileUpdate: (updatedUser: any) => void;
 }
 
 export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps) {
@@ -46,13 +46,11 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
         setIsSuccess(true);
         setStatus('PROFIL ERFOLGREICH AKTUALISIERT // SYSTEM GEUPDATET');
         
-        // 🎯 FIX: Wir bauen das aktualisierte User-Objekt zusammen
         const updatedUser = {
           ...user,
           ...formData
         };
         
-        // ... und jagen es hoch zum Wrapper, um den localStorage zu synchronisieren!
         onProfileUpdate(updatedUser);
       } else {
         const data = await res.json();
@@ -69,12 +67,12 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
     <form onSubmit={handleUpdate} className="flex flex-col gap-8 max-w-2xl w-full">
       {/* Sektion 1: Name */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-[10px] font-medium uppercase text-zinc-400 border-b border-zinc-100 pb-1 tracking-widest">
+        <h3 className="text-[10px] font-medium uppercase text-samsung-muted border-b border-zinc-100 pb-1 tracking-widest">
           Basis-Informationen
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Vorname</label>
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Vorname</label>
             <input 
               type="text" 
               autoComplete="given-name"
@@ -85,7 +83,7 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Nachname</label>
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Nachname</label>
             <input 
               type="text" 
               autoComplete="family-name"
@@ -97,18 +95,18 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">E-Mail (Nicht änderbar)</label>
-          <input disabled type="text" value={user.email} className="w-full h-11 border border-zinc-100 rounded-none px-4 text-xs bg-zinc-100 text-zinc-400 cursor-not-allowed uppercase" />
+          <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">E-Mail (Nicht änderbar)</label>
+          <input disabled type="text" value={user.email} className="w-full h-11 border border-zinc-100 rounded-none px-4 text-xs bg-zinc-100 text-samsung-muted cursor-not-allowed uppercase" />
         </div>
       </div>
 
       {/* Sektion 2: Adresse */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-[10px] font-medium uppercase text-zinc-400 border-b border-zinc-100 pb-1 tracking-widest">
+        <h3 className="text-[10px] font-medium uppercase text-samsung-muted border-b border-zinc-100 pb-1 tracking-widest">
           Anschrift & Versand
         </h3>
         <div className="flex flex-col gap-1.5">
-          <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Straße & Hausnummer</label>
+          <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Straße & Hausnummer</label>
           <input 
             type="text" 
             autoComplete="street-address"
@@ -119,7 +117,7 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">PLZ</label>
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">PLZ</label>
             <input 
               type="text" 
               autoComplete="postal-code"
@@ -129,7 +127,7 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
             />
           </div>
           <div className="col-span-2 flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest">Stadt</label>
+            <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Stadt</label>
             <input 
               type="text" 
               autoComplete="address-level2"
@@ -154,7 +152,7 @@ export default function ProfileForm({ user, onProfileUpdate }: ProfileFormProps)
       <button 
         type="submit" 
         disabled={loading}
-        className="bg-black text-white text-[11px] font-medium uppercase tracking-widest py-4 px-8 rounded-none hover:bg-zinc-900 transition-colors disabled:bg-zinc-400 cursor-pointer self-start"
+        className="bg-black text-white text-[11px] font-medium uppercase tracking-widest py-4 px-8 rounded-none hover:bg-zinc-900 transition-colors disabled:bg-samsung-muted cursor-pointer self-start"
       >
         {loading ? 'SPEICHERE...' : 'ÄNDERUNGEN SPEICHERN'}
       </button>

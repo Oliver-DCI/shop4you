@@ -140,9 +140,10 @@ export default function ChatBot() {
                 {isLoading ? 'SHOP4YOU // ENGINE THINKING...' : 'SHOP4YOU // AI-ASSISTANT'}
               </span>
             </div>
+            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
             <button 
               onClick={() => setIsOpen(false)}
-              className="text-zinc-400 hover:text-white text-xs font-mono uppercase tracking-widest cursor-pointer p-1"
+              className="text-samsung-muted hover:text-white text-xs font-mono uppercase tracking-widest cursor-pointer p-1"
             >
               [X]
             </button>
@@ -166,7 +167,8 @@ export default function ChatBot() {
                   >
                     {msg.text}
                   </div>
-                  <span className="text-[8px] font-mono text-zinc-400 mt-1 uppercase">
+                  {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+                  <span className="text-[8px] font-mono text-samsung-muted mt-1 uppercase">
                     {msg.time} — {msg.sender}
                   </span>
                 </div>
@@ -175,7 +177,8 @@ export default function ChatBot() {
             
             {isLoading && (
               <div className="self-start flex flex-col items-start max-w-[80%]">
-                <div className="px-3 py-2 text-xs border border-zinc-200 bg-white text-zinc-400 rounded-none font-mono tracking-widest animate-pulse">
+                {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+                <div className="px-3 py-2 text-xs border border-zinc-200 bg-white text-samsung-muted rounded-none font-mono tracking-widest animate-pulse">
                   [RECHNERISCHE ANALYSE...]
                 </div>
               </div>

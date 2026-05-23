@@ -13,7 +13,7 @@ interface HeroSection {
   type: 'minimal' | 'dark' | 'split' | 'editorial';
   title: string;
   subtitle: string;
-  description: string;
+  description: string; // 🎯 FIX: Fehlendes Feld im Interface ergänzt
   tag: string;
   bgImage: string;
   ctaText: string;

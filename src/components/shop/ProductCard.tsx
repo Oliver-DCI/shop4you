@@ -49,14 +49,16 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       <div className="p-4 flex flex-col flex-1 justify-between gap-2 bg-white">
         <div>
           {/* Der Hersteller im edlen Studio-Look */}
-          <div className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase mb-0.5">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <div className="text-[10px] font-mono tracking-widest text-samsung-muted uppercase mb-0.5">
             {product.brand || 'Premium Brand'}
           </div>
 
           <h3 className="font-normal text-sm text-black tracking-wide group-hover:text-zinc-600 transition-colors line-clamp-1 uppercase">
             {product.title}
           </h3>
-          <p className="text-xs text-zinc-400 line-clamp-2 mt-1 leading-relaxed font-normal">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <p className="text-xs text-samsung-muted line-clamp-2 mt-1 leading-relaxed font-normal">
             {product.description}
           </p>
         </div>

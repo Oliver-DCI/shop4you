@@ -40,17 +40,17 @@ export default function OrdersPage() {
     <div className="flex flex-col gap-6 w-full text-black">
       <div>
         <h2 className="text-xl font-normal uppercase tracking-widest">Meine Bestellungen</h2>
-        <p className="text-xs text-zinc-400 mt-1">Übersicht und Status deiner getätigten Einkäufe.</p>
+        <p className="text-xs text-samsung-muted mt-1">Übersicht und Status deiner getätigten Einkäufe.</p>
       </div>
 
       {loading ? (
-        <p className="text-xs font-mono uppercase text-zinc-400 animate-pulse">[ LADE ECHTE BESTELLDATEN... ]</p>
+        <p className="text-xs font-mono uppercase text-samsung-muted animate-pulse">[ LADE ECHTE BESTELLDATEN... ]</p>
       ) : error ? (
         <p className="text-xs font-mono uppercase text-red-500 border border-red-200 p-4 bg-red-50">
           CORE-SYSTEM-FEHLER: {error}
         </p>
       ) : orders.length === 0 ? (
-        <p className="text-xs font-mono uppercase text-zinc-400 border border-zinc-200 p-4 bg-zinc-50">
+        <p className="text-xs font-mono uppercase text-samsung-muted border border-zinc-200 p-4 bg-zinc-50">
           Bisher wurden keine Bestellungen registriert.
         </p>
       ) : (
@@ -58,7 +58,7 @@ export default function OrdersPage() {
           {orders.map((order) => (
             <div key={order.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white hover:bg-zinc-50 transition-colors">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-mono text-zinc-400">{order.createdAt}</span>
+                <span className="text-[10px] font-mono text-samsung-muted">{order.createdAt}</span>
                 <span className="text-xs font-medium tracking-wider font-mono">{order.id}</span>
               </div>
               <div className="flex items-center gap-6 justify-between sm:justify-end w-full sm:w-auto">
@@ -67,7 +67,7 @@ export default function OrdersPage() {
                 <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-1 border ${
                   order.status === 'GELIEFERT' 
                     ? 'bg-emerald-50/50 border-emerald-500 text-emerald-700' 
-                    : 'bg-zinc-100 border-zinc-300 text-zinc-600'
+                    : 'bg-zinc-100 border-zinc-300 text-samsung-muted'
                 }`}>
                   ● {order.status}
                 </span>

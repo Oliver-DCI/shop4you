@@ -14,7 +14,7 @@
   --samsung-gray-700: #495057;
 
   /* 🎯 Dunkleres Grau für Nebenschriften (bessere Lesbarkeit) */
-  --samsung-text-muted: #52525b;
+  --samsung-text-muted: #495057;
 }
 
 @theme inline {

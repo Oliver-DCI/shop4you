@@ -34,12 +34,14 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
         <div className="flex flex-col gap-1">
           {/* Kategorie-Badge */}
-          <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 bg-zinc-100 border border-zinc-200 px-3 py-1.5 rounded-none self-start mb-5">
+          {/* 🎯 KOSMETIK: text-zinc-500 -> text-samsung-muted */}
+          <span className="text-[10px] font-medium uppercase tracking-widest text-samsung-muted bg-zinc-100 border border-zinc-200 px-3 py-1.5 rounded-none self-start mb-5">
             {product.category}
           </span>
           
           {/* Der Hersteller */}
-          <span className="text-xs font-mono tracking-widest text-zinc-400 uppercase">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <span className="text-xs font-mono tracking-widest text-samsung-muted uppercase">
             {product.brand || 'Premium Brand'}
           </span>
         </div>
@@ -50,15 +52,16 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         </h1>
         
         {/* Beschreibung */}
-        <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed font-normal mt-2">
+        {/* 🎯 KOSMETIK: text-zinc-500 -> text-samsung-muted */}
+        <p className="text-xs sm:text-sm text-samsung-muted leading-relaxed font-normal mt-2">
           {product.description}
         </p>
       </div>
 
-      {/* UNTERER BLOCK: 🎯 'pt-6 border-t border-zinc-200' wurde entfernt für den nahtlosen Clean-Look */}
+      {/* UNTERER BLOCK */}
       <div className="mt-auto flex flex-col">
         
-        {/* Die zwei Fulfillment-Container mit feinerem Abstand nach unten (mb-3 = 12px) */}
+        {/* Die zwei Fulfillment-Container */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           
           {/* Container 1: Lieferung nach Hause */}
@@ -69,13 +72,15 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-black">01 // Lieferung</h4>
               </div>
               <p className="text-xs font-normal text-zinc-950">Lieferzeit: ca. 2-4 Werktage</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">Standard-Kurierdienst (DHL/UPS)</p>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <p className="text-[11px] text-samsung-muted mt-0.5 leading-tight">Standard-Kurierdienst (DHL/UPS)</p>
             </div>
             <div className="text-[10px] font-mono uppercase tracking-wider mt-4 pt-2 border-t border-zinc-100">
               {isFreeShipping ? (
                 <span className="text-black bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 font-bold">Gratis Versand</span>
               ) : (
-                <span className="text-zinc-500">Zzgl. 6,90 € Versand</span>
+                /* 🎯 KOSMETIK: text-zinc-500 -> text-samsung-muted */
+                <span className="text-samsung-muted">Zzgl. 6,90 € Versand</span>
               )}
             </div>
           </div>
@@ -88,9 +93,11 @@ export default function ProductInfo({ product }: ProductInfoProps) {
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-black">02 // Abholung</h4>
               </div>
               <p className="text-xs font-bold text-zinc-950">Sofort verfügbar</p>
-              <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">Im Studio Offenbach hinterlegt</p>
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              <p className="text-[11px] text-samsung-muted mt-0.5 leading-tight">Im Studio Offenbach hinterlegt</p>
             </div>
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 mt-4 pt-2 border-t border-zinc-100">
+            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+            <div className="text-[10px] font-mono uppercase tracking-wider text-samsung-muted mt-4 pt-2 border-t border-zinc-100">
               3 Tage Reserviert • Kostenlos
             </div>
           </div>
@@ -99,7 +106,8 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         
         {/* Preis-Div */}
         <div className="bg-zinc-50 py-4 px-4 rounded-none border border-zinc-200 flex items-center justify-between mb-3">
-          <span className="text-[10px] font-normal text-zinc-400 uppercase tracking-widest">Preis</span>
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <span className="text-[10px] font-normal text-samsung-muted uppercase tracking-widest">Preis</span>
           <span className="text-xl font-bold text-black tracking-tight">
             {product.price.toFixed(2)} €
           </span>

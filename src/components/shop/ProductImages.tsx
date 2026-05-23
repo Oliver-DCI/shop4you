@@ -24,10 +24,10 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
   // Einzigartiges, minimalistisches Fallback-Element im shop4you-Look
   const renderFallbackPlaceholder = (text = "KEIN BILD VERFÜGBAR") => (
     <div className="absolute inset-0 bg-zinc-100 flex flex-col items-center justify-center border border-zinc-200 select-none p-4">
-      <div className="text-[10px] font-mono tracking-widest text-zinc-400 uppercase border border-zinc-300 px-3 py-1.5 animate-pulse">
+      <div className="text-[10px] font-mono tracking-widest text-samsung-muted uppercase border border-zinc-300 px-3 py-1.5 animate-pulse">
         ⚠️ {text}
       </div>
-      <span className="text-[9px] font-mono text-zinc-300 uppercase tracking-tight mt-2">
+      <span className="text-[9px] font-mono text-samsung-muted uppercase tracking-tight mt-2">
         shop4you // Core Architecture
       </span>
     </div>
@@ -74,8 +74,9 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
                     : 'border-zinc-200 hover:border-zinc-400'
                 } ${isBroken ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
+                {/* 🎯 REPARIERT: Alle JavaScript-Klammern sind hier wieder absolut synchron */}
                 {isBroken ? (
-                  <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center text-[8px] font-mono text-zinc-400">
+                  <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center text-[8px] font-mono text-samsung-muted">
                     Kein Bild
                   </div>
                 ) : (

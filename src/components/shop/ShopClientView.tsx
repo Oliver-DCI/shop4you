@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import Link from 'next/link'; // 🎯 NEU: Link für die Weiterleitung importiert
+import Link from 'next/link'; 
 import ProductCard from './ProductCard';
 import CategoryFilter from './CategoryFilter';
 
@@ -29,7 +29,7 @@ interface HeroData {
   tag: string;
   bgImage: string;
   ctaText: string;
-  ctaLink: string; // 🎯 NEU: Dem Interface hinzugefügt
+  ctaLink: string; 
 }
 
 interface LayoutRow {
@@ -108,7 +108,6 @@ export default function ShopClientView({
             viewport={{ once: true, amount: 0.2 }}
             variants={slowFadeInUp}
           >
-            {/* 🎯 FIX: Aus dem Button einen Link gemacht mit passender ctaLink URL */}
             <Link 
               href={hero.ctaLink || '/'} 
               className="inline-block bg-white text-black hover:bg-black hover:text-white font-medium text-xs uppercase tracking-widest px-6 py-3.5 transition-all duration-500 border border-white rounded-none select-none text-center"
@@ -124,7 +123,6 @@ export default function ShopClientView({
   return (
     <div className="w-full bg-white pb-32">
       
-      {/* 🎯 Einziger, vollwertiger Filter mit Live-Marken aus der PostgreSQL */}
       <div className="w-full border-b border-zinc-100 mb-8">
         <CategoryFilter 
           categories={categories} 
@@ -141,13 +139,13 @@ export default function ShopClientView({
             transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
             className="md:col-span-2 text-left"
           >
-            <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-400 block mb-3">
+            <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-samsung-muted block mb-3">
               {activeCategory && activeCategory !== 'Produkte' ? activeCategory : 'E-Commerce Evolution'}
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-zinc-900 leading-none uppercase mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-5xl font-black tracking-tight text-zinc-900 leading-none uppercase mb-4">
               {activeCategory && activeCategory !== 'Produkte' ? `Explore ${activeCategory}` : 'SHOP4YOU PREMIUM'}
             </h1>
-            <p className="text-sm sm:text-base text-zinc-500 font-light leading-relaxed max-w-xl">
+            <p className="text-sm sm:text-base text-samsung-muted font-light leading-relaxed max-w-xl">
               Sorgfältig ausgewählte High-End-Technologie, nahtlos integriert in deinen Alltag. Erlebe Performance auf einem völlig neuen Niveau.
             </p>
           </motion.div>
@@ -156,7 +154,7 @@ export default function ShopClientView({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1.5, delay: 0.4 }}
-            className="hidden md:flex flex-col items-end justify-bottom text-right h-full pb-1 font-mono text-[10px] tracking-[0.4em] text-zinc-400 uppercase select-none"
+            className="hidden md:flex flex-col items-end justify-bottom text-right h-full pb-1 font-mono text-[10px] tracking-[0.4em] text-samsung-muted uppercase select-none"
           >
             <div>EST. 2026 //</div>
             <div className="text-zinc-900 font-bold mt-1">CURATED TECH.</div>
@@ -186,10 +184,10 @@ export default function ShopClientView({
                   variants={slowFadeInUp}
                   className="flex items-baseline justify-between mb-6 border-b border-zinc-100 pb-3"
                 >
-                  <h3 className="text-base font-black tracking-tight text-zinc-900 uppercase">
+                  <h3 className="text-base font-bold tracking-tight text-zinc-900 uppercase">
                     {row.categoryName}
                   </h3>
-                  <span className="text-[10px] font-mono text-zinc-400 tracking-widest">
+                  <span className="text-[10px] font-mono text-samsung-muted tracking-widest">
                     JETZT ENTDECKEN
                   </span>
                 </motion.div>
@@ -198,13 +196,13 @@ export default function ShopClientView({
                   {row.products.map((product, pIndex) => (
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.05 }}
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true, amount: 0.02 }}
                       transition={{ 
-                        duration: 1.3, 
-                        delay: pIndex * 0.12, 
-                        ease: [0.25, 1, 0.5, 1] 
+                        duration: 0.6, 
+                        delay: pIndex * 0.05, 
+                        ease: "easeOut" 
                       }}
                     >
                       <ProductCard product={product} />
@@ -222,9 +220,13 @@ export default function ShopClientView({
                   {row.products.map((product, pIndex) => (
                     <motion.div
                       key={product.id}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.8, delay: pIndex * 0.04, ease: "easeOut" }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ 
+                        duration: 0.5, 
+                        delay: pIndex * 0.03, 
+                        ease: "easeOut" 
+                      }}
                     >
                       <ProductCard product={product} />
                     </motion.div>

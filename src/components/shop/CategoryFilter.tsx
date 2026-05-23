@@ -57,7 +57,8 @@ export default function CategoryFilter({
     <div className="w-full bg-white relative z-20">
       
       {/* LEVEL 1: Hauptleiste */}
-      <div className="max-w-[1400px] mx-auto px-4 h-14 relative flex items-center justify-center w-full">
+      {/* 🎯 FIX: Padding auf px-4 sm:px-6 lg:px-8 angepasst, damit es fluchtet */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 relative flex items-center justify-center w-full">
         <div className="flex items-center justify-start md:justify-center gap-4 overflow-x-auto scrollbar-none h-full max-w-[70%] sm:max-w-[80%] overflow-y-hidden">
           {categories.map((cat) => {
             const isActive = (cat === currentCategory && searchParams.has('category')) || (cat === 'Produkte' && !searchParams.has('category'));
@@ -66,8 +67,9 @@ export default function CategoryFilter({
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
+                /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
                 className={`h-full px-3 text-[11px] font-mono tracking-widest uppercase border-b-2 transition-colors flex items-center cursor-pointer whitespace-nowrap ${
-                  isActive ? 'border-black text-black font-bold' : 'border-transparent text-zinc-400 hover:text-black'
+                  isActive ? 'border-black text-black font-bold' : 'border-transparent text-samsung-muted hover:text-black'
                 }`}
               >
                 {cat}
@@ -76,11 +78,13 @@ export default function CategoryFilter({
           })}
         </div>
 
-        <div className="absolute right-4 hidden sm:flex items-center gap-3 h-full bg-white pl-4">
+        {/* 🎯 FIX: right Positionierung fluchtend mit den neuen Paddings (right-4 sm:right-6 lg:right-8) */}
+        <div className="absolute right-4 sm:right-6 lg:right-8 hidden sm:flex items-center gap-3 h-full bg-white pl-4">
           <button
             onClick={() => handleSortChange('price_asc')}
+            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
             className={`text-[10px] font-mono uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap ${
-              currentSort === 'price_asc' ? 'text-black font-bold underline underline-offset-4' : 'text-zinc-400 hover:text-black'
+              currentSort === 'price_asc' ? 'text-black font-bold underline underline-offset-4' : 'text-samsung-muted hover:text-black'
             }`}
           >
             Preis ↑
@@ -88,8 +92,9 @@ export default function CategoryFilter({
           <div className="w-px h-3 bg-zinc-200" />
           <button
             onClick={() => handleSortChange('price_desc')}
+            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
             className={`text-[10px] font-mono uppercase tracking-widest transition-colors cursor-pointer whitespace-nowrap ${
-              currentSort === 'price_desc' ? 'text-black font-bold underline underline-offset-4' : 'text-zinc-400 hover:text-black'
+              currentSort === 'price_desc' ? 'text-black font-bold underline underline-offset-4' : 'text-samsung-muted hover:text-black'
             }`}
           >
             Preis ↓
@@ -105,8 +110,10 @@ export default function CategoryFilter({
             : 'max-h-0 opacity-0 py-0 -mb-[1px]'
         }`}
       >
-        <div className="max-w-[1400px] mx-auto px-4 flex flex-col items-center justify-center gap-1.5">
-          <div className="text-[9px] font-mono tracking-widest text-zinc-400 uppercase text-center">
+        {/* 🎯 FIX: Padding auch hier auf px-4 sm:px-6 lg:px-8 angepasst */}
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center gap-1.5">
+          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+          <div className="text-[9px] font-mono tracking-widest text-samsung-muted uppercase text-center">
             Hersteller filtern
           </div>
           
@@ -117,10 +124,11 @@ export default function CategoryFilter({
                 <button
                   key={brand}
                   onClick={() => handleBrandChange(brand)}
+                  /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
                   className={`px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider transition-all rounded-none cursor-pointer border-none ${
                     isBrandActive 
                       ? 'bg-black text-white font-bold' 
-                      : 'bg-transparent text-zinc-400 hover:text-black'
+                      : 'bg-transparent text-samsung-muted hover:text-black'
                   }`}
                 >
                   {brand}
