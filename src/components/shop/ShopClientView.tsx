@@ -175,8 +175,13 @@ export default function ShopClientView({
           }
 
           if (row.type === 'product_row' && row.products) {
+            // 🎯 FIX: Überschüssige geschweifte Klammern entfernt, damit die ID-Berechnung sauber läuft
+            const categoryId = row.categoryName
+              ? row.categoryName.toLowerCase().replace(/[^a-z0-9]/g, '')
+              : `row-${rowIndex}`;
+
             return (
-              <div key={`row-${rowIndex}`} className="mb-20">
+              <div key={`row-${rowIndex}`} id={categoryId} className="mb-20 scroll-mt-24">
                 <motion.div 
                   initial="hidden"
                   whileInView="visible"

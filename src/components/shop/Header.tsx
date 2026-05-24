@@ -77,22 +77,9 @@ export default function Header() {
         <div className="flex justify-start">
           <Link href="/" className="flex items-center select-none text-black group">
             {/* "SHOP" - font-light */}
-            <span className="text-3xl font-light tracking-[0.15em] uppercase text-black">
-              SHOP
-            </span>
-            
-            {/* Die "4" im Tech-Klammer-Look */}
-            <span className="inline-flex items-center text-black font-mono font-light text-3xl tracking-tighter ">
-              [
-              <span className="text-black font-black text-4xl font-sans inline-block transform translate-y-[0.5px] px-0.5">
-                4
-              </span>
-              ]
-            </span>
-
-            {/* "YOU" - Jetzt exakt genau so eingestellt wie SHOP (font-light) */}
-            <span className="text-3xl font-extralight tracking-[0.2em] uppercase text-black px-1">
-              YOU
+            <span className="text-3xl font-light tracking-[0.25em] uppercase text-black">
+              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
+              SHOP<span className="text-samsung-muted font-extralight">[4]YOU</span>
             </span>
           </Link>
         </div>

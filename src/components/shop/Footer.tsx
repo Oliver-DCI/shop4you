@@ -6,6 +6,25 @@ import Link from 'next/link';
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
+  // Kleine Helper-Funktion für butterweiches Scrollen ohne Seiten-Zucken
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    // Nur scrollen, wenn wir bereits auf der Startseite ("/" oder "") sind
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      e.preventDefault();
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // Fallback: Falls die ID exakt mit Sonderzeichen generiert wurde (z.B. "tvvideo")
+        const alternativeElement = document.getElementById(id.replace(/[^a-z0-9]/g, ''));
+        if (alternativeElement) {
+          alternativeElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+    // Wenn wir auf einer Unterseite sind, lassen wir das Standard-Link-Verhalten (href="/#id") arbeiten!
+  };
+
   return (
     <footer className="w-full mt-auto select-text rounded-none flex flex-col">
       
@@ -16,41 +35,85 @@ export default function Footer() {
           {/* Logo & Slogan */}
           <div className="text-center">
             <span className="text-xl font-light tracking-[0.25em] uppercase text-black">
-              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
-              SHOP<span className="text-samsung-muted font-extralight">4YOU</span>
+              SHOP<span className="text-samsung-muted font-extralight">[4]YOU</span>
             </span>
-            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
             <p className="text-[9px] text-samsung-muted tracking-[0.2em] uppercase mt-2 font-mono">
               Premium Hardware // Lineup {currentYear}
             </p>
           </div>
 
           {/* Clean Link-Leiste */}
-          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted auf allen Links */}
           <nav className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2.5 text-[11px] font-mono uppercase tracking-widest">
-            <Link href="#produkte" className="text-samsung-muted hover:text-black transition-colors">
+            
+            {/* 🎯 Anchor-Links scrollen intern, daher scroll={false} damit die Page nicht springt */}
+            <Link 
+              href="/#notebooks" 
+              scroll={false}
+              onClick={(e) => handleScroll(e, 'notebooks')}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               Notebooks
             </Link>
-            <Link href="#produkte" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/#smartphones" 
+              scroll={false}
+              onClick={(e) => handleScroll(e, 'smartphones')}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               Smartphones
             </Link>
-            <Link href="#produkte" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/#tv" 
+              scroll={false}
+              onClick={(e) => handleScroll(e, 'tv')}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               TV
             </Link>
-            <Link href="#produkte" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/#audio" 
+              scroll={false}
+              onClick={(e) => handleScroll(e, 'audio')}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               AUDIO
             </Link>
+            
             <div className="hidden sm:block w-px h-3 bg-zinc-200" />
-            <Link href="/impressum" className="text-samsung-muted hover:text-black transition-colors">
+            
+            {/* 🎯 ECHTE UNTERSEITEN: Erhalten scroll={true}, damit die neue Seite oben startet, wechseln jetzt sofort */}
+            <Link 
+              href="/kontakt" 
+              scroll={true}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               Kontakt
             </Link>
-            <Link href="/impressum" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/impressum" 
+              scroll={true}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               Impressum
             </Link>
-            <Link href="/datenschutz" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/datenschutz" 
+              scroll={true}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               Datenschutz
             </Link>
-            <Link href="/agb" className="text-samsung-muted hover:text-black transition-colors">
+            
+            <Link 
+              href="/agb" 
+              scroll={true}
+              className="text-samsung-muted hover:text-black transition-colors"
+            >
               AGB
             </Link>
           </nav>
@@ -61,9 +124,10 @@ export default function Footer() {
       {/* UNTERER BEREICH: Sauber und hell (bg-white) mit zentriertem Copyright */}
       <div className="w-full bg-white border-t border-zinc-200/60 py-6">
         <div className="max-w-[1400px] mx-auto px-4 text-center">
-          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
           <p className="text-[10px] text-samsung-muted font-mono tracking-wider">
-            &copy; {currentYear} <span className="text-black font-light tracking-widest uppercase">SHOP4YOU</span>. Alle Rechte vorbehalten.
+            &copy; {currentYear} <span className="text-s font-light tracking-[0.25em] uppercase text-black">
+              SHOP<span className="text-samsung-muted font-extralight">[4]YOU</span>
+            </span>. Alle Rechte vorbehalten.
           </p>
         </div>
       </div>

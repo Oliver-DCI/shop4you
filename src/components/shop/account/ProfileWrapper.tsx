@@ -15,14 +15,13 @@ export default function ProfileWrapper() {
     setLoading(false);
   }, []);
 
-  // 🎯 FIX: Diese Funktion empfängt die frischen Daten und spiegelt sie sofort in den Speicher!
   const handleProfileSync = (updatedUser: any) => {
     setActiveUser(updatedUser);
     localStorage.setItem('shop4you_user', JSON.stringify(updatedUser));
   };
 
   if (loading) {
-    return <p className="text-xs font-mono uppercase text-zinc-400">Lade Profildaten...</p>;
+    return <p className="text-xs font-mono uppercase text-samsung-muted">Lade Profildaten...</p>;
   }
 
   if (!activeUser) {
@@ -33,6 +32,5 @@ export default function ProfileWrapper() {
     );
   }
 
-  // Wir übergeben dem Formular den neuen Callback
   return <ProfileForm user={activeUser} onProfileUpdate={handleProfileSync} />;
 }
