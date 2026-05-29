@@ -200,7 +200,6 @@ export default function SellerDashboardPage() {
     }
   };
 
-  // 🎯 FIX 1.0 & 1.1: Neues Template mit 4 Premium-Artikeln und 'quantity' Feld
   const insertTemplate = () => {
     const template = [
       {
@@ -252,8 +251,11 @@ export default function SellerDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black p-6 lg:p-10 relative overflow-hidden rounded-none selection:bg-black selection:text-white">
-      <div className="max-w-[1400px] mx-auto flex flex-col gap-8 relative z-10">
+    /* 🎯 FIX: Äußerer Container nimmt die volle Breite ein, die Innenabstände werden im Child-Div perfekt erzwungen */
+    <div className="min-h-screen bg-white text-black relative overflow-hidden rounded-none selection:bg-black selection:text-white">
+      
+      {/* 🎯 FIX: Hier ist der magische Wrapper, der exakt wie der Header fluchtet (max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8) */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 flex flex-col gap-8 relative z-10">
         
         {/* Header */}
         <div className="border-b border-zinc-200 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -330,66 +332,64 @@ export default function SellerDashboardPage() {
         </div>
 
         {/* Echte Produkt-Liste */}
-<div className="bg-white border border-zinc-200 p-6">
-  <div className="flex justify-between items-center border-b border-zinc-100 pb-3 mb-4">
-    <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Deine gelisteten Hardware-Artikel ({myProducts.length})</h3>
-    <span className="text-[8px] font-mono text-samsung-muted uppercase">[ Klick auf Karte öffnet Detailansicht ]</span>
-  </div>
-  {myProducts.length === 0 ? (
-    <p className="text-xs font-mono text-samsung-muted uppercase py-8 text-center bg-zinc-50 border border-dashed border-zinc-200">Keine Artikel gefunden.</p>
-  ) : (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {myProducts.map((product) => (
-        <div 
-          key={product.id} 
-          onClick={() => router.push(`/product/${product.id}`)}
-          className="border border-zinc-200 p-4 pt-12 bg-white flex flex-col justify-between hover:border-black transition-colors cursor-pointer relative group"
-        >
-          <div className="absolute top-2 left-0 right-0 text-center z-20">
-            <span 
-              onClick={(e) => handleOpenDeleteModal(e, product.id)}
-              className="text-[8px] font-mono text-samsung-muted hover:text-red-600 uppercase tracking-widest transition-colors cursor-pointer select-none"
-            >
-              [ Artikel löschen ]
-            </span>
+        <div className="bg-white border border-zinc-200 p-6">
+          <div className="flex justify-between items-center border-b border-zinc-100 pb-3 mb-4">
+            <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Deine gelisteten Hardware-Artikel ({myProducts.length})</h3>
+            <span className="text-[8px] font-mono text-samsung-muted uppercase">[ Klick auf Karte öffnet Detailansicht ]</span>
           </div>
+          {myProducts.length === 0 ? (
+            <p className="text-xs font-mono text-samsung-muted uppercase py-8 text-center bg-zinc-50 border border-dashed border-zinc-200">Keine Artikel gefunden.</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {myProducts.map((product) => (
+                <div 
+                  key={product.id} 
+                  onClick={() => router.push(`/product/${product.id}`)}
+                  className="border border-zinc-200 p-4 pt-12 bg-white flex flex-col justify-between hover:border-black transition-colors cursor-pointer relative group"
+                >
+                  <div className="absolute top-2 left-0 right-0 text-center z-20">
+                    <span 
+                      onClick={(e) => handleOpenDeleteModal(e, product.id)}
+                      className="text-[8px] font-mono text-samsung-muted hover:text-red-600 uppercase tracking-widest transition-colors cursor-pointer select-none"
+                    >
+                      [ Artikel löschen ]
+                    </span>
+                  </div>
 
-          {/* 🎯 NEU: Mini-Bild & Infos auch auf den echten, gelisteten Karten */}
-          <div className="flex justify-between items-start gap-2 mt-2">
-            <div className="truncate">
-              <div className="flex flex-col">
-                <span className="text-[8px] font-mono text-samsung-muted uppercase tracking-widest block">{product.category}</span>
-                {product.brand && <span className="text-[8px] font-mono text-samsung-muted font-bold uppercase mt-0.5">{product.brand}</span>}
-              </div>
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-black mt-1 truncate">{product.title}</h4>
+                  <div className="flex justify-between items-start gap-2 mt-2">
+                    <div className="truncate">
+                      <div className="flex flex-col">
+                        <span className="text-[8px] font-mono text-samsung-muted uppercase tracking-widest block">{product.category}</span>
+                        {product.brand && <span className="text-[8px] font-mono text-samsung-muted font-bold uppercase mt-0.5">{product.brand}</span>}
+                      </div>
+                      <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-black mt-1 truncate">{product.title}</h4>
+                    </div>
+
+                    {product.images && product.images[0] && (
+                      <div className="w-8 h-8 bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+                        <img 
+                          src={product.images[0]} 
+                          alt={product.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-baseline font-mono text-xs">
+                    <span className="text-[8px] text-samsung-muted">PRICE:</span>
+                    <span className="font-bold">{product.price.toFixed(2)} €</span>
+                  </div>
+                </div>
+              ))}
             </div>
-
-            {product.images && product.images[0] && (
-              <div className="w-8 h-8 bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
-                <img 
-                  src={product.images[0]} 
-                  alt={product.title} 
-                  className="w-full h-full object-cover" 
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-baseline font-mono text-xs">
-            <span className="text-[8px] text-samsung-muted">PRICE:</span>
-            <span className="font-bold">{product.price.toFixed(2)} €</span>
-          </div>
+          )}
         </div>
-      ))}
-    </div>
-  )}
-</div>
 
         {/* Live Preview */}
         {livePreview.length > 0 && (
           <div className="border border-zinc-200 p-6 bg-zinc-50/50 flex flex-col gap-4">
             <h3 className="text-[10px] font-medium uppercase tracking-widest text-samsung-muted font-mono">[ Live-Parsing Vorschau ]</h3>
-            {/* 🎯 FIX 2.0: Grid von lg:grid-cols-5 auf lg:grid-cols-4 umgestellt */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {livePreview.map((prod, idx) => {
                 const isInvalid = prod.category && !ALLOWED_CATEGORIES.includes(prod.category);
@@ -399,7 +399,6 @@ export default function SellerDashboardPage() {
                       <span onClick={(e) => removeProductFromPreview(e, idx)} className="text-[9px] font-mono text-samsung-muted hover:text-black uppercase tracking-widest transition-colors cursor-pointer inline-block mt-2">[ Vorschau entfernen ]</span>
                     </div>
                     
-                    {/* 🎯 FIX 2.1: Mini-Bild & Header-Infos nebeneinander */}
                     <div className="flex justify-between items-start gap-2 mt-2">
                       <div className="truncate">
                         <div className="flex flex-col">
@@ -422,7 +421,6 @@ export default function SellerDashboardPage() {
                       )}
                     </div>
 
-                    {/* 🎯 FIX 1.0 (Anzeige): Preis und Stückzahl unten im Footer der Karte */}
                     <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-center font-mono text-xs">
                       <span className="text-[8px] text-samsung-muted font-bold">STK: {prod.quantity || 1}</span>
                       <span className="font-bold text-right">{Number(prod.price || 0).toFixed(2)} €</span>
@@ -435,12 +433,11 @@ export default function SellerDashboardPage() {
         )}
       </div>
 
-      {/* 🎯 FIX 3.0: Unser eigenes SHOP4YOU Premium-Löschmodal statt alert/confirm */}
+      {/* 🎯 CUSTOM SHOP4YOU PREMIUM-LÖSCHMODAL */}
       {deleteTargetId && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-zinc-300 p-8 max-w-md w-full rounded-none shadow-xl animate-in fade-in zoom-in-95 duration-150">
             
-            {/* Header mit festem SHOP4YOU Branding */}
             <div className="border-b border-zinc-100 pb-4 mb-6">
               <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-samsung-muted block mb-1">
                 SHOP4YOU // System-Eingriff
@@ -450,21 +447,19 @@ export default function SellerDashboardPage() {
               </h3>
             </div>
 
-            {/* Inhalt */}
             <p className="text-xs text-zinc-600 leading-relaxed font-light mb-8">
               Möchtest du diesen Artikel wirklich permanent aus dem System löschen? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
 
-            {/* Buttons */}
             <div className="flex gap-4 font-mono text-[11px] tracking-widest">
               <button
-                onClick={() => setDeleteTargetId(null)} // Abbrechen
+                onClick={() => setDeleteTargetId(null)}
                 className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-200 py-3 transition-colors uppercase font-medium cursor-pointer"
               >
                 Abbrechen
               </button>
               <button
-                onClick={confirmDeleteProduct} // Ausführen
+                onClick={confirmDeleteProduct}
                 className="flex-1 bg-black text-white hover:bg-zinc-900 py-3 transition-colors uppercase font-medium cursor-pointer"
               >
                 Ja, Löschen
