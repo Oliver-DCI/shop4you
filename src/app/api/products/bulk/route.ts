@@ -44,19 +44,19 @@ export async function POST(request: Request) {
 
         return prisma.product.create({
           data: {
-            title: prod.title,
-            price: parseFloat(prod.price) || 0,
-            category: prod.category,
-            description: prod.description || '',
-            brand: prod.brand || 'S4Y',
-            images: finalImages, // 🎯 FIX: Validiertes Array wird jetzt sicher gespeichert
-            
-            // 🎯 FIX: Quantity (Menge) wird aus dem JSON gelesen und als Zahl konvertiert (Standard 1)
-            quantity: prod.quantity ? parseInt(prod.quantity, 10) : 1, 
-            
-            // Wenn es ein Admin ist, loggen wir es optional separat, andernfalls wird die userId als sellerId gesetzt
-            sellerId: userId, 
-          },
+          title: prod.title,
+          price: parseFloat(prod.price) || 0,
+          category: prod.category,
+          description: prod.description || '',
+          brand: prod.brand || null,
+          images: prod.images || [],
+    
+          // 🎯 FIX: Wir nehmen 'quantity' aus dem JSON und speichern es im Prisma-Feld 'stock'
+          // Falls im JSON weder stock noch quantity definiert ist, nehmen wir als Fallback 1
+          stock: parseInt(prod.stock || prod.quantity) || 1, 
+    
+          sellerId: userId,
+          }
         });
       })
     );

@@ -37,7 +37,15 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Artikel-ID fehlt im Request.' }, { status: 400 });
     }
 
-    // Löscht den Artikel direkt aus PostgreSQL über Prisma
+    // 🎯 FIX: Zuerst alle abhängigen OrderItems (Warenkorb/Bestellposten) löschen.
+    // Das löst die Blockade der relationalen Datenbank (Foreign Key Constraint).
+    await prisma.orderItem.deleteMany({
+      where: {
+        productId: productId
+      }
+    });
+
+    // 🎯 JETZT kann der Artikel direkt und ohne PostgreSQL-Fehler gelöscht werden!
     await prisma.product.delete({
       where: { 
         id: productId 
