@@ -30,7 +30,6 @@ export default function SecurityPage() {
     }
 
     setLoading(true);
-    // Hier binden wir später die /api/account/change-password ein
     setTimeout(() => {
       setIsSuccess(true);
       setStatus('PASSWORT ERFOLGREICH GEÄNDERT // ACCESSTOKEN AKTUALISIERT');
@@ -39,7 +38,6 @@ export default function SecurityPage() {
     }, 1000);
   };
 
-  // 🎯 Funktion zum endgültigen Löschen des Kontos über die API
   const handleConfirmDeleteAccount = async () => {
     setDeleteLoading(true);
     try {
@@ -122,20 +120,15 @@ export default function SecurityPage() {
         </button>
       </form>
 
-      {/* 🎯 Sektion: Account löschen im symmetrischen Zwei-Spalten-Layout */}
+      {/* 🎯 Sektion: Account löschen (Jetzt mit genau einem sauberen Trennstrich oben) */}
       <div className="w-full max-w-4xl border-t border-zinc-200 pt-8 mt-4">
-        <div className="w-full" style={{ display: 'table', tableLayout: 'fixed' }}>
-          <div style={{ display: 'table-row' }}>
-            
-            {/* Linke Spalte: Überschrift und der Button direkt darunter */}
-      <div className="w-full max-w-md border-t border-zinc-200 pt-8 mt-4 flex flex-col gap-4">
+        <div className="w-full flex flex-col gap-4 max-w-md">
           <div>
             <h2 className="text-xl font-normal uppercase tracking-widest font-mono text-black">
               Account löschen
             </h2>
-            {/* 🎯 Der Infotext sitzt jetzt exakt über dem Button */}
             <p className="text-xs text-zinc-800 mt-2 font-mono leading-relaxed">
-              // Das Löschen deines Accounts entfernt all deine Profildaten !
+              // Das Löschen deines Accounts entfernt all deine Profildaten!
             </p>
           </div>
           
@@ -146,9 +139,6 @@ export default function SecurityPage() {
           >
             Konto permanent löschen
           </button>
-      </div>
-
-          </div>
         </div>
       </div>
 
@@ -157,7 +147,6 @@ export default function SecurityPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white border border-zinc-300 p-8 max-w-md w-full rounded-none shadow-xl animate-in fade-in zoom-in-95 duration-150">
             
-            {/* Header */}
             <div className="border-b border-zinc-100 pb-4 mb-6">
               <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-samsung-muted block mb-1">
                 SHOP4YOU // Account-Kündigung
@@ -167,12 +156,10 @@ export default function SecurityPage() {
               </h3>
             </div>
 
-            {/* Inhalt */}
             <p className="text-xs text-zinc-800 leading-relaxed font-mono mb-8">
               Sind Sie sicher, dass Ihr Account gelöscht werden soll? Alle gelisteten Produkte, Statistiken und Verknüpfungen gehen sofort verloren. Diese Aktion ist endgültig.
             </p>
 
-            {/* Buttons */}
             <div className="flex gap-4 font-mono text-[11px] tracking-widest">
               <button
                 onClick={() => setShowDeleteModal(false)}
