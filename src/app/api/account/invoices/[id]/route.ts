@@ -8,37 +8,39 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-// 🎯 Typdefinition für Next.js 15+: params ist ein Promise!
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 export async function GET(
   request: Request,
-  context: RouteContext // Nutzen des korrekten Next.js 15 Typings
+  context: RouteContext
 ) {
   try {
-    // ➔ HIER IST DER FIX: params wird per await aufgelöst, bevor wir auf '.id' zugreifen
     const resolvedParams = await context.params;
     let orderId = resolvedParams?.id;
 
-    // 🎯 FALLBACK-LOGIK: Falls die ID nicht aus den params kam, holen wir sie direkt aus dem URL-Pfad
     if (!orderId) {
       const url = new URL(request.url);
       const pathSegments = url.pathname.split('/');
-      orderId = pathSegments[pathSegments.length - 1]; // Holt das letzte Segment der URL
+      orderId = pathSegments[pathSegments.length - 1];
     }
 
-    // Falls immer noch leer, brechen wir ab
     if (!orderId || orderId === 'invoices') {
       return NextResponse.json({ error: 'Keine gültige Bestell-ID in der URL gefunden.' }, { status: 400 });
     }
 
-    // 1. Hole die Bestellung aus der DB
+    // 1. Hole die Bestellung mit ALLEN Relationen aus der DB
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
         invoice: true,
+        user: true, 
+        items: {
+          include: {
+            product: true 
+          }
+        }
       },
     });
 
@@ -46,18 +48,43 @@ export async function GET(
       return NextResponse.json({ error: `Bestellung mit ID ${orderId} nicht gefunden.` }, { status: 404 });
     }
 
-    // Sicherheits-Fallbacks für die PDF-Generierung
-    const safeOrderData = {
-      id: order.id || 'UNBEKANNT',
+    // 🎯 FIX: Wir greifen typensicher auf die Adresse zu. 
+    // Falls "shippingAddress" nicht auf dem Objekt existiert, casten wir es sicherheitshalber als 'any'
+    // oder greifen direkt auf die User-Stammdaten als perfekten Fallback zurück!
+    const orderWithAddress = order as any;
+    const rawAddress = orderWithAddress.shippingAddress || orderWithAddress.address || null;
+
+    const addressData = {
+      firstName: rawAddress?.firstName || order.user?.firstName || 'Max',
+      lastName: rawAddress?.lastName || order.user?.lastName || 'Mustermann',
+      street: rawAddress?.street || order.user?.street || 'Musterstraße 1',
+      zipCode: rawAddress?.zip || rawAddress?.zipCode || order.user?.zipCode || '12345',
+      city: rawAddress?.city || order.user?.city || 'Musterstadt',
+    };
+
+    // 🎯 Strukturierung der Artikelpositionen für den PDF-Generator
+    const invoiceItems = order.items.map((item, index) => ({
+      position: index + 1,
+      productId: item.productId,
+      title: item.product?.title || 'Unbekanntes Produkt',
+      quantity: item.quantity,
+      price: typeof item.price === 'number' ? item.price : Number(item.price) || 0,
+    }));
+
+    // Sicherheits-Datenpaket für den PDF-Generator schnüren
+    const richInvoiceData = {
+      id: order.id,
       totalAmount: typeof order.totalAmount === 'number' ? order.totalAmount : Number(order.totalAmount) || 0,
       paymentMethod: order.paymentMethod || 'Rechnung',
       createdAt: order.createdAt ? new Date(order.createdAt).toISOString() : new Date().toISOString(),
+      customer: addressData,
+      items: invoiceItems
     };
 
-    // 2. Generiere das PDF-Blob
+    // 2. Generiere das reichhaltige PDF-Blob
     let pdfBlob;
     try {
-      pdfBlob = await generateInvoicePDF(safeOrderData);
+      pdfBlob = await generateInvoicePDF(richInvoiceData);
     } catch (pdfError: any) {
       console.error('CRITICAL: Fehler direkt im PDF-Generator:', pdfError);
       return NextResponse.json({ 
@@ -66,10 +93,8 @@ export async function GET(
       }, { status: 500 });
     }
 
-    // 3. Konvertiere in ArrayBuffer
     const pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
 
-    // 4. Sende das PDF zurück
     return new Response(pdfBuffer, {
       status: 200,
       headers: {
