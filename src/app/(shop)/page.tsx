@@ -13,11 +13,11 @@ interface HeroSection {
   type: 'minimal' | 'dark' | 'split' | 'editorial';
   title: string;
   subtitle: string;
-  description: string; // 🎯 FIX: Fehlendes Feld im Interface ergänzt
+  description: string; 
   tag: string;
   bgImage: string;
   ctaText: string;
-  ctaLink: string; // 🎯 NEU: Der Link für den Button
+  ctaLink: string; 
 }
 
 interface HomePageProps {
@@ -76,7 +76,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     orderByClause = { createdAt: 'desc' };
   }
 
-  // 1. SCHRITT: Alle Produkte laden
+  // 1. SCHRITT: Alle Produkte laden (Unbegrenzt)
   const allProducts = await prisma.product.findMany({
     where: whereClause,
     orderBy: orderByClause,
@@ -103,10 +103,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     }
   });
 
-  // Definiert deine gewünschte Premium-Reihenfolge
   const preferredOrder = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
 
-  // Sortiert das DB-Set nach deiner Wunsch-Reihenfolge statt alphabetisch
   const sortedCategories = Array.from(categoriesSet).sort((a, b) => {
     const indexA = preferredOrder.indexOf(a);
     const indexB = preferredOrder.indexOf(b);
@@ -124,7 +122,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     finalBrandsByCategory[cat] = Array.from(brandsByCategory[cat]).sort();
   });
 
-  // 🎯 HIER WURDEN DIE DIRETEN LINKS HINZUGEFÜGT
   const heroMap: Record<string, HeroSection> = {
     'Notebooks': {
       id: 'hero-notebooks',
@@ -188,7 +185,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   if (isPureHome) {
     sortedCategories.forEach((cat) => {
-      const catProducts = allProducts.filter(p => p.category === cat).slice(0, 8);
+      // 🎯 FIX: ".slice(0, 8)" entfernt, damit ausnahmslos ALLE geladenen Artikel angezeigt werden
+      const catProducts = allProducts.filter(p => p.category === cat);
       
       if (catProducts.length > 0) {
         if (heroMap[cat]) {

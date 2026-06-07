@@ -76,7 +76,7 @@ export default function CheckoutPage() {
       const orderPayload = {
         userId: userProfile.id,
         totalAmount: finalTotal,
-        paymentMethod: paymentMethod,
+        paymentMethod: paymentMethod.toUpperCase(), // Macht 'CREDIT_CARD', 'INVOICE' etc. daraus
         items: cart.map(item => ({
           productId: item.id,
           quantity: item.quantity,
@@ -234,27 +234,49 @@ export default function CheckoutPage() {
               )}
 
               {/* BLOCK 2: Zahlungsmethoden */}
-              <div>
-                <h2 className="text-xs font-mono uppercase tracking-widest text-black border-b border-zinc-200 pb-3 mb-4">
+              <div className="flex flex-col gap-4">
+                <h2 className="text-xs font-mono uppercase tracking-widest text-black border-b border-zinc-200 pb-3 mb-2">
                   02 // Zahlungsmethode
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'invoice' ? 'border-black bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-bold uppercase tracking-wide text-black">Rechnung</span>
-                      <span className="text-[10px] text-samsung-muted font-normal">Zahlung nach Erhalt der Ware</span>
-                    </div>
-                    <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-3 w-3 accent-black cursor-pointer" />
-                  </label>
+                <div className="flex flex-col gap-4">
+                  {/* OBERE REIHE: Rechnung & Kreditkarte */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'invoice' ? 'border-black bg-zinc-50 font-medium' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold uppercase tracking-wide text-black">Rechnung</span>
+                        <span className="text-[10px] text-samsung-muted font-normal">Zahlung nach Erhalt der Ware</span>
+                      </div>
+                      <input type="radio" name="paymentMethod" value="invoice" checked={paymentMethod === 'invoice'} onChange={() => setPaymentMethod('invoice')} className="h-3 w-3 accent-black cursor-pointer" />
+                    </label>
 
-                  <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-black bg-zinc-50' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs font-bold uppercase tracking-wide text-black">PayPal</span>
-                      <span className="text-[10px] text-samsung-muted font-normal">Direkte Transaktions-Schnittstelle</span>
-                    </div>
-                    <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-3 w-3 accent-black cursor-pointer" />
-                  </label>
+                    <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'credit_card' ? 'border-black bg-zinc-50 font-medium' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold uppercase tracking-wide text-black">Kreditkarte</span>
+                        <span className="text-[10px] text-samsung-muted font-normal">Sicher bezahlen via Stripe</span>
+                      </div>
+                      <input type="radio" name="paymentMethod" value="credit_card" checked={paymentMethod === 'credit_card'} onChange={() => setPaymentMethod('credit_card')} className="h-3 w-3 accent-black cursor-pointer" />
+                    </label>
+                  </div>
+
+                  {/* UNTERE REIHE: PayPal & Klarna */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-black bg-zinc-50 font-medium' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold uppercase tracking-wide text-black">PayPal</span>
+                        <span className="text-[10px] text-samsung-muted font-normal">Direkte Schnittstelle</span>
+                      </div>
+                      <input type="radio" name="paymentMethod" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="h-3 w-3 accent-black cursor-pointer" />
+                    </label>
+
+                    <label className={`border rounded-none p-5 flex items-center justify-between cursor-pointer transition-colors ${paymentMethod === 'klarna' ? 'border-black bg-zinc-50 font-medium' : 'border-zinc-200 hover:border-zinc-400 bg-white'}`}>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs font-bold uppercase tracking-wide text-black">Klarna</span>
+                        <span className="text-[10px] text-samsung-muted font-normal">Sofortüberweisung / Raten</span>
+                      </div>
+                      <input type="radio" name="paymentMethod" value="klarna" checked={paymentMethod === 'klarna'} onChange={() => setPaymentMethod('klarna')} className="h-3 w-3 accent-black cursor-pointer" />
+                    </label>
+                  </div>
                 </div>
               </div>
 

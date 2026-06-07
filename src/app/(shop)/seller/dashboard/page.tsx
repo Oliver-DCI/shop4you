@@ -321,7 +321,7 @@ export default function SellerDashboardPage() {
 
           {/* Importer */}
           <div className="bg-white border border-zinc-200 p-6 flex flex-col gap-4">
-            <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Bulk Importer</h3>
+            <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Artikel Import</h3>
             <textarea value={jsonInput} onChange={(e) => setJsonInput(e.target.value)} placeholder="JSON hier einfügen..." className="w-full flex-1 min-h-[140px] border border-zinc-200 p-3 text-[11px] font-mono focus:outline-none focus:border-black resize-none" />
             <div className="grid grid-cols-2 gap-3">
               <button onClick={insertTemplate} className="bg-zinc-50 border border-zinc-200 text-[10px] font-mono py-3 uppercase cursor-pointer hover:bg-zinc-100 transition-colors">📝 Template</button>
