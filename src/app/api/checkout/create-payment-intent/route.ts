@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
-// Stripe mit dem geheimen Schlüssel aus der .env initialisieren
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27' as any, // Nutzt die stabile API-Version deines SDKs
-});
+// 🎯 Stripe ohne feste apiVersion initialisieren, damit es sich automatisch anpasst
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { amount, userId } = body;
 
-    // Mindestvalidierung
+    // Server-Log: So sehen wir exakt, was im Terminal ankommt
+    console.log('--- STRIPE API ROUTE GESTARTET ---');
+    console.log('Betrag empfangen:', amount);
+    console.log('User-ID empfangen:', userId);
+    console.log('Secret Key vorhanden?:', !!process.env.STRIPE_SECRET_KEY);
+
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: 'Ungültiger Betrag.' }, { status: 400 });
     }
@@ -21,31 +23,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Nicht autorisiert. Keine userId übergeben.' }, { status: 401 });
     }
 
-    // 🌟 WICHTIG: Euro in Cent umrechnen und runden, um JS-Fließkommafehler zu vermeiden
+    // Cent-Umrechnung
     const amountInCents = Math.round(amount * 100);
 
-    // Erstelle einen Payment Intent bei Stripe
+    // Intent erstellen
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: 'eur',
-      // Automatische Zahlungsmethoden aktivieren (Kreditkarte, Klarna etc. direkt über Stripe)
       automatic_payment_methods: {
         enabled: true,
       },
-      // Metadaten helfen dir später im Stripe-Dashboard, Zahlungen zuzuordnen
       metadata: {
         userId: userId,
       },
     });
 
-    // Wir senden das client_secret zurück ans Frontend. 
-    // Das Frontend nutzt dieses Secret, um das Kreditkarten-Eingabefeld sicher zu autorisieren.
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
     });
 
   } catch (error: any) {
-    console.error('Fehler beim Erstellen des Payment Intents:', error);
+    // 🚨 Das hier druckt den ECHTEN Grund in dein Terminal (npm run dev)
+    console.error('=== DETEKTIERTER STRIPE FEHLER ===');
+    console.error('Fehlermeldung:', error?.message || error);
+    console.error('Fehler-Objekt:', error);
+    console.error('==================================');
+
     return NextResponse.json(
       { error: 'Interner Server-Fehler bei der Zahlungsinitiierung.', details: error.message },
       { status: 500 }

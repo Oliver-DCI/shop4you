@@ -8,14 +8,21 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+// 🎯 Typdefinition für Next.js 15+: params ist ein Promise!
+interface RouteContext {
+  params: Promise<{ id: string }>;
+}
+
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  context: RouteContext // Nutzen des korrekten Next.js 15 Typings
 ) {
   try {
-    // 🎯 FALLBACK-LOGIK: Wir holen die ID aus den params ODER direkt aus dem URL-Pfad
-    let orderId = context?.params?.id;
+    // ➔ HIER IST DER FIX: params wird per await aufgelöst, bevor wir auf '.id' zugreifen
+    const resolvedParams = await context.params;
+    let orderId = resolvedParams?.id;
 
+    // 🎯 FALLBACK-LOGIK: Falls die ID nicht aus den params kam, holen wir sie direkt aus dem URL-Pfad
     if (!orderId) {
       const url = new URL(request.url);
       const pathSegments = url.pathname.split('/');

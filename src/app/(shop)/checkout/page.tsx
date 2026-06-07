@@ -5,6 +5,13 @@ import { useCart } from '@/context/cartContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+// 🎯 Stripe-Schnittstellen laden
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import StripeCardForm from '@/components/StripeCardForm';
+
+// Initialisierung mit der Umgebungsvariable
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 interface UserProfile {
   id: string;
@@ -37,6 +44,8 @@ export default function CheckoutPage() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState('invoice');
+  // 🎯 Status für das Stripe Client Secret, um die Zahlung zu autorisieren
+  const [stripeClientSecret, setStripeClientSecret] = useState<string>('');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('shop4you_user');
@@ -61,51 +70,93 @@ export default function CheckoutPage() {
   const taxAmount = cartTotal * 0.19;
   const finalTotal = cartTotal + shippingCosts;
 
+  // 🎯 API-Call: Holt das Secret ab, sobald der User die Kreditkarte auswählt
+  useEffect(() => {
+    if (paymentMethod === 'credit_card' && finalTotal > 0 && userProfile && !stripeClientSecret) {
+      const fetchSecret = async () => {
+        try {
+          const res = await fetch('/api/checkout/create-payment-intent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: finalTotal, userId: userProfile.id }),
+          });
+          const data = await res.json();
+          if (data.clientSecret) {
+            setStripeClientSecret(data.clientSecret);
+          } else {
+            console.error("Stripe Secret Fehler:", data.error);
+          }
+        } catch (error) {
+          console.error("Netzwerkfehler zum Payment Intent:", error);
+        }
+      };
+      fetchSecret();
+    }
+  }, [paymentMethod, finalTotal, userProfile, stripeClientSecret]);
+
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setShippingData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // 🔄 Kapselung der PostgreSQL-Speicherung, damit Stripe sie nach Erfolg aufrufen kann
+  const saveOrderToDatabase = async () => {
+    if (!userProfile) return;
+
+    const orderPayload = {
+      userId: userProfile.id,
+      totalAmount: finalTotal,
+      paymentMethod: paymentMethod.toUpperCase(),
+      items: cart.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price
+      })),
+      shippingAddress: showDifferentShipping ? {
+        firstName: shippingData.firstName,
+        lastName: shippingData.lastName,
+        street: shippingData.street,
+        zip: shippingData.zip,
+        city: shippingData.city
+      } : null
+    };
+
+    const response = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(orderPayload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Fehler beim Verarbeiten der Bestellung.');
+    }
+
+    setIsOrdered(true);
+    clearCart();
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0 || !userProfile || isSubmitting) return;
 
+    // 💳 Fall A: Stripe Kreditkarten-Abwicklung zwischenschalten
+    if (paymentMethod === 'credit_card') {
+      if (!stripeClientSecret) {
+        alert("Zahlungssystem lädt noch. Bitte einen Moment Geduld...");
+        return;
+      }
+      // Triggert den Listener im StripeCardForm
+      window.dispatchEvent(new Event('trigger-stripe-payment'));
+      return;
+    }
+
+    // 📄 Fall B: Normaler Kauf auf Rechnung
     try {
       setIsSubmitting(true);
-
-      const orderPayload = {
-        userId: userProfile.id,
-        totalAmount: finalTotal,
-        paymentMethod: paymentMethod.toUpperCase(), // Macht 'CREDIT_CARD', 'INVOICE' etc. daraus
-        items: cart.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price
-        })),
-        shippingAddress: showDifferentShipping ? {
-          firstName: shippingData.firstName,
-          lastName: shippingData.lastName,
-          street: shippingData.street,
-          zip: shippingData.zip,
-          city: shippingData.city
-        } : null
-      };
-
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderPayload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Fehler beim Verarbeiten der Bestellung.');
-      }
-
-      setIsOrdered(true);
-      clearCart();
+      await saveOrderToDatabase();
     } catch (error) {
       console.error('Checkout Fehler:', error);
       alert(error instanceof Error ? error.message : 'Etwas ist schiefgelaufen.');
@@ -258,6 +309,18 @@ export default function CheckoutPage() {
                       <input type="radio" name="paymentMethod" value="credit_card" checked={paymentMethod === 'credit_card'} onChange={() => setPaymentMethod('credit_card')} className="h-3 w-3 accent-black cursor-pointer" />
                     </label>
                   </div>
+
+                  {/* 🎯 Stripe Elements Maske rendern, wenn Kreditkarte ausgewählt ist */}
+                  {paymentMethod === 'credit_card' && stripeClientSecret && (
+                    <Elements stripe={stripePromise} options={{ clientSecret: stripeClientSecret }}>
+                      <StripeCardForm 
+                        isSubmitting={isSubmitting}
+                        setIsSubmitting={setIsSubmitting}
+                        clientSecret={stripeClientSecret}
+                        onSuccess={saveOrderToDatabase}
+                      />
+                    </Elements>
+                  )}
 
                   {/* UNTERE REIHE: PayPal & Klarna */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
