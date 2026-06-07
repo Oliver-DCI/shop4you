@@ -11,27 +11,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'E-Mail-Adresse fehlt.' }, { status: 400 });
     }
 
-    // Falls der User im zweiten Schritt ist und das Passwort ändern möchte
+    const formattedEmail = email.toLowerCase().trim();
+
+    // Falls das Passwort geändert werden soll (Schritt 2)
     if (newPassword) {
       if (newPassword !== confirmPassword) {
         return NextResponse.json({ error: 'Die Passwörter stimmen nicht überein.' }, { status: 400 });
       }
 
-      // Passwort hashen, um es sicher in PostgreSQL zu speichern
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-      // Passwort in der Datenbank aktualisieren
       await prisma.user.update({
-        where: { email: email.toLowerCase().trim() },
+        where: { email: formattedEmail },
         data: { password: hashedPassword },
       });
 
       return NextResponse.json({ success: true, message: 'Passwort erfolgreich aktualisiert.' });
     }
 
-    // --- Schritt 1: Nur prüfen, ob die E-Mail existiert ---
+    // Nur prüfen, ob die E-Mail existiert (Schritt 1)
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: formattedEmail },
     });
 
     if (!user) {

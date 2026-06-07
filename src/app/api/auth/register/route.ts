@@ -1,21 +1,13 @@
-// src/app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import { prisma } from '@/lib/prisma'; // 🎯 FIX: Zentrale Instanz nutzen!
 import bcrypt from 'bcrypt';
-
-// Verbindung zur PostgreSQL-Datenbank über den Supabase-Connection-String
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { firstName, lastName, email, password, role, street, zipCode, city } = body;
 
-    // 1. Validierung: Pflichtfelder prüfen (Inklusive der neuen Adressfelder!)
+    // 1. Validierung
     if (!email || !password || !firstName || !lastName || !street || !zipCode || !city) {
       return NextResponse.json(
         { error: 'Bitte fülle alle Pflichtfelder (inklusive vollständiger Adresse) aus.' }, 
@@ -23,10 +15,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. E-Mail-Formatierung: Trimmen und Kleinschreibung erzwingen
     const formattedEmail = email.toLowerCase().trim();
 
-    // 3. Eindeutigkeit prüfen: Existiert die E-Mail bereits?
+    // 2. Eindeutigkeit prüfen
     const existingUser = await prisma.user.findUnique({
       where: { email: formattedEmail },
     });
@@ -38,25 +29,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Passwort-Hashing: Sicher verschlüsseln
+    // 3. Passwort-Hashing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. User-Erstellung: Ab in die PostgreSQL-Datenbank!
-    // 🎯 WICHTIG: Die Rolle muss exakt 'USER' (oder 'ADMIN') lauten, passend zum Prisma-Enum!
+    // 4. User-Erstellung
     const newUser = await prisma.user.create({
       data: {
         firstName,
         lastName,
         email: formattedEmail,
         password: hashedPassword,
-        role: role === 'ADMIN' ? 'ADMIN' : 'USER', // Fallback auf standardmäßiges 'USER'
+        role: role === 'ADMIN' ? 'ADMIN' : 'USER',
         street,
         zipCode,
         city,
       },
     });
 
-    // 6. Passwort aus der Rückgabe entfernen, bevor wir antworten
     const { password: _, ...userWithoutPassword } = newUser;
 
     return NextResponse.json({ 

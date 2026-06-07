@@ -1,14 +1,6 @@
-// src/app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import { prisma } from '@/lib/prisma'; // Zentrale Instanz
 import bcrypt from 'bcrypt';
-
-// Verbindung zur PostgreSQL-Datenbank über den Supabase-Connection-String
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
 
 export async function POST(request: Request) {
   try {
@@ -23,30 +15,40 @@ export async function POST(request: Request) {
       );
     }
 
+    const formattedEmail = email.toLowerCase().trim();
+
     // 2. User-Suche: Existiert die E-Mail-Adresse in unserer Datenbank?
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() }, // Sicher gegen Tippfehler bei Groß-/Kleinschreibung
+      where: { email: formattedEmail },
     });
 
     if (!user) {
-      // Sicherheits-Best-Practice: Keine genaue Auskunft darüber geben, ob die E-Mail oder das Passwort falsch war
+      // 🎯 TERMINAL-LOGGING: Zeigt dir im VS-Code Terminal sofort, ob die Mail falsch ist
+      console.log(`❌ LOGIN-FAILED: E-Mail [${formattedEmail}] existiert nicht in der Datenbank.`);
+      
       return NextResponse.json(
         { error: 'Ungültige Anmeldedaten. Bitte überprüfe deine Eingaben.' }, 
         { status: 401 }
       );
     }
 
-    // 3. Passwort-Vergleich: Stimmt das eingegebene Passwort mit dem verschlüsselten DB-Hash überein?
+    // 3. Passwort-Vergleich: Stimmt das Passwort mit dem DB-Hash überein?
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      // 🎯 TERMINAL-LOGGING: Zeigt dir im VS-Code Terminal, ob das Passwort falsch eingegeben wurde
+      console.log(`❌ LOGIN-FAILED: Passwort für [${formattedEmail}] stimmt nicht mit dem Hash überein.`);
+      
       return NextResponse.json(
         { error: 'Ungültige Anmeldedaten. Bitte überprüfe deine Eingaben.' }, 
         { status: 401 }
       );
     }
 
-    // 4. Erfolg: Wir senden die User-Daten (OHNE das Passwort!) zurück an die App
+    // 🎯 ERFOLGS-LOGGING: Bestätigung im Terminal
+    console.log(`✅ LOGIN-SUCCESS: User [${formattedEmail}] erfolgreich eingeloggt.`);
+
+    // 4. Erfolg: Wir senden alle User-Daten (OHNE das Passwort!) zurück an die App
     return NextResponse.json({
       success: true,
       message: 'Authentifizierung erfolgreich.',
@@ -56,7 +58,6 @@ export async function POST(request: Request) {
         lastName: user.lastName,
         email: user.email,
         role: user.role,
-        // Falls du die Adresse für Rechnungen im Frontend brauchst, senden wir sie direkt mit:
         street: user.street,
         zipCode: user.zipCode,
         city: user.city

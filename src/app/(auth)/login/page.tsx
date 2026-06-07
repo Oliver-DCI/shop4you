@@ -137,7 +137,7 @@ export default function LoginPage() {
           </Link>
           <h1 className="text-xl font-normal uppercase tracking-widest text-black">Anmelden</h1>
           {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
-          <p className="text-xs text-samsung-muted font-normal mt-0.5">Nutze deine shop4you ID, um fortzufahren.</p>
+          <p className="text-xs text-samsung-muted font-normal mt-0.5">Anmeldung mit E-Mail und Passwort</p>
         </div>
 
         {urlEmail && !errorMsg && (
