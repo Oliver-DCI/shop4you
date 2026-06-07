@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import AccountSidebar from '@/components/shop/account/AccountSidebar';
+import AccountSidebar from '@/components/account/AccountSidebar';
 
 export default function AccountLayout({
   children,

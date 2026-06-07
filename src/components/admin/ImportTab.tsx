@@ -1,0 +1,229 @@
+'use client';
+
+import React, { useState } from 'react';
+
+// Die 5 fest definierten, erlaubten Kategorien für das System
+const ALLOWED_CATEGORIES = ['Notebooks', 'Smartphones', 'TV', 'Audio', 'Zubehör'];
+
+const INITIAL_TEMPLATE = [
+  { title: 'MacBook Pro Studio M5X', description: 'High-End Workstation für Entwickler und Power-User mit maximaler Effizienz.', price: 3499.00, category: 'Notebooks', brand: 'Apple', stock: 10, images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800', '', '', '', ''] },
+  { title: 'UltraBook Pro 14', description: 'Extrem dünnes Gehäuse, federleicht mit CNC-Aluminium-Finish und brillantem Display.', price: 1499.00, category: 'Notebooks', brand: 'S4Y', stock: 15, images: ['https://images.unsplash.com/photo-1496181130204-755241524eab?w=800', '', '', '', ''] },
+  { title: 'S4Y Phone Matrix', description: 'Unser hauseigenes Flaggschiff mit nativer Hardware-Verschlüsselung und Quantum-Kamera.', price: 999.00, category: 'Smartphones', brand: 'S4Y', stock: 30, images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', '', '', '', ''] },
+  { title: 'QuantumView OLED 55"', description: 'Perfektes Schwarz, unendlicher Kontrast und Next-Gen Gaming Engine mit 144Hz.', price: 1299.00, category: 'TV', brand: 'LG', stock: 10, images: ['https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800', '', '', '', ''] },
+  { title: 'StudioSound ANC ONE', description: 'Over-Ear Studio-Kopfhörer mit adaptiver Geräuschunterdrückung und High-Res Audio.', price: 399.00, category: 'Audio', brand: 'Bose', stock: 25, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800', '', '', '', ''] },
+  { title: 'Mechanical Keyboard Pro', description: 'Präzise mechanische Switches mit Hot-Swap Option und anpassbarer RGB-Beleuchtung.', price: 189.00, category: 'Zubehör', brand: 'Keychron', stock: 50, images: ['https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800', '', '', '', ''] },
+  { title: 'GeForce RTX 5090 Ti Founders', description: 'Die ultimative Grafikkarte für Raytracing und AI-Computing mit 32GB VRAM.', price: 2199.00, category: 'Zubehör', brand: 'NVIDIA', stock: 8, images: ['https://images.unsplash.com/photo-1591488320449-011701bb6704?w=800', '', '', '', ''] },
+  { title: 'Ryzen 9 9950X3D Processor', description: 'Ein absolutes Gaming-Monster mit 3D V-Cache Technologie und 16 Kernen.', price: 689.00, category: 'Zubehör', brand: 'AMD', stock: 12, images: ['https://images.unsplash.com/photo-1555664424-778a1e5e1b48?w=800', '', '', '', ''] },
+  { title: 'ROG Crosshair X870E Hero', description: 'Highend Mainboard mit maximaler Spannungsversorgung und PCIe 5.0 Support.', price: 459.00, category: 'Zubehör', brand: 'ASUS', stock: 14, images: ['https://images.unsplash.com/photo-1562976540-1502c2145186?w=800', '', '', '', ''] },
+  { title: 'UltraWide Quantum Monitor 49"', description: '49 Zoll Curved Display mit Dual-QHD Auflösung und spektakulären Farben.', price: 1149.00, category: 'Zubehör', brand: 'Samsung', stock: 5, images: ['https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800', '', '', '', ''] }
+];
+
+export default function ImportTab() {
+  const [loadedProducts, setLoadedProducts] = useState<typeof INITIAL_TEMPLATE | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [logMessages, setLogMessages] = useState<string[]>([]);
+
+  const handleLoadTemplate = () => {
+    const preparedTemplate = INITIAL_TEMPLATE.map(prod => {
+      const imgArray = [...prod.images];
+      while (imgArray.length < 5) imgArray.push('');
+      return { ...prod, images: imgArray };
+    });
+    setLoadedProducts(preparedTemplate);
+    setLogMessages(['[SYSTEM] Template im Karten-Modus mit 10 Premium-Artikeln geladen. Kategorien sind fest auf die 5 System-Typen beschränkt.']);
+  };
+
+  const handleInputChange = (index: number, field: string, value: any) => {
+    if (!loadedProducts) return;
+    const updated = [...loadedProducts];
+    updated[index] = {
+      ...updated[index],
+      [field]: field === 'price' ? parseFloat(value) || 0 : field === 'stock' ? parseInt(value) || 0 : value
+    };
+    setLoadedProducts(updated);
+  };
+
+  const handleImageUrlChange = (productIndex: number, imageIndex: number, url: string) => {
+    if (!loadedProducts) return;
+    const updated = [...loadedProducts];
+    const updatedImages = [...updated[productIndex].images];
+    updatedImages[imageIndex] = url;
+    updated[productIndex].images = updatedImages;
+    setLoadedProducts(updated);
+  };
+
+  const handleRemoveFromPreview = (index: number) => {
+    if (!loadedProducts) return;
+    setLoadedProducts(loadedProducts.filter((_, i) => i !== index));
+  };
+
+  const handleFinalDatabaseInjection = async () => {
+    if (!loadedProducts || loadedProducts.length === 0 || isSubmitting) return;
+
+    // Sicherheits-Validierung vor dem Absenden
+    const hasInvalidCategory = loadedProducts.some(prod => !ALLOWED_CATEGORIES.includes(prod.category));
+    if (hasInvalidCategory) {
+      setLogMessages(prev => [...prev, '❌ FEHLER: Einige Artikel enthalten ungültige Kategorien. Erlaubt sind nur: Notebooks, Smartphones, TV, Audio, Zubehör.']);
+      return;
+    }
+
+    setIsSubmitting(true);
+    setLogMessages(prev => [...prev, '[SYSTEM] Filter leere Bild-Slots heraus und starte PostgreSQL-Injektion...']);
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
+      const userId = currentUser.id;
+      const role = currentUser.role || 'admin';
+
+      if (!userId) throw new Error('Keine aktive Admin-Session gefunden.');
+
+      const cleanedProducts = loadedProducts.map(prod => ({
+        ...prod,
+        images: prod.images.filter(img => img.trim() !== '')
+      }));
+
+      const response = await fetch('/api/products/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products: cleanedProducts, role, userId }),
+      });
+
+      const responseData = await response.json().catch(() => ({}));
+
+      if (!response.ok) throw new Error(responseData.error || 'API-Core verweigerte Speicherung.');
+
+      setLogMessages(prev => [...prev, `[ERFOLG] ${cleanedProducts.length} modifizierte Artikel fest in PostgreSQL verankert!`]);
+      setLoadedProducts(null);
+    } catch (error: any) {
+      setLogMessages(prev => [...prev, `❌ FEHLER: ${error.message}`]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-xl uppercase tracking-wider font-light text-black">Massen-Datenimport (Validierter Filter-Schutz)</h2>
+        <p className="text-zinc-400 text-[10px] uppercase tracking-widest mt-1 font-mono">
+          Kategorien sind strikt limitiert auf Notebooks, Smartphones, TV, Audio und Zubehör
+        </p>
+      </div>
+
+      {logMessages.length > 0 && (
+        <div className="bg-zinc-900 p-4 font-mono text-[10px] text-zinc-300 flex flex-col gap-1">
+          {logMessages.map((msg, idx) => (
+            <div key={idx} className={msg.startsWith('❌') ? 'text-rose-400 font-bold' : msg.startsWith('[ERFOLG]') ? 'text-emerald-400 font-bold' : 'text-zinc-400'}>
+              {msg}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loadedProducts ? (
+        <div className="border border-dashed border-zinc-300 p-12 text-center flex flex-col items-center justify-center bg-zinc-50">
+          <span className="text-3xl mb-3">🛡</span>
+          <p className="text-xs uppercase tracking-wider font-medium text-black">Karten-Template-Injektor bereit</p>
+          <button 
+            onClick={handleLoadTemplate}
+            className="mt-4 bg-black text-white text-[10px] font-mono tracking-widest px-6 py-3 uppercase hover:bg-zinc-900 cursor-pointer"
+          >
+            10 VALIDIERTE TEMPLATE-KARTEN LADEN
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          <div className="flex justify-between items-center bg-zinc-100 p-4 border border-zinc-200">
+            <span className="text-[10px] font-mono uppercase font-bold text-black">Template-Modus: {loadedProducts.length} Artikel im Grid</span>
+            <button
+              onClick={handleFinalDatabaseInjection}
+              disabled={isSubmitting}
+              className="bg-emerald-600 text-white text-[10px] font-mono tracking-widest px-5 py-2.5 uppercase hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
+            >
+              {isSubmitting ? 'INJEKTION LÄUFT...' : '✔ JETZT ALLE IN DB SPEICHERN'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {loadedProducts.map((prod, pIdx) => (
+              <div key={pIdx} className="border border-zinc-200 bg-white p-5 flex flex-col gap-4 relative hover:border-zinc-400 transition-colors">
+                <button 
+                  onClick={() => handleRemoveFromPreview(pIdx)}
+                  className="absolute top-3 right-3 text-zinc-400 hover:text-rose-600 text-[10px] font-mono uppercase font-bold tracking-widest"
+                >
+                  ✕ Entfernen
+                </button>
+
+                <div className="text-[9px] font-mono bg-zinc-100 text-zinc-500 self-start px-2 py-0.5 uppercase tracking-wider">
+                  Template-Item #{pIdx + 1}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] uppercase font-mono text-zinc-400">Artikel-Titel</label>
+                    <input type="text" value={prod.title} onChange={(e) => handleInputChange(pIdx, 'title', e.target.value)} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs focus:bg-white focus:outline-none" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] uppercase font-mono text-zinc-400">Marke</label>
+                    <input type="text" value={prod.brand || ''} onChange={(e) => handleInputChange(pIdx, 'brand', e.target.value)} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs focus:bg-white focus:outline-none" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] uppercase font-mono text-zinc-400">Kategorie</label>
+                    {/* Dropdown statt Freitextfeld schützt vor falschen Eingaben */}
+                    <select 
+                      value={prod.category} 
+                      onChange={(e) => handleInputChange(pIdx, 'category', e.target.value)}
+                      className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs focus:bg-white focus:outline-none h-[30px]"
+                    >
+                      {ALLOWED_CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] uppercase font-mono text-zinc-400">Preis (€)</label>
+                    <input type="number" step="0.01" value={prod.price} onChange={(e) => handleInputChange(pIdx, 'price', e.target.value)} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs font-mono text-right font-bold focus:bg-white focus:outline-none" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] uppercase font-mono text-zinc-400">Bestand</label>
+                    <input type="number" value={prod.stock} onChange={(e) => handleInputChange(pIdx, 'stock', e.target.value)} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs text-right focus:bg-white focus:outline-none" />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] uppercase font-mono text-zinc-400">Artikelbeschreibung</label>
+                  <textarea 
+                    rows={2}
+                    value={prod.description} 
+                    onChange={(e) => handleInputChange(pIdx, 'description', e.target.value)}
+                    className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-xs focus:bg-white focus:outline-none font-sans resize-none"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5 border-t border-zinc-100 pt-3">
+                  <label className="text-[9px] uppercase font-mono text-black font-bold tracking-wider">Bilder-Galerie (Max. 5 URLs)</label>
+                  {prod.images.map((imgUrl, imgIdx) => (
+                    <div key={imgIdx} className="flex items-center gap-2">
+                      <span className="text-[9px] font-mono text-zinc-400 w-12 uppercase">Bild {imgIdx + 1}:</span>
+                      <input 
+                        type="text" 
+                        placeholder="http://example.com/image.jpg"
+                        value={imgUrl} 
+                        onChange={(e) => handleImageUrlChange(pIdx, imgIdx, e.target.value)}
+                        className={`flex-1 border px-2 py-1 text-[10px] font-mono focus:bg-white focus:outline-none ${imgIdx === 0 ? 'border-zinc-300 bg-zinc-50 font-bold' : 'border-zinc-200 bg-zinc-50/50'}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

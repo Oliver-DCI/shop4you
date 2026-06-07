@@ -1,5 +1,5 @@
 import React from 'react';
-import ChatBot from '@/components/shop/ChatBot';
+import ChatBot from '@/components/ChatBot';
 
 export default function ShopGroupLayout({
   children,

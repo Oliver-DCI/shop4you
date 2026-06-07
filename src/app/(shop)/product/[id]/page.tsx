@@ -4,8 +4,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import ProductImages from '@/components/shop/ProductImages';
-import ProductInfo from '@/components/shop/ProductInfo';
+import ProductImages from '@/components/ProductImages';
+import ProductInfo from '@/components/ProductInfo';
 
 // Prisma Setup
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
