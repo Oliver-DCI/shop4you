@@ -45,13 +45,13 @@ export default function CategoryFilter({
     router.push(`/?${params.toString()}`);
   };
 
-  // Filtert das alte "Produkte" Label heraus
   const cleanCategories = categories.filter(cat => cat !== 'Produkte');
 
   return (
+    /* Die Hauptleiste sitzt im vollen Viewport, um das absolute Menü auf voller Breite zu erlauben */
     <div className="w-full bg-white relative z-30">
       
-      {/* LEVEL 1: Hauptleiste (🎯 Trennlinie entfernt, um Überschneidungen zu verhindern) */}
+      {/* LEVEL 1: Hauptleiste (Inhalt auf 1400px zentriert) */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 relative flex items-center justify-center w-full">
         
         {/* Mittiger Bereich: Kategorien */}
@@ -61,7 +61,8 @@ export default function CategoryFilter({
             const availableBrands = brandsByCategory[cat] || [];
             
             return (
-              <div key={cat} className="group relative h-full flex items-center">
+              /* 'static' erlaubt dem Dropdown, aus dem Button-Kontext auszubrechen */
+              <div key={cat} className="group static h-full flex items-center">
                 
                 {/* Kategorie Link */}
                 <button
@@ -73,33 +74,38 @@ export default function CategoryFilter({
                   {cat}
                 </button>
 
-                {/* LEVEL 2: Mega-Dropdown im toom.de-Style */}
+                {/* 🎯 LEVEL 2: Hintergrund zieht über volle Bildschirmbreite, Inhalt bleibt starr im 1400px-Raster */}
                 {availableBrands.length > 0 && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block bg-white border border-zinc-200 shadow-xl p-5 min-w-[650px] z-50">
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen hidden group-hover:block bg-white border border-zinc-200 shadow-xl h-52 z-50">
                     
-                    <div className="text-[9px] font-mono tracking-widest text-samsung-muted uppercase mb-3 border-b border-zinc-100 pb-1.5 text-center w-full">
-                      Hersteller filtern ({cat})
-                    </div>
-                    
-                    {/* Das 5-Spalten-Grid für die Hersteller-Buttons */}
-                    <div className="grid grid-cols-5 gap-2 w-full">
-                      {availableBrands.map((brand) => {
-                        const isBrandActive = currentBrand === brand && isActive;
-                        return (
-                          <button
-                            key={brand}
-                            onClick={() => handleBrandChange(brand, cat)}
-                            className={`text-center py-2 px-1 text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer truncate border ${
-                              isBrandActive 
-                                ? 'bg-black border-black text-white font-bold' 
-                                : 'bg-zinc-50 border-zinc-100 text-zinc-700 hover:bg-zinc-100 hover:text-black hover:border-zinc-300'
-                            }`}
-                            title={brand}
-                          >
-                            {brand}
-                          </button>
-                        );
-                      })}
+                    {/* Innerer Container: Zwingt die Buttons, exakt bei 1400px anzufangen! */}
+                    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full flex flex-col justify-start">
+                      
+                      <div className="text-[9px] font-mono tracking-widest text-samsung-muted uppercase mb-4 border-b border-zinc-100 pb-1.5 w-full">
+                        Hersteller filtern // {cat}
+                      </div>
+                      
+                      {/* Das Grid: Startet exakt bündig an der 1400px-Kante */}
+                      <div className="grid grid-cols-5 gap-x-4 gap-y-3 w-full content-start">
+                        {availableBrands.map((brand) => {
+                          const isBrandActive = currentBrand === brand && isActive;
+                          return (
+                            <button
+                              key={brand}
+                              onClick={() => handleBrandChange(brand, cat)}
+                              className={`text-center py-2 px-1 text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer truncate border ${
+                                isBrandActive 
+                                  ? 'bg-black border-black text-white font-bold' 
+                                  : 'bg-zinc-50 border-zinc-100 text-zinc-700 hover:bg-zinc-100 hover:text-black hover:border-zinc-300'
+                              }`}
+                              title={brand}
+                            >
+                              {brand}
+                            </button>
+                          );
+                        })}
+                      </div>
+
                     </div>
 
                   </div>
@@ -110,7 +116,7 @@ export default function CategoryFilter({
           })}
         </div>
 
-        {/* Rechter Bereich: Sortierung */}
+        {/* Rechter Bereich: Sortierung (Fluchtet mit der 1400px Außenkante) */}
         <div className="absolute right-4 sm:right-6 lg:right-8 flex items-center gap-3 h-full bg-white pl-4">
           <button
             onClick={() => handleSortChange('price_asc')}
