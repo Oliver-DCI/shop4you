@@ -176,7 +176,7 @@ export default function SellerDashboardPage() {
       const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
       const userId = currentUser.id;
 
-      const response = await fetch('/api/products/bulk', {
+      const response = await fetch('/api/products/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

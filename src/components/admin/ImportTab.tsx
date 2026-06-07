@@ -82,7 +82,7 @@ export default function ImportTab() {
         images: prod.images.filter(img => img.trim() !== '')
       }));
 
-      const response = await fetch('/api/products/bulk', {
+      const response = await fetch('/api/products/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ products: cleanedProducts, role, userId }),
