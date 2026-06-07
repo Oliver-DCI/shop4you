@@ -251,10 +251,10 @@ export default function SellerDashboardPage() {
   }
 
   return (
-    /* 🎯 FIX: Äußerer Container nimmt die volle Breite ein, die Innenabstände werden im Child-Div perfekt erzwungen */
+    /* 🎯 Äußerer Container nimmt die volle Breite ein, die Innenabstände werden im Child-Div perfekt erzwungen */
     <div className="min-h-screen bg-white text-black relative overflow-hidden rounded-none selection:bg-black selection:text-white">
       
-      {/* 🎯 FIX: Hier ist der magische Wrapper, der exakt wie der Header fluchtet (max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8) */}
+      {/* 🎯 Hier ist der magische Wrapper, der exakt wie der Header fluchtet */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-6 lg:pt-10 flex flex-col gap-8 relative z-10">
         
         {/* Header */}
@@ -331,6 +331,52 @@ export default function SellerDashboardPage() {
           </div>
         </div>
 
+        {/* 🎯 NEUE POSITION: Live-Parsing Vorschau wird jetzt direkt hier über den gelisteten Artikeln gerendert */}
+        {livePreview.length > 0 && (
+          <div className="border border-zinc-200 p-6 bg-zinc-50/50 flex flex-col gap-4">
+            <h3 className="text-[10px] font-medium uppercase tracking-widest text-samsung-muted font-mono">[ Live-Parsing Vorschau ]</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {livePreview.map((prod, idx) => {
+                const isInvalid = prod.category && !ALLOWED_CATEGORIES.includes(prod.category);
+                return (
+                  <div key={idx} className={`border p-4 pt-12 relative overflow-hidden group bg-white flex flex-col justify-between ${isInvalid ? 'border-red-400 bg-red-50/20' : 'border-zinc-200'}`}>
+                    <div className="absolute top-0 left-0 right-0 text-center">
+                      <span onClick={(e) => removeProductFromPreview(e, idx)} className="text-[9px] font-mono text-samsung-muted hover:text-black uppercase tracking-widest transition-colors cursor-pointer inline-block mt-2">[ Vorschau entfernen ]</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-start gap-2 mt-2">
+                      <div className="truncate">
+                        <div className="flex flex-col">
+                          <span className={`text-[8px] font-mono uppercase tracking-widest block ${isInvalid ? 'text-red-600 font-bold' : 'text-samsung-muted'}`}>
+                            {prod.category || 'Keine'} {isInvalid && '⚠️'}
+                          </span>
+                          {prod.brand && <span className="text-[8px] font-mono text-samsung-muted uppercase font-bold mt-0.5">{prod.brand}</span>}
+                        </div>
+                        <h4 className="text-xs font-mono font-bold uppercase truncate mt-1">{prod.title}</h4>
+                      </div>
+
+                      {prod.images && prod.images[0] && (
+                        <div className="w-8 h-8 bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
+                          <img 
+                            src={prod.images[0]} 
+                            alt={prod.title || 'Vorschau'} 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-center font-mono text-xs">
+                      <span className="text-[8px] text-samsung-muted font-bold">STK: {prod.quantity || 1}</span>
+                      <span className="font-bold text-right">{Number(prod.price || 0).toFixed(2)} €</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Echte Produkt-Liste */}
         <div className="bg-white border border-zinc-200 p-6">
           <div className="flex justify-between items-center border-b border-zinc-100 pb-3 mb-4">
@@ -386,51 +432,6 @@ export default function SellerDashboardPage() {
           )}
         </div>
 
-        {/* Live Preview */}
-        {livePreview.length > 0 && (
-          <div className="border border-zinc-200 p-6 bg-zinc-50/50 flex flex-col gap-4">
-            <h3 className="text-[10px] font-medium uppercase tracking-widest text-samsung-muted font-mono">[ Live-Parsing Vorschau ]</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {livePreview.map((prod, idx) => {
-                const isInvalid = prod.category && !ALLOWED_CATEGORIES.includes(prod.category);
-                return (
-                  <div key={idx} className={`border p-4 pt-12 relative overflow-hidden group bg-white flex flex-col justify-between ${isInvalid ? 'border-red-400 bg-red-50/20' : 'border-zinc-200'}`}>
-                    <div className="absolute top-0 left-0 right-0 text-center">
-                      <span onClick={(e) => removeProductFromPreview(e, idx)} className="text-[9px] font-mono text-samsung-muted hover:text-black uppercase tracking-widest transition-colors cursor-pointer inline-block mt-2">[ Vorschau entfernen ]</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-start gap-2 mt-2">
-                      <div className="truncate">
-                        <div className="flex flex-col">
-                          <span className={`text-[8px] font-mono uppercase tracking-widest block ${isInvalid ? 'text-red-600 font-bold' : 'text-samsung-muted'}`}>
-                            {prod.category || 'Keine'} {isInvalid && '⚠️'}
-                          </span>
-                          {prod.brand && <span className="text-[8px] font-mono text-samsung-muted uppercase font-bold mt-0.5">{prod.brand}</span>}
-                        </div>
-                        <h4 className="text-xs font-mono font-bold uppercase truncate mt-1">{prod.title}</h4>
-                      </div>
-
-                      {prod.images && prod.images[0] && (
-                        <div className="w-8 h-8 bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
-                          <img 
-                            src={prod.images[0]} 
-                            alt={prod.title || 'Vorschau'} 
-                            className="w-full h-full object-cover" 
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-center font-mono text-xs">
-                      <span className="text-[8px] text-samsung-muted font-bold">STK: {prod.quantity || 1}</span>
-                      <span className="font-bold text-right">{Number(prod.price || 0).toFixed(2)} €</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 🎯 CUSTOM SHOP4YOU PREMIUM-LÖSCHMODAL */}
