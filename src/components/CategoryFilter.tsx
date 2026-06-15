@@ -45,7 +45,8 @@ export default function CategoryFilter({
     router.push(`/?${params.toString()}`);
   };
 
-  const cleanCategories = categories.filter(cat => cat !== 'Produkte');
+  // 🎯 Shop4you Design-Korrektur: "Zubehör" und "Produkte" konsequent ausblenden
+  const cleanCategories = categories.filter(cat => cat !== 'Produkte' && cat !== 'Zubehör');
 
   return (
     /* Die Hauptleiste sitzt im vollen Viewport, um das absolute Menü auf voller Breite zu erlauben */
@@ -54,7 +55,7 @@ export default function CategoryFilter({
       {/* LEVEL 1: Hauptleiste (Inhalt auf 1400px zentriert) */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 relative flex items-center justify-center w-full">
         
-        {/* Mittiger Bereich: Kategorien */}
+        {/* Mittiger Bereich: Kategorien (Immer genau 4 Elemente im Raster) */}
         <div className="flex items-center justify-center gap-8 h-full">
           {cleanCategories.map((cat) => {
             const isActive = cat === currentCategory;
@@ -74,7 +75,7 @@ export default function CategoryFilter({
                   {cat}
                 </button>
 
-                {/* 🎯 LEVEL 2: Hintergrund zieht über volle Bildschirmbreite, Inhalt bleibt starr im 1400px-Raster */}
+                {/* LEVEL 2: Hintergrund zieht über volle Bildschirmbreite, Inhalt bleibt starr im 1400px-Raster */}
                 {availableBrands.length > 0 && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-screen hidden group-hover:block bg-white border border-zinc-200 shadow-xl h-52 z-50">
                     
@@ -85,14 +86,14 @@ export default function CategoryFilter({
                         Hersteller filtern // {cat}
                       </div>
                       
-                      {/* Das Grid: Startet exakt bündig an der 1400px-Kante */}
-                      <div className="grid grid-cols-5 gap-x-4 gap-y-3 w-full content-start">
+                      {/* 🎯 Das Grid: Auf grid-cols-4 angepasst, um die strikte 4er-Symmetrie einzuhalten */}
+                      <div className="grid grid-cols-4 gap-x-4 gap-y-3 w-full content-start">
                         {availableBrands.map((brand) => {
                           const isBrandActive = currentBrand === brand && isActive;
                           return (
                             <button
                               key={brand}
-                              onClick={() => handleBrandChange(brand, cat)}
+                              onClick={() => brand && handleBrandChange(brand, cat)}
                               className={`text-center py-2 px-1 text-[11px] font-mono uppercase tracking-wider transition-all cursor-pointer truncate border ${
                                 isBrandActive 
                                   ? 'bg-black border-black text-white font-bold' 

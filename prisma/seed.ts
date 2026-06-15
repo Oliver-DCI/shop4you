@@ -17,7 +17,7 @@ async function main() {
   console.log('✅ Datenbank komplett geleert.');
 
   console.log('👑 Erstelle globalen Administrator mit vollständiger Adresse...');
-  const hashedAdminPassword = await bcrypt.hash('LogS4Y2026', 10);
+  const hashedAdminPassword = await bcrypt.hash('admin', 10);
 
   const adminUser = await prisma.user.create({
     data: {
@@ -31,44 +31,10 @@ async function main() {
       city: 'Offenbach am Main',
     },
   });
+
   console.log(`✅ Administrator angelegt: ${adminUser.email}`);
-
-  
-  console.log('🏪 Erstelle Test-Verkäufer...');
-  const hashedSellerPassword = await bcrypt.hash('Sabse2026', 10);
-  const sellerUser = await prisma.user.create({
-    data: {
-      firstName: 'Sabiene',
-      lastName: 'Meier',
-      email: 'sabse@gmx.de',
-      password: hashedSellerPassword,
-      role: 'SELLER',
-      street: 'Im Flow 101',
-      zipCode: '21079',
-      city: 'Hamburg',
-    },
-  });
-  console.log(`✅ Verkäufer angelegt: ${sellerUser.email}`);
-
-
-  console.log('👤 Erstelle Test-Kunden...');
-  const hashedCustomerPassword = await bcrypt.hash('MichMint321', 10);
-  const customerUser = await prisma.user.create({
-    data: {
-      firstName: 'Michael',
-      lastName: 'Mint',
-      email: 'mm@gmx.de',
-      password: hashedCustomerPassword,
-      role: 'USER', // Falls deine Rolle im Schema anders heißt (z.B. CUSTOMER), hier anpassen
-      street: 'Im Traum 1',
-      zipCode: '60311',
-      city: 'Frankfurt am Main',
-    },
-  });
-  console.log(`✅ Kunde angelegt: ${customerUser.email}`);
-
-
   console.log('🌱 Erstelle Premium-Produkte mit sicheren Cloudinary-Bildern...');
+
   const premiumProducts = [
     {
         "title": "MacBook Pro 16\" M3 Max",
@@ -78,11 +44,11 @@ async function main() {
         "brand": "Apple",
         "stock": 12,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992386/shop4you/products/pk3xlbvydqqeqwvx3ktt.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992387/shop4you/products/j8jo8dxvmvuzsi8arlg5.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992388/shop4you/products/fh1itxgwi2dwsagqstow.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992391/shop4you/products/pwpluocne5tyiznoydmk.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992392/shop4you/products/cpsdqoy62euzwlfjquwy.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277469/shop4you/products/d2l3n1xdqmryn7jslnxn.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277470/shop4you/products/fl2953ce4l9ln6kdjelj.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277472/shop4you/products/xxq6m5zqdk3fdugowkdu.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277473/shop4you/products/ib9xslzli89gzecebujo.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277474/shop4you/products/vlrk7sqx95c7rbqhstr6.jpg"
         ]
     },
     {
@@ -93,11 +59,11 @@ async function main() {
         "brand": "Samsung",
         "stock": 8,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992393/shop4you/products/uunyypvbltqww8jwfgql.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992394/shop4you/products/awkkx0vs8xkcvq8mvevm.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992395/shop4you/products/sdn7cna1dwubdxqkagvw.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992396/shop4you/products/axbbsovtmi0blhfhhrwo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992397/shop4you/products/uveqgstgdvmvbyi9dio3.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277475/shop4you/products/nxaqdcxz4seoh8lsjklv.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277477/shop4you/products/huuwonihttbgelnnazzh.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277478/shop4you/products/d1irazsd1ow3yvbhv26e.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277479/shop4you/products/rbmpxp33rw4uq9y7bd1n.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277480/shop4you/products/wwmwjyqdrkveyfyephsd.jpg"
         ]
     },
     {
@@ -108,11 +74,11 @@ async function main() {
         "brand": "Lenovo",
         "stock": 15,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992398/shop4you/products/xhalilrtdzjkjmeiw8v3.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992401/shop4you/products/qgfz8tynkxyrki1wb2x7.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992400/shop4you/products/qejbszs4kxlff025sqqt.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992401/shop4you/products/qgfz8tynkxyrki1wb2x7.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992402/shop4you/products/qok8aauuxfv02anmt268.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277482/shop4you/products/asmqyg8ux5rbyyhxwvkc.jpg",
+            "https://images.unsplash.com/photo-1602080858428-57174d9431cf?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277484/shop4you/products/q6vfqfjqsdxhv5qr1li5.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277485/shop4you/products/dg44apnowhagy5gntdsn.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277486/shop4you/products/n6caccog6ainmef6ea1z.jpg"
         ]
     },
     {
@@ -123,11 +89,11 @@ async function main() {
         "brand": "Dell",
         "stock": 20,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992403/shop4you/products/wdd2b2dbgna9udgbjgbt.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992404/shop4you/products/ntiuyyeskvgsxlyjhs9b.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992406/shop4you/products/wjmghiprq82pwtskgfne.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992407/shop4you/products/thxtpvvkgxri9ygejgum.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992402/shop4you/products/qok8aauuxfv02anmt268.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277488/shop4you/products/a3nf7q7h3exfq4a0yavn.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277489/shop4you/products/nuhbfkd5jqhlwuykpkox.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277491/shop4you/products/ccubtbyulstheq3ezbib.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277492/shop4you/products/wof9kyxnyemwyetliaep.jpg",
+            "https://images.unsplash.com/photo-1552831344-f914f56f383f?w=800"
         ]
     },
     {
@@ -138,11 +104,11 @@ async function main() {
         "brand": "Razer",
         "stock": 5,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992408/shop4you/products/dendwzd9dvqy84tv8rvy.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992410/shop4you/products/bbeoowkld7ioey61xjdz.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992411/shop4you/products/bykoylgb94ef5xx2ymar.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992412/shop4you/products/syx7xnv9bisdps8z4msy.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992414/shop4you/products/tnxuvezvqryvgxmz0fdx.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277494/shop4you/products/jdczngcnyzvysczyuuvh.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277496/shop4you/products/ry4yiwi4ap83qi2ibmwh.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277497/shop4you/products/g45qohmlkkwp3gxt6t4k.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277498/shop4you/products/vp4koytfwplhbkdpremc.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277499/shop4you/products/reblguvhll8yuytjsefv.jpg"
         ]
     },
     {
@@ -153,11 +119,11 @@ async function main() {
         "brand": "Asus",
         "stock": 10,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992416/shop4you/products/wtjmazwvv4zc1whnsyuo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992417/shop4you/products/d70k4zhaaee1m8o2jco3.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992418/shop4you/products/rv6f23efxmkarrao9yr4.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992419/shop4you/products/w9ov6cqwufolrhezrbyo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992420/shop4you/products/pbw2rlqkpxjzmuxcvfga.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277501/shop4you/products/z5amfcrn53ygqu3aiplj.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277502/shop4you/products/gbjr89e3hrrxefjylhu1.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277503/shop4you/products/l9o7d0jyva2xg1kdacxl.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277504/shop4you/products/dj99pinxhyfzzg9o8yo4.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277506/shop4you/products/beog7bdlfvnyzqzwesmc.jpg"
         ]
     },
     {
@@ -168,11 +134,11 @@ async function main() {
         "brand": "HP",
         "stock": 14,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992421/shop4you/products/of1hh8wezuhli1ftmoll.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992422/shop4you/products/bn4xqvmmxbbpur0qnwv6.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992420/shop4you/products/pbw2rlqkpxjzmuxcvfga.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992424/shop4you/products/pbw9icuyw4dlczrbka5o.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992425/shop4you/products/vfi060shelf4xubajks2.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277507/shop4you/products/oecsyvssdrxqth8rosot.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277508/shop4you/products/jrq8my8s8awf0isy4edl.jpg",
+            "https://images.unsplash.com/photo-1602080858428-57174d9431cf?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277509/shop4you/products/fibbaizvyncfnkwxxc2q.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277510/shop4you/products/nsnyhsezwwth2sj4fu7o.jpg"
         ]
     },
     {
@@ -183,11 +149,11 @@ async function main() {
         "brand": "Microsoft",
         "stock": 18,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992426/shop4you/products/xybtzcnslc9vhvg5mwzf.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992427/shop4you/products/olxwm6mehmk7wvepsw4j.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992428/shop4you/products/jv8rhoirxvdgouoyxk0q.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992429/shop4you/products/xmlasgs1asnbntw8zxyz.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992424/shop4you/products/pbw9icuyw4dlczrbka5o.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277511/shop4you/products/qmxztvsrwqoywzjtzcnk.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277512/shop4you/products/bzr775nfrgr8gfml8aku.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277514/shop4you/products/hqasv9xn4mdaf3blvzxf.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277515/shop4you/products/okbyzmjztbhhzuovpkpq.jpg",
+            "https://images.unsplash.com/photo-1552831344-f914f56f383f?w=800"
         ]
     },
     {
@@ -198,11 +164,11 @@ async function main() {
         "brand": "Apple",
         "stock": 25,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992431/shop4you/products/najjkk2cdnki71urj9gg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992432/shop4you/products/rdafz74jofitd4hfyejb.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992435/shop4you/products/trzi12hdfkyyqx6qgkjw.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992434/shop4you/products/gjdpz2gomqvi2oelv8ha.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992435/shop4you/products/trzi12hdfkyyqx6qgkjw.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277517/shop4you/products/fsfbdxtirwta8vrqwdbj.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277518/shop4you/products/lgelulrvs7aoje5dtjhd.jpg",
+            "https://images.unsplash.com/photo-1565849553881-477123dee815?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277520/shop4you/products/llgx3mlw5m5h33vztkrw.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277521/shop4you/products/jnjzlmfpqi0lrxsrfpws.jpg"
         ]
     },
     {
@@ -213,11 +179,11 @@ async function main() {
         "brand": "Samsung",
         "stock": 30,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992436/shop4you/products/bjzs3yfso4ykpawmjovp.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992437/shop4you/products/qgawzblwjdr59zm6dzxg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992439/shop4you/products/jtzk054ccn6pjlf2vziq.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992437/shop4you/products/qgawzblwjdr59zm6dzxg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992439/jtzk054ccn6pjlf2vziq.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277523/shop4you/products/q0swu3myzzdknkzulgyz.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277524/shop4you/products/h1rdybuomnk6ufriqseq.jpg",
+            "https://images.unsplash.com/photo-1565728741225-21d6b5e04b2c?w=800",
+            "https://images.unsplash.com/photo-1533228891704-8f5c75e8f42a?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277527/shop4you/products/kjhbh59p2l4nq8sfhoir.jpg"
         ]
     },
     {
@@ -228,11 +194,11 @@ async function main() {
         "brand": "Google",
         "stock": 14,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992440/shop4you/products/amvt1bhqgfkky8nwvr0z.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992444/shop4you/products/admgcbh8xb2azoedqysn.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992442/shop4you/products/errdnlqkmdd7wkxxirai.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992440/shop4you/products/amvt1bhqgfkky8nwvr0z.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992444/shop4you/products/admgcbh8xb2azoedqysn.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277528/shop4you/products/rqxz4jlcewcnappgwz2i.jpg",
+            "https://images.unsplash.com/photo-1551645121-d1034da75057?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277530/shop4you/products/mle7jpzvqgycixk8mkfa.jpg",
+            "https://images.unsplash.com/photo-1584438784894-089d6a128f3e?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277531/shop4you/products/mlawo5yh0mczxuliloul.jpg"
         ]
     },
     {
@@ -243,11 +209,11 @@ async function main() {
         "brand": "Xiaomi",
         "stock": 10,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992445/shop4you/products/uxrzcvpnckwsknoav1we.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992446/shop4you/products/m1bn5g0wamyybolccbjn.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992447/shop4you/products/n7o6dijzxnevejftro1p.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992448/shop4you/products/ua87nhwa4vpys08eabkj.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992449/shop4you/products/xekpq259gcobie68ihko.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277533/shop4you/products/ax60wjhd3osvrs947ikp.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277534/shop4you/products/yf1zyybqmilnch0vkt24.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277535/shop4you/products/ixhcjcnbhzmvtgjabces.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277536/shop4you/products/n1fkqq6u27iihtscnvyc.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277537/shop4you/products/j9c1bdytizp7isuab3ey.jpg"
         ]
     },
     {
@@ -258,11 +224,11 @@ async function main() {
         "brand": "OnePlus",
         "stock": 12,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992451/shop4you/products/mncmk96ag2wnqtporpsd.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992452/shop4you/products/pxs4uja2mcozqqknarug.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992454/shop4you/products/pl2zygcv0ftcjfqpdnpk.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992452/shop4you/products/pxs4uja2mcozqqknarug.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992454/shop4you/products/pl2zygcv0ftcjfqpdnpk.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277538/shop4you/products/qab0bnkc3cfwtsktrdyz.jpg",
+            "https://images.unsplash.com/photo-1565849553881-477123dee815?w=800",
+            "https://images.unsplash.com/photo-1533228891704-8f5c75e8f42a?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277540/shop4you/products/wp3koac2jdepr40jdbru.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277541/shop4you/products/hui9qy0758quk63oukxp.jpg"
         ]
     },
     {
@@ -273,11 +239,11 @@ async function main() {
         "brand": "Nothing",
         "stock": 20,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992455/shop4you/products/jnuq9b9mv3tzxjj6uenr.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992456/shop4you/products/nue0elga7bh8zmbfwhx5.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992458/shop4you/products/nsmg1elylxtu2cqgzw3o.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992454/shop4you/products/pl2zygcv0ftcjfqpdnpk.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992459/shop4you/products/ftvagsxnbyhrncthtzio.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277542/shop4you/products/pa2ukelbgiwptcfxdg4n.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277544/shop4you/products/ci8krcy4dz3k3f8zrx2j.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277545/shop4you/products/njjw9nqtggggreufnney.jpg",
+            "https://images.unsplash.com/photo-1584438784894-089d6a128f3e?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277546/shop4you/products/n8mgvztv7ql4wqipzntc.jpg"
         ]
     },
     {
@@ -288,11 +254,11 @@ async function main() {
         "brand": "Sony",
         "stock": 8,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992460/shop4you/products/ndzlad1mt6zero4rl5zj.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992461/shop4you/products/wz7orobxewbbv5pf2rjx.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992463/shop4you/products/fbnmcvbjdqxl7hj8gsow.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992460/shop4you/products/ndzlad1mt6zero4rl5zj.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992464/shop4you/products/mex9s2wc4wjoqhtpoafa.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277547/shop4you/products/xljokgzifdloruvwi40z.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277549/shop4you/products/rle0qdlckeog9nzaovtt.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277550/shop4you/products/sqjpxqrcpksz9qdyoy7v.jpg",
+            "https://images.unsplash.com/photo-1551645121-d1034da75057?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277551/shop4you/products/qa7jejusbdnfkx1tyxww.jpg"
         ]
     },
     {
@@ -303,11 +269,11 @@ async function main() {
         "brand": "Apple",
         "stock": 15,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992467/shop4you/products/a2yplq8agzoww3y10pxa.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992466/shop4you/products/lvjg30tel0envotztk1i.jpg", 
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992468/shop4you/products/wqpxxhx1pasns3pfwv49.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992469/shop4you/products/wykcdla2ou7xnuufc7jg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992467/shop4you/products/a2yplq8agzoww3y10pxa.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277553/shop4you/products/xwyozaffvxmzwmwzvebx.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277554/shop4you/products/sv9ti83if43pfhujabif.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277555/shop4you/products/dzyaya5zjx6zqoapawws.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277556/shop4you/products/hsehilsvuwfqdcybnail.jpg",
+            "https://images.unsplash.com/photo-1565849553881-477123dee815?w=800"
         ]
     },
     {
@@ -318,11 +284,11 @@ async function main() {
         "brand": "Samsung",
         "stock": 5,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992471/shop4you/products/oyvqreu7jzsoxk5soiv2.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992472/shop4you/products/cusxarf8a6tikcsqiqtm.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992473/shop4you/products/paf04qqczdvbhznbiqi3.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992474/shop4you/products/ufxovpzaiwmfe5zriqtm.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992475/shop4you/products/hannvj3l8pqazkdn885s.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277558/shop4you/products/ypfass3epzttgqqfky9h.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277559/shop4you/products/exbhnepsrztssfjwhubp.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277560/shop4you/products/wk7e0qaqjif0jr2pbd1c.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277561/shop4you/products/gjo9rryshpa7zilonplr.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277563/shop4you/products/w8gqozxc6x3xxmbvfht8.jpg"
         ]
     },
     {
@@ -333,11 +299,11 @@ async function main() {
         "brand": "LG",
         "stock": 9,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992476/shop4you/products/s9krdf97bfrtp0zvqk5h.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992478/shop4you/products/glybcntofol4o6oaz91b.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992479/shop4you/products/ih348be3xiw8bjewlcep.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992480/shop4you/products/khlnkjj4evptbflmutoz.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992481/shop4you/products/q3lfqkmmscnystw9bsb5.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277564/shop4you/products/uo60bj82scwvo0enh8ez.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277565/shop4you/products/toodca0bvkkbelafegrc.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277566/shop4you/products/pwo2rc6hgligmhqud6gy.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277567/shop4you/products/t6mwxb0curjai4il9a5s.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277568/shop4you/products/gahagx3t8g9rpdncqsli.jpg"
         ]
     },
     {
@@ -348,11 +314,11 @@ async function main() {
         "brand": "Sony",
         "stock": 7,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992485/shop4you/products/izr0jjfomta1unf4y3xr.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992482/shop4you/products/vta6n78snup4d4rghspo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992484/shop4you/products/jm1uscny7vstymrfgglj.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992485/shop4you/products/izr0jjfomta1unf4y3xr.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992486/shop4you/products/kygxnn4zu1unhbm92y7v.jpg"
+            "https://images.unsplash.com/photo-1601944179066-297cbd3cdef3?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277570/shop4you/products/fkrqzlwz4c982elcdx8z.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277571/shop4you/products/klzpj0idlw1pvuhjrt4o.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277572/shop4you/products/s4az8xhos42o5ai3h2nz.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277574/shop4you/products/cfcobtwdtgbgmhyqcnrd.jpg"
         ]
     },
     {
@@ -363,11 +329,11 @@ async function main() {
         "brand": "Philips",
         "stock": 12,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992487/shop4you/products/jigybhdtrubhcrbvquow.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992489/shop4you/products/dmaflhbr1qerb6c0ysio.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992490/shop4you/products/kzqjlbmjdyvgwed7zx07.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992491/shop4you/products/rxumoxjj36zj8nxkzsnh.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992492/shop4you/products/dw1i3suzhsecwr2jckbv.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277575/shop4you/products/ru4gj767z0y3nvqfrvj6.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277577/shop4you/products/tz6afs5sultgu5jah32n.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277578/shop4you/products/ldas6xr2dawtyef0fylo.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277580/shop4you/products/mgqvvs9cnlrloywh8xl8.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277582/shop4you/products/euqt5kvphcbnd1xn1nbu.jpg"
         ]
     },
     {
@@ -378,11 +344,11 @@ async function main() {
         "brand": "Sony",
         "stock": 45,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992494/shop4you/products/bttab0cb09vztdnetecc.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992496/shop4you/products/aie1gazshb598lnlrzga.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992497/shop4you/products/wdjrcimd2kl3nyhavqno.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992494/shop4you/products/bttab0cb09vztdnetecc.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992494/shop4you/products/bttab0cb09vztdnetecc.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277583/shop4you/products/crul9x6bdq732m0ripto.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277584/shop4you/products/pydiw6n2knoqwatuswta.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277585/shop4you/products/w4dkpeze78edvbpvsair.jpg",
+            "https://images.unsplash.com/photo-1551645121-d1034da75057?w=800",
+            "https://images.unsplash.com/photo-1524143180608-61f1241f0a2a?w=800"
         ]
     },
     {
@@ -393,11 +359,11 @@ async function main() {
         "brand": "Bose",
         "stock": 30,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992499/shop4you/products/ql69kmkurlciobmbmhqo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992500/shop4you/products/a4fj4qn1kexvcmsrnwy2.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992499/shop4you/products/ql69kmkurlciobmbmhqo.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992502/shop4you/products/zenwngiisieidq9lbzz4.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992503/shop4you/products/xm4avznppeasjd7y4i8n.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277587/shop4you/products/yzvidrq4smz4hfj5yipw.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277588/shop4you/products/qxkpzxrkou0yvdii6fkf.jpg",
+            "https://images.unsplash.com/photo-1600541519463-fcd0c2d93514?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277590/shop4you/products/uraiaosyfzm9woq7387r.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277591/shop4you/products/kde5sfpshjuuh6d9uapt.jpg"
         ]
     },
     {
@@ -408,11 +374,11 @@ async function main() {
         "brand": "Apple",
         "stock": 18,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992504/shop4you/products/qiramxqe9korjlsy1x04.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992505/shop4you/products/jboulwm9xjbvb2mqbuev.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992507/shop4you/products/ilpatjknj8gjnhh9hjud.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992508/shop4you/products/pvibfcmgye4uvee1u1ed.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992509/shop4you/products/zeeebj1brvkrhh5v8jyq.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277592/shop4you/products/zmagqhfdohktnio6ucwy.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277593/shop4you/products/lufkufxlkgyshkxpdliw.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277595/shop4you/products/wsae8daee6godmjar4ut.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277596/shop4you/products/chy8a02xina4mhr43pjb.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277597/shop4you/products/mikkhgyflmsuz3kluzlf.jpg"
         ]
     },
     {
@@ -423,11 +389,11 @@ async function main() {
         "brand": "Sennheiser",
         "stock": 15,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992510/shop4you/products/yb4pmjvzsetm88fvyx9z.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992511/shop4you/products/ng1z6nnwnjolcvgosl4d.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992512/shop4you/products/bxqvlq4mewiqpeai9dr8.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992513/shop4you/products/f6ozg7zo3qgg1pcdv2lh.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992514/shop4you/products/hzqyxmfsxcvq2hrpvqtk.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277598/shop4you/products/bbbu10gtuw9sezedmqa3.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277599/shop4you/products/r9jtkqmcm9tz9lj3wzr1.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277600/shop4you/products/u5blhranes1vftlkmjfe.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277601/shop4you/products/a4th7vss4x4icp1ptewp.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277602/shop4you/products/azonjyfcuv2jjg45lwud.jpg"
         ]
     },
     {
@@ -438,11 +404,11 @@ async function main() {
         "brand": "Logitech",
         "stock": 50,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992515/shop4you/products/lh5ug2ran3zbtaow7s60.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992516/shop4you/products/lcxqv7agpsjzxlkug9gd.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992517/shop4you/products/ymcub5fvj3jegcfg8paz.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992518/shop4you/products/g5khnaaqrjp0o7bvqmfg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992520/shop4you/products/o6xdqjvbnmuu19jfibq0.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277603/shop4you/products/fgz6c2ilsm48c6lov6qn.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277605/shop4you/products/eyjumdmwkuk3mfvdxxv2.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277607/shop4you/products/kqngbyh4zdm8pmtg4tek.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277609/shop4you/products/v0jai99vmpvrbxmggxy4.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277611/shop4you/products/mco8alqepionu06fu8bo.jpg"
         ]
     },
     {
@@ -453,11 +419,11 @@ async function main() {
         "brand": "Razer",
         "stock": 22,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992521/shop4you/products/e9bnnpfxmfk69quqkkcj.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992520/shop4you/products/o6xdqjvbnmuu19jfibq0.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992523/shop4you/products/ryca5dbtajgg2kl4ayxz.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992518/shop4you/products/g5khnaaqrjp0o7bvqmfg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992521/shop4you/products/e9bnnpfxmfk69quqkkcj.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277612/shop4you/products/rkp7eba337gm1js7b7up.jpg",
+            "https://images.unsplash.com/photo-1625842268584-8f3290462a3c?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277614/shop4you/products/kh7tmkcfecs3qtsybw9h.jpg",
+            "https://images.unsplash.com/photo-1625492922105-591d447bf92e?w=800",
+            "https://images.unsplash.com/photo-1563297007-06a5b83936e9?w=800"
         ]
     },
     {
@@ -468,11 +434,11 @@ async function main() {
         "brand": "Anker",
         "stock": 40,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992518/shop4you/products/g5khnaaqrjp0o7bvqmfg.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992526/shop4you/products/rfaryrsw5ltfnud4q97w.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992528/shop4you/products/llfdh7rvu64okkcvjrjt.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992527/shop4you/products/jr5iywa8zynoqdo2p3ne.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992528/shop4you/products/llfdh7rvu64okkcvjrjt.jpg"
+            "https://images.unsplash.com/photo-1609592424085-f6df5417ec65?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277618/shop4you/products/yypqlbsttw8xglxsgj2s.jpg",
+            "https://images.unsplash.com/photo-1600541519463-fcd0c2d93514?w=800",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277619/shop4you/products/tptdw64o5khhi14fh88z.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277620/shop4you/products/terclmds2ftrcnkee285.jpg"
         ]
     },
     {
@@ -483,26 +449,26 @@ async function main() {
         "brand": "Corsair",
         "stock": 15,
         "images": [
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992530/shop4you/products/z5hwegctqd5ar8jmpoak.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992531/shop4you/products/ploz8icln9kin8orldry.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992532/shop4you/products/jueyqm8iwybp5pech3tr.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992533/shop4you/products/mi7ebkfkoccjo2bdj8kh.jpg",
-            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1780992534/shop4you/products/dxpx7lzrsigqiqdqxr4a.jpg"
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277621/shop4you/products/vghmvehcmhkwbvimd6t1.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277623/shop4you/products/zremuye0dvrxuu52xoxw.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277624/shop4you/products/mnriehb3m2nrdj5zfa4a.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277625/shop4you/products/ea81lo0whwwtldpzplwr.jpg",
+            "https://res.cloudinary.com/dwxj4vo97/image/upload/v1781277626/shop4you/products/hkfxrithspfqnxlquwyz.jpg"
         ]
     }
-  ];
+];
 
-  // Injiziere die sellerId von Sabiene Meier (sellerUser.id) beim Erstellen der Produkte
+  // Injiziere die sellerId dynamisch beim Erstellen der Produkte
   for (const product of premiumProducts) {
     await prisma.product.create({
       data: {
         ...product,
-        sellerId: sellerUser.id,
+        sellerId: adminUser.id
       },
     });
   }
 
-  console.log(`🎉 Seed erfolgreich! Es wurden alle Rollen (Admin, Kunde, Verkäufer) angelegt und ${premiumProducts.length} Artikel mit Cloudinary-Links eingepflegt.`);
+  console.log(`🎉 Seed erfolgreich! Admin hat Adresse & es wurden insgesamt ${premiumProducts.length} Premium-Artikel mit Cloudinary-Links eingepflegt.`);
 }
 
 main()
