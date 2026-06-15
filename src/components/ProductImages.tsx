@@ -12,12 +12,15 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
   // Falls keine Bilder da sind, starten wir mit einem leeren Array
   const validImages = images && images.length > 0 ? images : ['NO_IMAGE'];
   
-  const [activeImage, setActiveImage] = useState(validImages[0]);
+  // 🎯 Shop4you Design-Korrektur: Maximal 4 Bilder für das Symmetrie-Raster zulassen
+  const displayImages = validImages.slice(0, 4);
+  
+  const [activeImage, setActiveImage] = useState(displayImages[0]);
   const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (validImages.length > 0) {
-      setActiveImage(validImages[0]);
+    if (displayImages.length > 0) {
+      setActiveImage(displayImages[0]);
     }
   }, [images]);
 
@@ -57,9 +60,10 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
       </div>
 
       {/* Daumennägel (Thumbnails) */}
-      {validImages.length > 1 && (
-        <div className="grid grid-cols-5 gap-2">
-          {validImages.map((img, index) => {
+      {displayImages.length > 1 && (
+        /* 🎯 REPARIERT & ANGEPASST: Exakt 4 Spalten im Grid für die perfekte Symmetrie */
+        <div className="grid grid-cols-4 gap-2">
+          {displayImages.map((img, index) => {
             const isActive = img === activeImage;
             const isBroken = brokenImages[img];
             
@@ -74,7 +78,6 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
                     : 'border-zinc-200 hover:border-zinc-400'
                 } ${isBroken ? 'opacity-40 cursor-not-allowed' : ''}`}
               >
-                {/* 🎯 REPARIERT: Alle JavaScript-Klammern sind hier wieder absolut synchron */}
                 {isBroken ? (
                   <div className="absolute inset-0 bg-zinc-200 flex items-center justify-center text-[8px] font-mono text-samsung-muted">
                     Kein Bild
@@ -85,8 +88,8 @@ export default function ProductImages({ images, title }: ProductImagesProps) {
                     alt={`${title} Ansicht ${index + 1}`}
                     fill
                     loading="eager"
-                    sizes="(max-width: 768px) 20vw, 10vw"
-                    className="object-cover object-center grayscale"
+                    sizes="(max-width: 768px) 25vw, 12vw"
+                    className="object-cover object-center grayscale hover:grayscale-0 transition-all duration-200"
                     onError={() => {
                       setBrokenImages(prev => ({ ...prev, [img]: true }));
                       if (isActive) {
