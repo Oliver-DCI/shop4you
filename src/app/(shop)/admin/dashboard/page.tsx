@@ -8,34 +8,73 @@ import SellersTab from '@/components/admin/SellersTab';
 import ImportTab from '@/components/admin/ImportTab';
 import AdminsTab from '@/components/admin/AdminsTab';
 
-const initialSellers = [
-  { id: 1, name: 'Alpha Hardware GmbH', itemsCount: 142, revenue: 89430, status: 'Aktiv' },
-  { id: 2, name: 'TechNexus Corp', itemsCount: 48, revenue: 12400, status: 'Mahnung offen' },
-  { id: 3, name: 'ByteBoutique', itemsCount: 19, revenue: 3100, status: 'Aktiv' },
-];
+// Definition des Seller-Interfaces passend zur Datenbank-Struktur
+interface Seller {
+  id: string; // 🎯 Geändert auf string für Prisma-UUIDs
+  name: string;
+  itemsCount: number;
+  revenue: number;
+  status: string;
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  const [sellers, setSellers] = useState(initialSellers);
+  
+  // 🎯 State startet mit einem leeren Array und wird über die DB befüllt
+  const [sellers, setSellers] = useState<Seller[]>([]);
 
   useEffect(() => {
+    // 1. Auth-Check
     const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
     const userRoleNormalized = (currentUser.role || '').toUpperCase();
 
     if (userRoleNormalized !== 'ADMIN' && currentUser.firstName !== 'Admin') {
       router.push('/');
+      return;
     } else {
       setIsAdmin(true);
     }
-    setLoading(false);
+
+    // 2. 🎯 Echte Händler-Daten aus der API laden
+    async function fetchSellers() {
+      try {
+        const response = await fetch('/api/admin/sellers');
+        if (response.ok) {
+          const data = await response.json();
+          setSellers(data);
+        } else {
+          console.error('Fehler beim Laden der Händler-Daten');
+        }
+      } catch (error) {
+        console.error('Server-Verbindungsfehler:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSellers();
   }, [router]);
 
-  const handleMahnung = (id: number, name: string) => {
-    setSellers(sellers.map(s => s.id === id ? { ...s, status: 'Gemahnt' } : s));
-    alert(`⚠️ Händler "${name}" wurde offiziell gemahnt. Warnung im Seller-Dashboard hinterlegt.`);
+  // 🎯 ID-Typ auf string | number angepasst, um absolut kompatibel mit SellersTab zu sein
+  const handleMahnung = async (id: string | number, name: string) => {
+    try {
+      // API-Call, um den Status in der DB zu ändern
+      const response = await fetch(`/api/admin/sellers/${id}/mahnungen`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        setSellers(sellers.map(s => s.id === id ? { ...s, status: 'Gemahnt' } : s));
+        alert(`⚠️ Händler "${name}" wurde offiziell gemahnt. Warnung im Seller-Dashboard hinterlegt.`);
+      } else {
+        alert('Fehler beim Speichern der Mahnung im System.');
+      }
+    } catch (error) {
+      console.error('Mahnungs-Fehler:', error);
+    }
   };
 
   if (loading) {
@@ -59,16 +98,15 @@ export default function AdminDashboard() {
             <h1 className="text-xs uppercase tracking-widest font-bold font-mono">SHOP4YOU // MANAGEMENT HQ</h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* 🎯 FIX: Erzwingt den absoluten Pfad direkt auf /seller ohne /admin-Präfix */}
             <button 
               onClick={() => router.push('/seller/dashboard')}
-              className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-white px-2 py-1.5 bg-transparent transition-colors cursor-pointer font-mono"
+              className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 hover:text-white px-2 py-1.5 bg-transparent transition-colors cursor-pointer"
             >
               ⚙️ Seller-HQ
             </button>
             <button 
               onClick={() => router.push('/')}
-              className="text-[10px] font-mono uppercase tracking-widest text-white px-3 py-1.5 bg-zinc-900 hover:bg-white hover:text-black transition-colors cursor-pointer font-mono"
+              className="text-[10px] font-mono uppercase tracking-widest text-white px-3 py-1.5 bg-zinc-900 hover:bg-white hover:text-black transition-colors cursor-pointer"
             >
               ← Front-End
             </button>
@@ -82,7 +120,7 @@ export default function AdminDashboard() {
       {/* Main Workspace Layout */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
         
-        {/* LINKER BEREICH: Sidebar mit deiner neuen Sortierung 🎯 */}
+        {/* Sidebar */}
         <div className="lg:col-span-1 flex flex-col gap-1">
           <button 
             onClick={() => setActiveTab('overview')}
@@ -120,7 +158,7 @@ export default function AdminDashboard() {
           </button>
         </div>
 
-        {/* RECHTER BEREICH: Dynamischer Content-Workspace */}
+        {/* Content-Workspace */}
         <div className="lg:col-span-4 bg-white border border-zinc-200 p-8">
           {activeTab === 'overview' && <OverviewTab />}
           {activeTab === 'sellers' && <SellersTab sellers={sellers} onMahnung={handleMahnung} />}

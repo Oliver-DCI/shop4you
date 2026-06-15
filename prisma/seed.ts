@@ -17,7 +17,7 @@ async function main() {
   console.log('✅ Datenbank komplett geleert.');
 
   console.log('👑 Erstelle globalen Administrator mit vollständiger Adresse...');
-  const hashedAdminPassword = await bcrypt.hash('admin', 10);
+  const hashedAdminPassword = await bcrypt.hash('LogS4Y2026', 10);
 
   const adminUser = await prisma.user.create({
     data: {
