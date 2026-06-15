@@ -19,6 +19,10 @@ export default function ProductsTab() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // States für das Lösch-Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<{ id: string | number; title: string } | null>(null);
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -38,20 +42,28 @@ export default function ProductsTab() {
     fetchProducts();
   }, []);
 
-  const handleDeleteProduct = async (id: string | number, e: React.MouseEvent) => {
-    // Verhindert, dass der Klick auf den Lösch-Button den Shop-Link auslöst
-    e.stopPropagation();
-    
-    if (!confirm('🚨 Möchtest du diesen Artikel wirklich permanent aus dem System löschen?')) return;
+  const openDeleteModal = (id: string | number, title: string, e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    setProductToDelete({ id, title });
+    setIsModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsModalOpen(false);
+    setProductToDelete(null);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
 
     try {
-      const response = await fetch(`/api/admin/products?id=${id}`, {
+      const response = await fetch(`/api/admin/products?id=${productToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        setProducts(products.filter(p => p.id !== id));
-        alert('✔ Artikel erfolgreich aus PostgreSQL entfernt.');
+        setProducts(products.filter(p => p.id !== productToDelete.id));
+        closeDeleteModal(); // 🎯 FIX: alert() wurde hier entfernt für einen flüssigen Ablauf!
       } else {
         alert('❌ Fehler beim Löschen des Artikels.');
       }
@@ -66,7 +78,7 @@ export default function ProductsTab() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 relative">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-xl uppercase tracking-wider font-light text-black">🛍️ Globaler Produkt-Katalog</h2>
@@ -105,7 +117,6 @@ export default function ProductsTab() {
             </thead>
             <tbody className="text-xs divide-y divide-zinc-100">
               {filteredProducts.map((product) => {
-                // Fallback-Bild falls kein Bild vorhanden ist
                 const mainImage = product.images && product.images.length > 0 
                   ? product.images[0] 
                   : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100';
@@ -116,13 +127,12 @@ export default function ProductsTab() {
                     onClick={() => router.push(`/product/${product.id}`)}
                     className="hover:bg-zinc-50 cursor-pointer transition-colors group"
                   >
-                    {/* 🎯 NEU: Bild-Vorschau Spalte */}
                     <td className="py-3 w-16">
                       <div className="w-12 h-12 bg-zinc-100 border border-zinc-200 overflow-hidden flex items-center justify-center">
                         <img 
                           src={mainImage} 
                           alt={product.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          className="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-300"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100';
                           }}
@@ -139,8 +149,8 @@ export default function ProductsTab() {
                     <td className="py-3 text-right">{product.stock} Stk.</td>
                     <td className="py-3 text-right">
                       <button 
-                        onClick={(e) => handleDeleteProduct(product.id, e)}
-                        className="text-[10px] text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 px-3 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono"
+                        onClick={(e) => openDeleteModal(product.id, product.title, e)}
+                        className="text-[10px] text-zinc-500 hover:text-black border border-transparent px-3 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono"
                       >
                         🗑 Löschen
                       </button>
@@ -150,6 +160,43 @@ export default function ProductsTab() {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Custom Admin Lösch-Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white border border-zinc-200 p-6 max-w-md w-full flex flex-col gap-4 rounded-none shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <div>
+              {/* 🎯 ÄNDERUNG 1: Farblich neutralisiert (schwarz/grau statt rot) */}
+              <span className="text-[9px] font-mono tracking-widest bg-zinc-100 border border-zinc-200 text-zinc-800 px-2 py-0.5 uppercase font-bold">
+                System-Sicherheitsabfrage
+              </span>
+              <h3 className="text-sm uppercase tracking-wider font-bold font-mono mt-2 text-black">
+                Artikel permanent löschen?
+              </h3>
+            </div>
+            
+            <p className="text-xs text-zinc-600 leading-relaxed font-sans">
+              Möchtest du den Artikel <span className="font-semibold text-black">"{productToDelete?.title}"</span> wirklich unwiderruflich aus der PostgreSQL-Datenbank entfernen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </p>
+
+            {/* 🎯 ÄNDERUNG 2: Button-Farbe von Rot auf edles Schwarz angepasst */}
+            <div className="flex justify-end gap-2 mt-2 font-mono text-[10px] uppercase tracking-widest">
+              <button
+                onClick={closeDeleteModal}
+                className="border border-zinc-200 hover:border-black text-black px-4 h-9 transition-colors cursor-pointer"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={confirmDeleteProduct}
+                className="bg-black hover:bg-zinc-800 text-white px-4 h-9 transition-colors cursor-pointer"
+              >
+                💥 Ja, permanent löschen
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
