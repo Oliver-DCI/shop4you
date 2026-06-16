@@ -68,6 +68,12 @@ export default function Header() {
     return '?';
   };
 
+  // 🎯 Klick-Handler für den sicheren Rücksprung zur Startseite beim Logout
+  const handleLogoutClick = () => {
+    logout();         // 1. Context-Logout triggern (löscht User & DB-States)
+    router.push('/'); // 2. Sofortiger Redirect auf die Homepage
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full bg-white">
       {/* 🎯 FIX: Padding auf px-4 sm:px-6 lg:px-8 angepasst, damit es perfekt mit der Seite fluchtet */}
@@ -126,8 +132,9 @@ export default function Header() {
                   </Link>
                 )}
 
+                {/* 🎯 Hier greift jetzt die neue Funktion mit dem Redirect */}
                 <button 
-                  onClick={logout} 
+                  onClick={handleLogoutClick} 
                   className="text-[10px] text-samsung-muted uppercase font-medium hover:text-black transition-colors cursor-pointer tracking-wider"
                 >
                   Logout
