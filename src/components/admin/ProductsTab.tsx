@@ -13,11 +13,18 @@ interface Product {
   images: string[];
 }
 
+type SortField = 'title' | 'category' | 'price' | 'stock';
+type SortOrder = 'asc' | 'desc';
+
 export default function ProductsTab() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // 🎯 States für die Sortierung
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   // States für das Lösch-Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,7 +70,7 @@ export default function ProductsTab() {
 
       if (response.ok) {
         setProducts(products.filter(p => p.id !== productToDelete.id));
-        closeDeleteModal(); // 🎯 FIX: alert() wurde hier entfernt für einen flüssigen Ablauf!
+        closeDeleteModal();
       } else {
         alert('❌ Fehler beim Löschen des Artikels.');
       }
@@ -72,10 +79,48 @@ export default function ProductsTab() {
     }
   };
 
+  // 🎯 Sortierfunktion beim Spalten-Klick
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Wenn das Feld schon aktiv ist, Richtung umdrehen
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Neues Feld aktivieren, standardmäßig aufsteigend
+      setSortField(field);
+      sortOrder === 'desc' && setSortOrder('asc'); // Reset auf 'asc' bei neuem Feld
+      setSortOrder('asc');
+    }
+  };
+
+  // 1. Filtern
   const filteredProducts = products.filter(p => 
     p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // 2. Sortieren (Greift auf die gefilterten Daten)
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (!sortField) return 0;
+
+    let valueA = a[sortField];
+    let valueB = b[sortField];
+
+    // Case-Insensitive Vergleich bei Strings (Titel, Kategorie)
+    if (typeof valueA === 'string' && typeof valueB === 'string') {
+      valueA = valueA.toLowerCase();
+      valueB = valueB.toLowerCase();
+    }
+
+    if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
+    if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Kleiner Helper für die Pfeil-Anzeige im Tabellenkopf
+  const renderSortArrow = (field: SortField) => {
+    if (sortField !== field) return null;
+    return sortOrder === 'asc' ? ' ↑' : ' ↓';
+  };
 
   return (
     <div className="flex flex-col gap-6 relative">
@@ -98,7 +143,7 @@ export default function ProductsTab() {
         <div className="p-12 text-center font-mono text-[10px] text-zinc-400 uppercase tracking-widest">
           Synchronisiere Produkt-Katalog...
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : sortedProducts.length === 0 ? (
         <div className="border border-dashed border-zinc-200 p-12 text-center text-xs font-mono text-zinc-400 uppercase">
           Keine Artikel im System gefunden.
         </div>
@@ -106,17 +151,40 @@ export default function ProductsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-left font-mono border-collapse">
             <thead>
-              <tr className="border-b border-zinc-200 text-[10px] uppercase text-zinc-400 tracking-wider">
-                <th className="py-3 font-normal">Vorschau</th>
-                <th className="py-3 font-normal">Artikel-Titel</th>
-                <th className="py-3 font-normal">Kategorie</th>
-                <th className="py-3 font-normal text-right">Preis</th>
-                <th className="py-3 font-normal text-right">Bestand</th>
+              <tr className="border-b border-zinc-200 text-[10px] uppercase text-zinc-400 tracking-wider select-none">
+                <th className="py-3 font-normal w-16">Vorschau</th>
+                
+                {/* 🎯 Klickbare Spaltenköpfe mit interaktivem Hover-Effekt */}
+                <th 
+                  onClick={() => handleSort('title')} 
+                  className="py-3 font-normal cursor-pointer hover:text-black transition-colors"
+                >
+                  Artikel-Titel{renderSortArrow('title')}
+                </th>
+                <th 
+                  onClick={() => handleSort('category')} 
+                  className="py-3 font-normal cursor-pointer hover:text-black transition-colors"
+                >
+                  Kategorie{renderSortArrow('category')}
+                </th>
+                <th 
+                  onClick={() => handleSort('price')} 
+                  className="py-3 font-normal text-right cursor-pointer hover:text-black transition-colors"
+                >
+                  Preis{renderSortArrow('price')}
+                </th>
+                <th 
+                  onClick={() => handleSort('stock')} 
+                  className="py-3 font-normal text-right cursor-pointer hover:text-black transition-colors"
+                >
+                  Bestand{renderSortArrow('stock')}
+                </th>
+                
                 <th className="py-3 font-normal text-right">Aktionen</th>
               </tr>
             </thead>
             <tbody className="text-xs divide-y divide-zinc-100">
-              {filteredProducts.map((product) => {
+              {sortedProducts.map((product) => {
                 const mainImage = product.images && product.images.length > 0 
                   ? product.images[0] 
                   : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100';
@@ -168,7 +236,6 @@ export default function ProductsTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="bg-white border border-zinc-200 p-6 max-w-md w-full flex flex-col gap-4 rounded-none shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div>
-              {/* 🎯 ÄNDERUNG 1: Farblich neutralisiert (schwarz/grau statt rot) */}
               <span className="text-[9px] font-mono tracking-widest bg-zinc-100 border border-zinc-200 text-zinc-800 px-2 py-0.5 uppercase font-bold">
                 System-Sicherheitsabfrage
               </span>
@@ -181,7 +248,6 @@ export default function ProductsTab() {
               Möchtest du den Artikel <span className="font-semibold text-black">"{productToDelete?.title}"</span> wirklich unwiderruflich aus der PostgreSQL-Datenbank entfernen? Diese Aktion kann nicht rückgängig gemacht werden.
             </p>
 
-            {/* 🎯 ÄNDERUNG 2: Button-Farbe von Rot auf edles Schwarz angepasst */}
             <div className="flex justify-end gap-2 mt-2 font-mono text-[10px] uppercase tracking-widest">
               <button
                 onClick={closeDeleteModal}
