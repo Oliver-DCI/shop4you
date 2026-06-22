@@ -15,7 +15,6 @@ interface SellerCategoryChartProps {
 }
 
 export default function SellerCategoryChart({ products }: SellerCategoryChartProps) {
-  // 1. Daten aggregieren
   const categories = ['Notebooks', 'Smartphones', 'TV', 'Audio'];
   const dataMap = categories.reduce((acc, cat) => {
     acc[cat] = { count: 0, totalValue: 0 };
@@ -28,7 +27,6 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
   products.forEach(p => {
     const cat = p.category;
     if (dataMap[cat]) {
-      // Nutze stock (oder quantity) als Multiplikator für echten Warenwert im Lager
       const qty = (p as any).stock || (p as any).quantity || 1;
       dataMap[cat].count += 1;
       dataMap[cat].totalValue += p.price * qty;
@@ -37,15 +35,13 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
     }
   });
 
-  // Farben-Palette im Shop-Stil (Zinc/Black)
   const colors: Record<string, string> = {
-    Notebooks: '#000000',   // Tiefschwarz
-    Smartphones: '#4b5563', // Zinc-600
-    TV: '#9ca3af',          // Zinc-400
-    Audio: '#e4e4e7'        // Zinc-200
+    Notebooks: '#000000',
+    Smartphones: '#4b5563',
+    TV: '#9ca3af',
+    Audio: '#e4e4e7'
   };
 
-  // SVG-Werte kalkulieren für das Donut-/Kreisdiagramm
   let accumulatedPercent = 0;
 
   const chartSlices = categories.map(cat => {
@@ -54,7 +50,6 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
     const startPercent = accumulatedPercent;
     accumulatedPercent += percent;
 
-    // SVG Koordinaten für Kreissegmente berechnen
     const getCoordinatesForPercent = (p: number) => {
       const x = Math.cos(2 * Math.PI * p);
       const y = Math.sin(2 * Math.PI * p);
@@ -65,9 +60,8 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
     const [endX, endY] = getCoordinatesForPercent(accumulatedPercent);
     const largeArcFlag = percent > 0.5 ? 1 : 0;
 
-    // Path Daten erzeugen
     const pathData = percent === 1 
-      ? `M 0 -1 A 1 1 0 1 1 -0.0001 -1 Z` // Voller Kreis
+      ? `M 0 -1 A 1 1 0 1 1 -0.0001 -1 Z`
       : percent > 0 
         ? `M 0 0 L ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} Z` 
         : '';
@@ -82,7 +76,8 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
   });
 
   return (
-    <div className="bg-white border border-zinc-200 p-6 flex flex-col h-full justify-between">
+    /* 🎯 FIX: xl:-ml-[8px] schiebt den Container nach links, xl:w-[calc(100%+8px)] gleicht die Breite an, damit es bündig unter "Deine Angebote" einrastet */
+    <div className="bg-white border border-zinc-200 p-6 flex flex-col h-full justify-between w-full xl:w-[calc(100%+8px)] xl:-ml-[16px] min-w-0">
       <div className="border-b border-zinc-100 pb-3">
         <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Bestands- & Portfolio-Volumen</h3>
       </div>
@@ -92,9 +87,10 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
           <p className="text-[10px] font-mono text-zinc-400 uppercase">Keine Daten zur Auswertung vorhanden</p>
         </div>
       ) : (
-        <div className="flex flex-col sm:flex-row items-center gap-6 pt-4 flex-1">
-          {/* SVG Kreisdiagramm */}
-          <div className="w-32 h-32 relative shrink-0">
+        <div className="flex flex-col items-center gap-4 pt-4 flex-1 w-full min-w-0 justify-center">
+          
+          {/* Kompakteres SVG Kreisdiagramm */}
+          <div className="w-24 h-24 relative shrink-0">
             <svg viewBox="-1 -1 2 2" className="w-full h-full transform -rotate-90">
               {chartSlices.map((slice, idx) => slice.pathData && (
                 <path 
@@ -105,23 +101,23 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
                 />
               ))}
             </svg>
-            <div className="absolute inset-0 m-auto w-12 h-12 bg-white rounded-full flex items-center justify-center border border-zinc-100">
+            <div className="absolute inset-0 m-auto w-11 h-11 bg-white rounded-full flex items-center justify-center border border-zinc-100">
               <span className="text-[8px] font-mono font-bold">{totalCountAll} Art.</span>
             </div>
           </div>
 
-          {/* Legende mit Details */}
-          <div className="flex-1 w-full flex flex-col gap-2 font-mono text-[10px]">
+          {/* Perfekt angepasste Legende */}
+          <div className="w-full flex flex-col gap-1.5 font-mono text-[10px] min-w-0 mt-2">
             {chartSlices.map((slice, idx) => (
-              <div key={idx} className="flex items-center justify-between border-b border-zinc-100 pb-1.5 last:border-none">
-                <div className="flex items-center gap-2">
+              <div key={idx} className="flex flex-row items-center justify-between border-b border-zinc-100 pb-1.5 last:border-none gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 min-w-0 truncate">
                   <div className="w-2 h-2 shrink-0" style={{ backgroundColor: slice.color }} />
-                  <span className="text-zinc-900 font-medium">{slice.category}</span>
-                  <span className="text-zinc-400 text-[9px]">({slice.count}x)</span>
+                  <span className="text-zinc-900 font-medium truncate">{slice.category}</span>
+                  <span className="text-zinc-400 text-[8px] shrink-0">({slice.count})</span>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-black">{slice.totalValue.toFixed(2)} €</div>
-                  <div className="text-[8px] text-zinc-400 font-light">{slice.percentage}% Wertanteil</div>
+                <div className="text-right shrink-0">
+                  <div className="font-bold text-black text-[10px] tabular-nums">{slice.totalValue.toFixed(2)} €</div>
+                  <div className="text-[8px] text-zinc-400 font-light">{slice.percentage}%</div>
                 </div>
               </div>
             ))}
@@ -129,9 +125,9 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
         </div>
       )}
 
-      <div className="border-t border-zinc-100 pt-3 mt-2 flex justify-between items-center text-[9px] font-mono text-zinc-400">
+      <div className="border-t border-zinc-100 pt-3 mt-3 flex justify-between items-center text-[9px] font-mono text-zinc-400 w-full min-w-0">
         <span>GESAMTWERT LAGER:</span>
-        <span className="font-bold text-black">{totalValueAll.toFixed(2)} €</span>
+        <span className="font-bold text-black text-[10px] tabular-nums shrink-0">{totalValueAll.toFixed(2)} €</span>
       </div>
     </div>
   );
