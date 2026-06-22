@@ -102,7 +102,8 @@ export default function SellerImportBox({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    /* 🎯 FIX: pb-16 hinzugefügt, um Abstand nach unten zum Footer zu erzeugen */
+    <div className="flex flex-col gap-6 w-full pb-16">
       <div className="border-b border-zinc-100 pb-3 flex justify-between items-center">
         <div>
           <h2 className="text-sm uppercase tracking-wider font-mono text-black">Massen-Datenimport (Händler Sandbox)</h2>
