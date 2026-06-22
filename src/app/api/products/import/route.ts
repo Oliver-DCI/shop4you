@@ -34,28 +34,37 @@ export async function POST(request: Request) {
     // 🔄 Massen-Eintragung in PostgreSQL via Prisma transaction
     const createdProducts = await prisma.$transaction(
       products.map((prod) => {
-        // Sicherstellen, dass images ein sauberes Array ist, falls im JSON ein String oder nichts übergeben wurde
-        let finalImages: string[] = ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'];
-        if (prod.images && Array.isArray(prod.images) && prod.images.length > 0) {
-          finalImages = prod.images;
+        // Sicherstellen, dass images ein sauberes Array ist und leere Strings herausgefiltert werden
+        let finalImages: string[] = [];
+        
+        if (prod.images && Array.isArray(prod.images)) {
+          // Filtert alle leeren Einträge aus dem Array heraus
+          finalImages = prod.images.filter((img: string) => typeof img === 'string' && img.trim() !== '');
         } else if (typeof prod.images === 'string' && prod.images.trim() !== '') {
           finalImages = [prod.images];
         }
 
+        // Fallback, falls absolut kein Bild angegeben wurde
+        if (finalImages.length === 0) {
+          finalImages = ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800'];
+        }
+
         return prisma.product.create({
           data: {
-          title: prod.title,
-          price: parseFloat(prod.price) || 0,
-          category: prod.category,
-          description: prod.description || '',
-          brand: prod.brand || null,
-          images: prod.images || [],
-    
-          // 🎯 FIX: Wir nehmen 'quantity' aus dem JSON und speichern es im Prisma-Feld 'stock'
-          // Falls im JSON weder stock noch quantity definiert ist, nehmen wir als Fallback 1
-          stock: parseInt(prod.stock || prod.quantity) || 1, 
-    
-          sellerId: userId,
+            title: prod.title,
+            price: parseFloat(prod.price) || 0,
+            category: prod.category,
+            description: prod.description || '',
+            brand: prod.brand || null,
+            
+            // 🎯 FIX: Hier wird jetzt die vorbereitete Variable 'finalImages' genutzt!
+            images: finalImages,
+      
+            // 🎯 FIX: Wir nehmen 'quantity' aus dem JSON und speichern es im Prisma-Feld 'stock'
+            // Falls im JSON weder stock noch quantity definiert ist, nehmen wir als Fallback 1
+            stock: parseInt(prod.stock || prod.quantity) || 1, 
+      
+            sellerId: userId,
           }
         });
       })

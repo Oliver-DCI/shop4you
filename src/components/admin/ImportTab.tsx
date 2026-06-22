@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// 🎯 Korrigiert: Nur noch 4 Kategorien (kein Zubehör mehr!)
 const ALLOWED_CATEGORIES = ['Notebooks', 'Smartphones', 'TV', 'Audio'];
 
 const INITIAL_TEMPLATE = [
@@ -25,7 +24,6 @@ export default function ImportTab() {
   const [isCardPreviewActive, setIsCardPreviewActive] = useState(false);
 
   const handleLoadTemplate = () => {
-    // 🎯 Begrenzt auf 8 Artikel & füllt exakt auf max. 4 Bilder-Slots auf
     const preparedTemplate = INITIAL_TEMPLATE.slice(0, 8).map(prod => {
       const imgArray = [...prod.images];
       while (imgArray.length < 4) imgArray.push('');
@@ -74,7 +72,7 @@ export default function ImportTab() {
     }
 
     setIsSubmitting(true);
-    setLogMessages(prev => [...prev, '[SYSTEM] Filter leere Bild-Slots heraus und starte PostgreSQL-Injektion...']);
+    setLogMessages(prev => [...prev, '[SYSTEM] Übertrage Bilddaten an Core-API und starte PostgreSQL-Injektion...']);
 
     try {
       const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
@@ -83,22 +81,19 @@ export default function ImportTab() {
 
       if (!userId) throw new Error('Keine aktive Admin-Session gefunden.');
 
-      const cleanedProducts = loadedProducts.map(prod => ({
-        ...prod,
-        images: prod.images.filter(img => img.trim() !== '')
-      }));
-
+      // 🎯 HINWEIS: Wir senden die Rohdaten mit allen 4 Slots direkt ab.
+      // Die API-Route bereinigt nun serverseitig alle leeren Strings verlässlich!
       const response = await fetch('/api/products/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ products: cleanedProducts, role, userId }),
+        body: JSON.stringify({ products: loadedProducts, role, userId }),
       });
 
       const responseData = await response.json().catch(() => ({}));
 
       if (!response.ok) throw new Error(responseData.error || 'API-Core verweigerte Speicherung.');
 
-      setLogMessages(prev => [...prev, `[ERFOLG] ${cleanedProducts.length} modifizierte Artikel fest in PostgreSQL verankert!`]);
+      setLogMessages(prev => [...prev, `[ERFOLG] ${loadedProducts.length} modifizierte Artikel fest in PostgreSQL verankert!`]);
       setLoadedProducts(null);
       setIsCardPreviewActive(false);
     } catch (error: any) {
@@ -169,7 +164,6 @@ export default function ImportTab() {
             )}
           </div>
 
-          {/* MODUS 1: Formular-Erfassung mit genau 4 Bild-Slots */}
           {!isCardPreviewActive && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {loadedProducts.map((prod, pIdx) => (
@@ -229,7 +223,6 @@ export default function ImportTab() {
                     />
                   </div>
 
-                  {/* 🎯 Bilder-Galerie: Strikt auf max. 4 URLs angepasst */}
                   <div className="flex flex-col gap-1.5 border-t border-zinc-100 pt-3">
                     <label className="text-[9px] uppercase font-mono text-black font-bold tracking-wider">Bilder-Galerie (Max. 4 URLs)</label>
                     {prod.images.map((imgUrl, imgIdx) => (
@@ -250,7 +243,6 @@ export default function ImportTab() {
             </div>
           )}
 
-          {/* MODUS 2: [ Live-Parsing Vorschau ] mit echten Seller-Cards */}
           {isCardPreviewActive && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-in fade-in duration-200">
               {loadedProducts.map((prod, pIdx) => {
