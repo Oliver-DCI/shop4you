@@ -16,7 +16,7 @@ interface Product {
 
 type SortField = 'title' | 'category' | 'price' | 'stock' | 'sellerName';
 type SortOrder = 'asc' | 'desc';
-type ViewMode = 'table' | 'grid'; // 🎯 NEU: Typ für den Layout-Modus
+type ViewMode = 'table' | 'grid';
 
 export default function ProductsTab() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function ProductsTab() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 🎯 State für den Layout-Modus (Standardmäßig 'table' für Admins)
+  // Layout-Modus
   const [viewMode, setViewMode] = useState<ViewMode>('table');
 
   // States für die Sortierung
@@ -34,6 +34,22 @@ export default function ProductsTab() {
   // States für das Lösch-Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<{ id: string | number; title: string } | null>(null);
+
+  // States für das Edit-Overlay
+  const [editingProductId, setEditingProductId] = useState<string | number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    price: '',
+    stock: '',
+    category: '',
+    brand: '',
+    description: '', // Bereit für optionale API-Erweiterung
+    image1: '',
+    image2: '',
+    image3: '',
+    image4: ''
+  });
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -53,6 +69,68 @@ export default function ProductsTab() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Bearbeitungsstart
+  const startEditing = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingProductId(product.id);
+    
+    const imgs = product.images || [];
+    setEditForm({
+      title: product.title,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      category: product.category,
+      brand: product.brand || '',
+      description: '', // Fallback, falls im Objekt nicht vorhanden
+      image1: imgs[0] || '',
+      image2: imgs[1] || '',
+      image3: imgs[2] || '',
+      image4: imgs[3] || ''
+    });
+  };
+
+  // Speichern via allgemeiner PUT-API
+  const saveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProductId || isSaving) return;
+
+    setIsSaving(true);
+    
+    const imagesArray = [
+      editForm.image1.trim(),
+      editForm.image2.trim(),
+      editForm.image3.trim(),
+      editForm.image4.trim()
+    ].filter(url => url !== '');
+
+    try {
+      const response = await fetch(`/api/products?id=${editingProductId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editForm.title,
+          price: parseFloat(editForm.price) || 0,
+          stock: parseInt(editForm.stock) || 0,
+          category: editForm.category,
+          brand: editForm.brand,
+          images: imagesArray
+        }),
+      });
+
+      if (response.ok) {
+        setEditingProductId(null);
+        fetchProducts(); // Aktualisiert die globale Admin-Liste
+      } else {
+        alert('❌ Fehler beim Aktualisieren des Artikels.');
+      }
+    } catch (err) {
+      console.error('Admin-Update-Fehler:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const openDeleteModal = (id: string | number, title: string, e: React.MouseEvent) => {
     e.stopPropagation(); 
@@ -84,7 +162,6 @@ export default function ProductsTab() {
     }
   };
 
-  // Sortierfunktion beim Spalten-Klick
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -94,7 +171,6 @@ export default function ProductsTab() {
     }
   };
 
-  // 1. Filtern
   const filteredProducts = products.filter(p => {
     const currentSeller = p.sellerName || 'Admin';
     return (
@@ -104,7 +180,6 @@ export default function ProductsTab() {
     );
   });
 
-  // 2. Sortieren
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (!sortField) return 0;
 
@@ -128,7 +203,7 @@ export default function ProductsTab() {
 
   return (
     <div className="flex flex-col gap-6 relative">
-      {/* HEADER BEREICH MIT LAYOUT-UMSCHALTER */}
+      {/* HEADER BEREICH */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h2 className="text-xl uppercase tracking-wider font-light text-black">🛍️ Globaler Produkt-Katalog</h2>
@@ -144,7 +219,6 @@ export default function ProductsTab() {
             className="h-10 border border-zinc-200 bg-zinc-50 px-3 text-xs focus:outline-none focus:border-black font-mono w-full sm:w-72 rounded-none"
           />
 
-          {/* 🎯 NEU: Minimalistischer Umschalter zwischen Zeile und Karte */}
           <div className="flex border border-zinc-200 text-[10px] uppercase tracking-widest h-10 items-center bg-zinc-50 select-none">
             <button
               onClick={() => setViewMode('table')}
@@ -173,7 +247,7 @@ export default function ProductsTab() {
         </div>
       ) : viewMode === 'table' ? (
         
-        /* 📜 ANSICHT 1: DIE BEKANNTE TABELLE (ZEILEN-MODUS) */
+        /* 📜 ANSICHT 1: TABELLE */
         <div className="overflow-x-auto animate-in fade-in duration-150">
           <table className="w-full text-left font-mono border-collapse">
             <thead>
@@ -194,7 +268,7 @@ export default function ProductsTab() {
                 <th onClick={() => handleSort('sellerName')} className="py-3 font-normal text-right cursor-pointer hover:text-black transition-colors px-4">
                   Anbieter{renderSortArrow('sellerName')}
                 </th>
-                <th className="py-3 font-normal text-right">Aktionen</th>
+                <th className="py-3 font-normal text-right">System-Aktionen</th>
               </tr>
             </thead>
             <tbody className="text-xs divide-y divide-zinc-100">
@@ -226,9 +300,10 @@ export default function ProductsTab() {
                       )}
                     </td>
                     <td className="py-3 text-right">
-                      <button onClick={(e) => openDeleteModal(product.id, product.title, e)} className="text-[10px] text-zinc-500 hover:text-black border border-transparent px-3 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">
-                        🗑 Löschen
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button onClick={(e) => startEditing(e, product)} className="text-[10px] text-zinc-500 hover:text-black border border-transparent px-2 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">✏ Bearbeiten</button>
+                        <button onClick={(e) => openDeleteModal(product.id, product.title, e)} className="text-[10px] text-zinc-400 hover:text-red-600 border border-transparent px-2 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">🗑</button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -238,7 +313,7 @@ export default function ProductsTab() {
         </div>
       ) : (
         
-        /* 🎴 ANSICHT 2: DIE KOMPAKTEN DASHBOARD MICRO-KARTEN (GRID-MODUS) */
+        /* 🎴 ANSICHT 2: MICRO-CARDS */
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-150">
           {sortedProducts.map((product) => {
             const mainImage = product.images && product.images.length > 0 && product.images[0].trim() !== ''
@@ -251,7 +326,6 @@ export default function ProductsTab() {
                 onClick={() => router.push(`/product/${product.id}`)}
                 className="border border-zinc-200 bg-white p-3 flex gap-3 h-24 relative group hover:border-black transition-all cursor-pointer shadow-xs"
               >
-                {/* Kompakter Vorschau-Slot links */}
                 <div className="w-16 h-full bg-zinc-50 border border-zinc-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                   <img 
                     src={mainImage} 
@@ -260,8 +334,7 @@ export default function ProductsTab() {
                   />
                 </div>
 
-                {/* Content-Bereich rechts */}
-                <div className="flex flex-col justify-between flex-1 min-w-0 pr-6">
+                <div className="flex flex-col justify-between flex-1 min-w-0 pr-12">
                   <div>
                     <div className="text-[8px] font-mono uppercase tracking-wider text-zinc-400 truncate">
                       {product.category} {product.brand ? `// ${product.brand}` : ''}
@@ -271,7 +344,6 @@ export default function ProductsTab() {
                     </h4>
                   </div>
                   
-                  {/* Kennzahlen & Seller-Tag */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-mono text-zinc-900 font-bold">{Number(product.price).toFixed(2)} €</span>
                     <span className="text-zinc-300 font-mono text-[9px]">|</span>
@@ -289,17 +361,101 @@ export default function ProductsTab() {
                   </div>
                 </div>
 
-                {/* Absoluter Lösch-X-Button oben rechts */}
-                <button
-                  onClick={(e) => openDeleteModal(product.id, product.title, e)}
-                  className="absolute top-2 right-2 text-zinc-300 hover:text-black text-xs font-sans cursor-pointer transition-colors p-1 leading-none"
-                  title="Artikel löschen"
-                >
-                  ✕
-                </button>
+                {/* 🎯 KORRIGIERT: Perfekt skalierte, halbgroße Buttons für dezenten Admin-Eingriff */}
+                <div className="absolute top-1.5 right-1.5 flex gap-1 z-20">
+                  <button 
+                    onClick={(e) => startEditing(e, product)} 
+                    className="w-4.5 h-4.5 flex items-center justify-center bg-zinc-50 border border-zinc-200 hover:border-black hover:bg-black hover:text-white text-zinc-600 text-[9px] font-mono cursor-pointer transition-all duration-150"
+                    title="Katalog-Eintrag überschreiben"
+                  >
+                    ✏
+                  </button>
+                  <button 
+                    onClick={(e) => openDeleteModal(product.id, product.title, e)} 
+                    className="w-4.5 h-4.5 flex items-center justify-center bg-zinc-50 border border-zinc-200 hover:border-red-600 hover:bg-red-50 hover:text-red-600 text-zinc-400 text-[10px] font-sans cursor-pointer transition-all duration-150"
+                    title="Artikel löschen"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* 🎯 GLOBAL ADMIN EDIT OVERLAY */}
+      {editingProductId && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <form onSubmit={saveEdit} className="bg-white border border-red-500 p-6 max-w-xl w-full rounded-none shadow-2xl flex flex-col gap-4 font-mono text-xs animate-in fade-in zoom-in-95 duration-150 my-8">
+            <div className="border-b border-red-100 pb-3">
+              <span className="text-[8px] uppercase tracking-widest bg-red-600 text-white px-2 py-0.5 font-bold font-mono">⚠️ Authority // Global Override</span>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-black mt-2">Katalog-Eintrag überschreiben</h3>
+            </div>
+            
+            {/* Titel */}
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] uppercase text-zinc-400">Produkt-Titel</label>
+              <input type="text" value={editForm.title} onChange={(e) => setEditForm({...editForm, title: e.target.value})} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 focus:bg-white focus:outline-none" required />
+            </div>
+
+            {/* Marke & Kategorie */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[9px] uppercase text-zinc-400">Marke (Brand)</label>
+                <input type="text" value={editForm.brand} onChange={(e) => setEditForm({...editForm, brand: e.target.value})} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 focus:bg-white focus:outline-none" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[9px] uppercase text-zinc-400">Kategorie</label>
+                <select value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 focus:bg-white focus:outline-none h-[30px]">
+                  {['Notebooks', 'Smartphones', 'TV', 'Audio'].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+
+            {/* Preis & Bestand */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[9px] uppercase text-zinc-400">Verkaufspreis (€)</label>
+                <input type="number" step="0.01" value={editForm.price} onChange={(e) => setEditForm({...editForm, price: e.target.value})} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 font-bold text-right focus:bg-white focus:outline-none" required />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[9px] uppercase text-zinc-400">Lagerbestand</label>
+                <input type="number" value={editForm.stock} onChange={(e) => setEditForm({...editForm, stock: e.target.value})} className="border border-zinc-200 bg-zinc-50 px-2 py-1.5 text-right focus:bg-white focus:outline-none" required />
+              </div>
+            </div>
+
+            {/* Die 4 Medien-URLs */}
+            <div className="flex flex-col gap-1.5 border-t border-zinc-100 pt-3">
+              <label className="text-[9px] uppercase text-black font-bold tracking-wider">📦 Produkt-Bilder (Media URLs)</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-[8px] text-zinc-400 font-mono">BILD 1 (Haupt-Cover)</label>
+                  <input type="text" value={editForm.image1} onChange={(e) => setEditForm({...editForm, image1: e.target.value})} placeholder="https://..." className="border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] focus:bg-white focus:outline-none truncate" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-[8px] text-zinc-400 font-mono">BILD 2</label>
+                  <input type="text" value={editForm.image2} onChange={(e) => setEditForm({...editForm, image2: e.target.value})} placeholder="https://..." className="border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] focus:bg-white focus:outline-none truncate" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-[8px] text-zinc-400 font-mono">BILD 3</label>
+                  <input type="text" value={editForm.image3} onChange={(e) => setEditForm({...editForm, image3: e.target.value})} placeholder="https://..." className="border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] focus:bg-white focus:outline-none truncate" />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <label className="text-[8px] text-zinc-400 font-mono">BILD 4</label>
+                  <input type="text" value={editForm.image4} onChange={(e) => setEditForm({...editForm, image4: e.target.value})} placeholder="https://..." className="border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] focus:bg-white focus:outline-none truncate" />
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2 mt-2 text-[10px] uppercase tracking-widest pt-3 border-t border-zinc-100">
+              <button type="button" onClick={() => setEditingProductId(null)} className="border border-zinc-200 hover:border-black text-black px-4 h-9 cursor-pointer bg-white">Abbrechen</button>
+              <button type="submit" disabled={isSaving} className="bg-red-600 hover:bg-red-700 text-white px-4 h-9 cursor-pointer disabled:opacity-50">
+                {isSaving ? 'Speichere...' : 'Katalog Eintrag Überschreiben'}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

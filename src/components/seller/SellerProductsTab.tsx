@@ -226,7 +226,7 @@ export default function SellerProductsTab({ products, onRefresh }: SellerProduct
                     <td className="py-3 text-right px-4">{product.stock ?? 1} Stk.</td>
                     <td className="py-3 text-right">
                       <div className="flex justify-end gap-2">
-                        <button onClick={(e) => startEditing(e, product)} className="text-[10px] text-zinc-500 hover:text-black border border-transparent px-2 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">✏ Edit</button>
+                        <button onClick={(e) => startEditing(e, product)} className="text-[10px] text-zinc-500 hover:text-black border border-transparent px-2 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">✏ Bearbeiten</button>
                         <button onClick={(e) => handleOpenDeleteModal(e, product.id, product.title)} className="text-[10px] text-zinc-400 hover:text-red-600 border border-transparent px-2 py-1.5 uppercase tracking-widest transition-colors cursor-pointer font-mono">🗑</button>
                       </div>
                     </td>
