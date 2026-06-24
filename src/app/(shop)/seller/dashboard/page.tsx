@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import SellerCategoryChart from '@/components/seller/SellerCategoryChart';
 import SellerImportBox from '@/components/seller/SellerImportBox';
 import ProductPreviewGrid from '@/components/seller/ProductPreviewGrid';
+import SellerProductsTab from '@/components/seller/SellerProductsTab'; // 🎯 NEU: Importieren
 
 interface SellerStats {
   totalRevenue: number;
@@ -38,7 +39,6 @@ export default function SellerDashboardPage() {
 
   const [loadedProducts, setLoadedProducts] = useState<any[] | null>(null);
   const [isCardPreviewActive, setIsCardPreviewActive] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem('shop4you_user') || '{}');
@@ -95,30 +95,6 @@ export default function SellerDashboardPage() {
     }
   }, [router, refreshTrigger]);
 
-  const handleOpenDeleteModal = (e: React.MouseEvent, productId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDeleteTargetId(productId);
-  };
-
-  const confirmDeleteProduct = async () => {
-    if (!deleteTargetId) return;
-    try {
-      const response = await fetch(`/api/seller/products?id=${deleteTargetId}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        setRefreshTrigger(prev => prev + 1);
-      } else {
-        alert('Fehler beim Löschen des Artikels.');
-      }
-    } catch (err) {
-      console.error("Lösch-Fehler:", err);
-    } finally {
-      setDeleteTargetId(null);
-    }
-  };
-
   const handleRemoveFromPreviewGrid = (index: number) => {
     if (!loadedProducts) return;
     const filtered = loadedProducts.filter((_, i) => i !== index);
@@ -171,7 +147,6 @@ export default function SellerDashboardPage() {
               [📊] Analytics & Charts
             </button>
             
-            {/* Produkte im System auf Position 2 */}
             <button
               onClick={() => setActiveTab('PRODUCTS')}
               className={`w-full text-left px-4 py-3.5 border-b border-zinc-100 transition-colors uppercase tracking-wider font-medium cursor-pointer ${
@@ -181,7 +156,6 @@ export default function SellerDashboardPage() {
               [📦] Produkte im System
             </button>
 
-            {/* Datenimport (JSON) auf Position 3 */}
             <button
               onClick={() => setActiveTab('IMPORT')}
               className={`w-full text-left px-4 py-3.5 transition-colors uppercase tracking-wider font-medium cursor-pointer ${
@@ -195,7 +169,7 @@ export default function SellerDashboardPage() {
           {/* RECHTER ARBEITSBEREICH */}
           <div className="lg:col-span-3 flex flex-col gap-8">
             
-            {/* Die 3 Top-Statistiken */}
+            {/* Statistiken */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
               <div className="bg-white border border-zinc-200 p-4 flex flex-col gap-1 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-black" />
@@ -217,7 +191,6 @@ export default function SellerDashboardPage() {
             {/* TAB-INHALTE */}
             {activeTab === 'ANALYTICS' && (
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 animate-in fade-in duration-200 xl:items-stretch xl:-mr-[8px]">
-                {/* Volatility Diagramm (2/3 Spalten) - Ohne linken schwarzen Strich */}
                 <div className="xl:col-span-2 bg-white border border-zinc-200 p-6 flex flex-col justify-between min-h-[320px]">
                   <div className="border-b border-zinc-100 pb-3">
                     <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">📊 Live Sales Volatility (2026)</h3>
@@ -234,7 +207,6 @@ export default function SellerDashboardPage() {
                   </div>
                 </div>
 
-                {/* Kreisdiagramm (1/3 Spalte) */}
                 <div className="xl:col-span-1 w-full">
                   <SellerCategoryChart products={myProducts} />
                 </div>
@@ -259,55 +231,13 @@ export default function SellerDashboardPage() {
               </div>
             )}
 
+            {/* 🎯 KORREKTUR: Der PRODUCTS Tab nutzt jetzt die ausgelagerte Komponente im vollen Layout-Umfang */}
             {activeTab === 'PRODUCTS' && (
-              <div className="bg-white border border-zinc-200 p-6 animate-in fade-in duration-200">
-                <div className="flex justify-between items-center border-b border-zinc-100 pb-3 mb-4">
-                  <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Deine gelisteten Hardware-Artikel ({myProducts.length})</h3>
-                  <span className="text-[8px] font-mono text-zinc-400 uppercase">[ Klick auf Karte öffnet Detailansicht ]</span>
-                </div>
-                {myProducts.length === 0 ? (
-                  <p className="text-xs font-mono text-zinc-400 uppercase py-8 text-center bg-zinc-50 border border-dashed border-zinc-200">Keine Artikel gefunden.</p>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {myProducts.map((product) => (
-                      <div 
-                        key={product.id} 
-                        onClick={() => router.push(`/product/${product.id}`)}
-                        className="border border-zinc-200 p-4 pt-12 bg-white flex flex-col justify-between hover:border-black transition-colors cursor-pointer relative group"
-                      >
-                        <div className="absolute top-2 left-0 right-0 text-center z-20">
-                          <span 
-                            onClick={(e) => handleOpenDeleteModal(e, product.id)}
-                            className="text-[8px] font-mono text-zinc-400 hover:text-red-600 uppercase tracking-widest transition-colors cursor-pointer select-none"
-                          >
-                            [ Artikel löschen ]
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between items-start gap-2 mt-2">
-                          <div className="truncate">
-                            <div className="flex flex-col">
-                              <span className="text-[8px] font-mono text-zinc-400 uppercase tracking-widest block">{product.category}</span>
-                              {product.brand && <span className="text-[8px] font-mono text-zinc-400 font-bold uppercase mt-0.5">{product.brand}</span>}
-                            </div>
-                            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-black mt-1 truncate">{product.title}</h4>
-                          </div>
-
-                          {product.images && product.images[0] && (
-                            <div className="w-8 h-8 bg-zinc-50 border border-zinc-200 shrink-0 overflow-hidden grayscale group-hover:grayscale-0 transition-all">
-                              <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="border-t border-zinc-100 pt-2 mt-4 flex justify-between items-baseline font-mono text-xs">
-                          <span className="text-[8px] text-zinc-400">PRICE:</span>
-                          <span className="font-bold">{product.price.toFixed(2)} €</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div className="bg-white border border-zinc-200 p-6 animate-in fade-in duration-200 w-full">
+                <SellerProductsTab 
+                  products={myProducts} 
+                  onRefresh={() => setRefreshTrigger(prev => prev + 1)} 
+                />
               </div>
             )}
 
@@ -315,25 +245,6 @@ export default function SellerDashboardPage() {
         </div>
 
       </div>
-
-      {/* CUSTOM LÖSCHMODAL */}
-      {deleteTargetId && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-zinc-300 p-8 max-w-md w-full rounded-none shadow-xl animate-in fade-in zoom-in-95 duration-150">
-            <div className="border-b border-zinc-100 pb-4 mb-6">
-              <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-zinc-400 block mb-1">SHOP4YOU // System-Eingriff</span>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-950">Artikel unwiderruflich löschen?</h3>
-            </div>
-            <p className="text-xs text-zinc-600 leading-relaxed font-light mb-8">
-              Möchtest du diesen Artikel wirklich permanent aus dem System löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-            </p>
-            <div className="flex gap-4 font-mono text-[11px] tracking-widest">
-              <button onClick={() => setDeleteTargetId(null)} className="flex-1 bg-zinc-100 text-zinc-900 hover:bg-zinc-200 py-3 transition-colors uppercase font-medium cursor-pointer">Abbrechen</button>
-              <button onClick={confirmDeleteProduct} className="flex-1 bg-black text-white hover:bg-zinc-900 py-3 transition-colors uppercase font-medium cursor-pointer">Ja, Löschen</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
