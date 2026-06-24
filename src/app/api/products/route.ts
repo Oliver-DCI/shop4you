@@ -7,6 +7,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+// 🔍 1. GET: Produkte abrufen (für Shop, Filter, Suche, etc.)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -16,7 +17,6 @@ export async function GET(request: Request) {
     const brand = searchParams.get('brand');
     const sort = searchParams.get('sort');
     
-    // Paginierung vorbereiten (Optional, aber bereit für die Zukunft)
     const limit = parseInt(searchParams.get('limit') || '100'); 
     
     const whereClause: any = {};
@@ -48,7 +48,6 @@ export async function GET(request: Request) {
       orderByClause = { createdAt: 'desc' };
     }
 
-    // Produkte aus PostgreSQL abrufen
     const products = await prisma.product.findMany({
       where: whereClause,
       orderBy: orderByClause,
@@ -57,7 +56,45 @@ export async function GET(request: Request) {
 
     return NextResponse.json(products);
   } catch (error: any) {
-    console.error('API Error in /api/products:', error);
+    console.error('API Error in /api/products (GET):', error);
     return NextResponse.json({ error: 'Fehler beim Laden der Produkte' }, { status: 500 });
+  }
+}
+
+// 🎯 2. PUT: Bestehendes Produkt aktualisieren (Quick-Edit für Händler & Admins)
+export async function PUT(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get('id');
+
+    if (!productId) {
+      return NextResponse.json({ error: 'Artikel-ID fehlt im Request.' }, { status: 400 });
+    }
+
+    // Formulardaten aus dem Request-Body auslesen
+    const body = await request.json();
+    const { title, price, stock, category, brand, description, images } = body;
+
+    // Artikel direkt in PostgreSQL über Prisma aktualisieren
+    const updatedProduct = await prisma.product.update({
+      where: { id: productId },
+      data: {
+        title,
+        price: parseFloat(price) || 0,
+        stock: parseInt(stock) || 0,
+        category,
+        brand,
+        description,
+        images // Speichert das bereinigte String-Array direkt in der DB
+      }
+    });
+
+    return NextResponse.json(updatedProduct, { status: 200 });
+  } catch (error: any) {
+    console.error('API Error in /api/products (PUT):', error);
+    return NextResponse.json({ 
+      error: 'Fehler beim Aktualisieren des Artikels in der Datenbank.',
+      details: error.message || String(error)
+    }, { status: 500 });
   }
 }
