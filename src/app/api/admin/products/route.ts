@@ -1,13 +1,44 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// 🔍 1. GET: Absolut alle Produkte aus der PostgreSQL laden (für den Admin)
+// 🔍 1. GET: Absolut alle Produkte inklusive Seller-Informationen laden
 export async function GET() {
   try {
+    // 🎯 ÄNDERUNG: Wir inkludieren die Händlerdaten (seller) zu jedem Produkt
     const products = await prisma.product.findMany({
+      include: {
+        seller: {
+          select: {
+            firstName: true,
+            lastName: true,
+            role: true,
+          }
+        }
+      },
       orderBy: { title: 'asc' }
     });
-    return NextResponse.json(products);
+
+    // 🎯 ÄNDERUNG: Daten so formatieren, wie es dein aktualisierter ProductsTab erwartet
+    const formattedProducts = products.map((product) => {
+      // Wenn der Ersteller ein Admin ist, labeln wir ihn direkt, ansonsten Name zusammensetzen
+      const isSystemAdmin = product.seller.role === 'ADMIN';
+      const sellerName = isSystemAdmin 
+        ? null // Führt im Frontend automatisch zum schwarzen "⚙️ Admin"-Badge
+        : `${product.seller.firstName} ${product.seller.lastName}`.trim();
+
+      return {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        category: product.category,
+        brand: product.brand,
+        stock: product.stock,
+        images: product.images,
+        sellerName: sellerName, // 🎯 Wird an das stateful Frontend übergeben
+      };
+    });
+
+    return NextResponse.json(formattedProducts);
   } catch (error: any) {
     console.error('ADMIN_PRODUCTS_GET_ERROR:', error);
     return NextResponse.json({ 

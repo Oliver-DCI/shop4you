@@ -11,9 +11,10 @@ interface Product {
   brand?: string | null;
   stock: number;
   images: string[];
+  sellerName?: string | null;
 }
 
-type SortField = 'title' | 'category' | 'price' | 'stock';
+type SortField = 'title' | 'category' | 'price' | 'stock' | 'sellerName';
 type SortOrder = 'asc' | 'desc';
 
 export default function ProductsTab() {
@@ -22,7 +23,7 @@ export default function ProductsTab() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 🎯 States für die Sortierung
+  // States für die Sortierung
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
@@ -79,44 +80,43 @@ export default function ProductsTab() {
     }
   };
 
-  // 🎯 Sortierfunktion beim Spalten-Klick
+  // Sortierfunktion beim Spalten-Klick
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      // Wenn das Feld schon aktiv ist, Richtung umdrehen
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
-      // Neues Feld aktivieren, standardmäßig aufsteigend
       setSortField(field);
-      sortOrder === 'desc' && setSortOrder('asc'); // Reset auf 'asc' bei neuem Feld
       setSortOrder('asc');
     }
   };
 
   // 1. Filtern
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const currentSeller = p.sellerName || 'Admin';
+    return (
+      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      currentSeller.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
-  // 2. Sortieren (Greift auf die gefilterten Daten)
+  // 2. Sortieren
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (!sortField) return 0;
 
-    let valueA = a[sortField];
-    let valueB = b[sortField];
+    let valueA = sortField === 'sellerName' ? (a.sellerName || 'Admin') : a[sortField];
+    let valueB = sortField === 'sellerName' ? (b.sellerName || 'Admin') : b[sortField];
 
-    // Case-Insensitive Vergleich bei Strings (Titel, Kategorie)
     if (typeof valueA === 'string' && typeof valueB === 'string') {
       valueA = valueA.toLowerCase();
       valueB = valueB.toLowerCase();
     }
 
-    if (valueA < valueB) return sortOrder === 'asc' ? -1 : 1;
-    if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
+    if ((valueA ?? '') < (valueB ?? '')) return sortOrder === 'asc' ? -1 : 1;
+    if ((valueA ?? '') > (valueB ?? '')) return sortOrder === 'asc' ? 1 : -1;
     return 0;
   });
 
-  // Kleiner Helper für die Pfeil-Anzeige im Tabellenkopf
   const renderSortArrow = (field: SortField) => {
     if (sortField !== field) return null;
     return sortOrder === 'asc' ? ' ↑' : ' ↓';
@@ -132,7 +132,7 @@ export default function ProductsTab() {
         
         <input 
           type="text" 
-          placeholder="SUCHE NACH TITEL ODER KATEGORIE..." 
+          placeholder="SUCHE NACH TITEL, KATEGORIE ODER ANBIETER..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="h-10 border border-zinc-200 bg-zinc-50 px-3 text-xs focus:outline-none focus:border-black font-mono w-full sm:w-72 rounded-none"
@@ -154,7 +154,6 @@ export default function ProductsTab() {
               <tr className="border-b border-zinc-200 text-[10px] uppercase text-zinc-400 tracking-wider select-none">
                 <th className="py-3 font-normal w-16">Vorschau</th>
                 
-                {/* 🎯 Klickbare Spaltenköpfe mit interaktivem Hover-Effekt */}
                 <th 
                   onClick={() => handleSort('title')} 
                   className="py-3 font-normal cursor-pointer hover:text-black transition-colors"
@@ -180,6 +179,14 @@ export default function ProductsTab() {
                   Bestand{renderSortArrow('stock')}
                 </th>
                 
+                {/* 🎯 KORREKTUR: Anbieter um 2 Spalten nach rechts verschoben */}
+                <th 
+                  onClick={() => handleSort('sellerName')} 
+                  className="py-3 font-normal text-right cursor-pointer hover:text-black transition-colors px-4"
+                >
+                  Anbieter{renderSortArrow('sellerName')}
+                </th>
+
                 <th className="py-3 font-normal text-right">Aktionen</th>
               </tr>
             </thead>
@@ -215,6 +222,20 @@ export default function ProductsTab() {
                     <td className="py-3 uppercase text-[10px] text-zinc-500">{product.category}</td>
                     <td className="py-3 text-right font-bold">{Number(product.price).toFixed(2)} €</td>
                     <td className="py-3 text-right">{product.stock} Stk.</td>
+                    
+                    {/* 🎯 KORREKTUR: Die Zelle sitzt nun perfekt rechtsbündig ausgerichtet vor den Aktionen */}
+                    <td className="py-3 text-right px-4">
+                      {product.sellerName ? (
+                        <span className="bg-zinc-100 text-zinc-800 border border-zinc-200 px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-xs">
+                          👨‍💼 {product.sellerName}
+                        </span>
+                      ) : (
+                        <span className="bg-black text-white px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-xs">
+                          ⚙️ Admin
+                        </span>
+                      )}
+                    </td>
+
                     <td className="py-3 text-right">
                       <button 
                         onClick={(e) => openDeleteModal(product.id, product.title, e)}
