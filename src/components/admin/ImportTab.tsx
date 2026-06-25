@@ -7,7 +7,7 @@ const ALLOWED_CATEGORIES = ['Notebooks', 'Smartphones', 'TV', 'Audio'];
 
 const INITIAL_TEMPLATE = [
   { title: 'MacBook Pro Studio M5X', description: 'High-End Workstation für Entwickler und Power-User mit maximaler Effizienz.', price: 3499.00, category: 'Notebooks', brand: 'Apple', stock: 10, images: ['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800', '', '', ''] },
-  { title: 'UltraBook Pro 14', description: 'Extrem dünnes Gehäuse, federleicht mit CNC-Aluminium-Finish und brillantem Display.', price: 1499.00, category: 'Notebooks', brand: 'S4Y', stock: 15, images: ['https://images.unsplash.com/photo-1496181130204-755241524eab?w=800', '', '', ''] },
+  { title: 'UltraBook Pro 14', description: 'Extrem dünnes Gehäuse, federleicht mit CNC-Aluminium-Finish und brillantem Display.', price: 1499.00, category: 'Notebooks', brand: 'S4Y', stock: 15, images: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800', '', '', ''] },
   { title: 'S4Y Phone Matrix', description: 'Unser hauseigenes Flaggschiff mit nativer Hardware-Verschlüsselung und Quantum-Kamera.', price: 999.00, category: 'Smartphones', brand: 'S4Y', stock: 30, images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', '', '', ''] },
   { title: 'QuantumView OLED 55"', description: 'Perfektes Schwarz, unendlicher Kontrast und Next-Gen Gaming Engine mit 144Hz.', price: 1299.00, category: 'TV', brand: 'LG', stock: 10, images: ['https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800', '', '', ''] },
   { title: 'StudioSound ANC ONE', description: 'Over-Ear Studio-Kopfhörer mit adaptiver Geräuschunterdrückung und High-Res Audio.', price: 399.00, category: 'Audio', brand: 'Bose', stock: 25, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800', '', '', ''] },
@@ -81,8 +81,6 @@ export default function ImportTab() {
 
       if (!userId) throw new Error('Keine aktive Admin-Session gefunden.');
 
-      // 🎯 HINWEIS: Wir senden die Rohdaten mit allen 4 Slots direkt ab.
-      // Die API-Route bereinigt nun serverseitig alle leeren Strings verlässlich!
       const response = await fetch('/api/products/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -154,20 +152,34 @@ export default function ImportTab() {
                 🔍 ARTIKEL VORSCHAU
               </button>
             ) : (
-              <button
-                onClick={handleFinalDatabaseInjection}
-                disabled={isSubmitting}
-                className="bg-emerald-600 text-white text-[10px] font-mono tracking-widest px-5 py-2.5 uppercase hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? 'INJEKTION LÄUFT...' : '✔ JETZT ALLE IN DB SPEICHERN'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setIsCardPreviewActive(false);
+                    setLogMessages(prev => [...prev, '[SYSTEM] Zurück zum Formular-Modus gewechselt.']);
+                  }}
+                  className="border border-zinc-300 bg-white text-black text-[10px] font-mono tracking-widest px-4 py-2.5 uppercase hover:bg-zinc-100 cursor-pointer"
+                >
+                  ← Zurück
+                </button>
+                <button
+                  onClick={handleFinalDatabaseInjection}
+                  disabled={isSubmitting}
+                  className="bg-emerald-600 text-white text-[10px] font-mono tracking-widest px-5 py-2.5 uppercase hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? 'INJEKTION LÄUFT...' : '✔ JETZT ALLE IN DB SPEICHERN'}
+                </button>
+              </div>
             )}
           </div>
 
+          {/* Formular-Karten Ansicht */}
           {!isCardPreviewActive && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {loadedProducts.map((prod, pIdx) => (
                 <div key={pIdx} className="border border-zinc-200 bg-white p-5 flex flex-col gap-4 relative hover:border-zinc-400 transition-colors">
+                  
+                  {/* 🎯 ZURÜCKGESETZT: "✕ Entfernen" bleibt wie im Originalzustand */}
                   <button 
                     onClick={() => handleRemoveFromPreview(pIdx)}
                     className="absolute top-3 right-3 text-zinc-400 hover:text-rose-600 text-[10px] font-mono uppercase font-bold tracking-widest cursor-pointer"
@@ -243,8 +255,10 @@ export default function ImportTab() {
             </div>
           )}
 
+          {/* Realistische Shop-Karten Vorschau */}
           {isCardPreviewActive && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-in fade-in duration-200">
+            /* 🎯 OPTIMIERT: Raster-Spalten-Abstände (gap-4) exakt wie beim Verkäufer-Design */
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
               {loadedProducts.map((prod, pIdx) => {
                 const mainImage = prod.images && prod.images.length > 0 && prod.images[0].trim() !== ''
                   ? prod.images[0] 
@@ -255,11 +269,13 @@ export default function ImportTab() {
                     key={pIdx} 
                     className="border border-zinc-200 bg-white flex flex-col h-full relative group hover:border-black transition-colors"
                   >
+                    {/* ✕ Minimalistischer Lösch-Button oben rechts direkt auf der Bildfläche */}
                     <button
                       onClick={() => handleRemoveFromPreview(pIdx)}
-                      className="absolute top-2 right-2 z-10 bg-white border border-zinc-200 text-black hover:bg-black hover:text-white px-2 py-1 text-[9px] font-mono uppercase tracking-widest cursor-pointer transition-colors"
+                      className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center bg-white/90 backdrop-blur-xs border border-zinc-200 hover:border-red-600 hover:bg-red-50 hover:text-red-600 text-zinc-500 text-[10px] font-sans cursor-pointer transition-colors shadow-xs"
+                      title="Aus Vorschau entfernen"
                     >
-                      ✕ Löschen
+                      ✕
                     </button>
 
                     <div className="w-full aspect-square bg-zinc-50 border-b border-zinc-100 overflow-hidden relative flex items-center justify-center">
@@ -275,19 +291,10 @@ export default function ImportTab() {
                       <h4 className="text-xs uppercase font-bold tracking-wider text-black line-clamp-1">{prod.title}</h4>
                       <p className="text-[11px] text-zinc-500 font-sans line-clamp-2 leading-tight flex-1">{prod.description}</p>
                       
-                      <div className="flex justify-between items-baseline mt-2 pt-2 border-t border-zinc-100">
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-zinc-100">
                         <span className="text-[10px] font-mono text-zinc-400">Lager: {prod.stock} Stk.</span>
                         <span className="text-xs font-mono font-bold text-black">{prod.price.toFixed(2)} €</span>
                       </div>
-                    </div>
-
-                    <div className="p-4 pt-0">
-                      <button
-                        onClick={() => router.push('/seller/dashboard')}
-                        className="w-full text-center border border-zinc-200 group-hover:border-black text-black py-2 font-mono text-[9px] uppercase tracking-widest transition-colors cursor-pointer bg-zinc-50/50"
-                      >
-                        👁 Details ansehen
-                      </button>
                     </div>
                   </div>
                 );

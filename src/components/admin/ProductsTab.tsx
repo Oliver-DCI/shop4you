@@ -44,7 +44,7 @@ export default function ProductsTab() {
     stock: '',
     category: '',
     brand: '',
-    description: '', // Bereit für optionale API-Erweiterung
+    description: '', 
     image1: '',
     image2: '',
     image3: '',
@@ -83,7 +83,7 @@ export default function ProductsTab() {
       stock: product.stock.toString(),
       category: product.category,
       brand: product.brand || '',
-      description: '', // Fallback, falls im Objekt nicht vorhanden
+      description: '', 
       image1: imgs[0] || '',
       image2: imgs[1] || '',
       image3: imgs[2] || '',
@@ -121,7 +121,7 @@ export default function ProductsTab() {
 
       if (response.ok) {
         setEditingProductId(null);
-        fetchProducts(); // Aktualisiert die globale Admin-Liste
+        fetchProducts(); 
       } else {
         alert('❌ Fehler beim Aktualisieren des Artikels.');
       }
@@ -202,7 +202,7 @@ export default function ProductsTab() {
   };
 
   return (
-    <div className="flex flex-col gap-6 relative">
+    <div className="flex flex-col gap-6 relative w-full">
       {/* HEADER BEREICH */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
@@ -313,10 +313,10 @@ export default function ProductsTab() {
         </div>
       ) : (
         
-        /* 🎴 ANSICHT 2: MICRO-CARDS */
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-150">
+        /* 🎴 ANSICHT 2: MICRO-CARDS (EXAKT STRUKTURIERT WIE SELLER h-20) */
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in duration-150 w-full">
           {sortedProducts.map((product) => {
-            const mainImage = product.images && product.images.length > 0 && product.images[0].trim() !== ''
+            const mainImage = product.images && product.images.length > 0 && product.images[0].trim() !== '' 
               ? product.images[0] 
               : 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100';
 
@@ -324,49 +324,45 @@ export default function ProductsTab() {
               <div 
                 key={product.id} 
                 onClick={() => router.push(`/product/${product.id}`)}
-                className="border border-zinc-200 bg-white p-3 flex gap-3 h-24 relative group hover:border-black transition-all cursor-pointer shadow-xs"
+                className="border border-zinc-200 bg-white p-3 flex gap-3 h-20 relative group hover:border-black transition-all cursor-pointer shadow-xs"
               >
-                <div className="w-16 h-full bg-zinc-50 border border-zinc-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                  <img 
-                    src={mainImage} 
-                    alt={product.title} 
-                    className="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 transition-all duration-300" 
-                  />
+                {/* 1:1 Seller Bild-Box */}
+                <div className="w-14 h-full bg-zinc-50 border border-zinc-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  <img src={mainImage} alt="Product" className="w-full h-full object-cover grayscale contrast-110 group-hover:grayscale-0 transition-all duration-300" />
                 </div>
-
+                
+                {/* Inhalt */}
                 <div className="flex flex-col justify-between flex-1 min-w-0 pr-12">
                   <div>
-                    <div className="text-[8px] font-mono uppercase tracking-wider text-zinc-400 truncate">
-                      {product.category} {product.brand ? `// ${product.brand}` : ''}
+                    <div className="text-[8px] font-mono uppercase tracking-wider text-zinc-400 truncate flex items-center gap-1.5">
+                      <span className="truncate">{product.category} {product.brand ? `// ${product.brand}` : ''}</span>
+                      
+                      {!product.sellerName && (
+                        <span className="text-[7px] uppercase bg-black text-white px-1 py-0.2 font-bold font-mono tracking-wider flex-shrink-0">
+                          AD
+                        </span>
+                      )}
                     </div>
-                    <h4 className="text-xs font-sans font-bold text-black truncate group-hover:underline mt-0.5">
-                      {product.title}
-                    </h4>
+                    <h4 className="text-xs font-sans font-bold text-black truncate group-hover:underline mt-0.5">{product.title}</h4>
                   </div>
                   
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-mono text-zinc-900 font-bold">{Number(product.price).toFixed(2)} €</span>
-                    <span className="text-zinc-300 font-mono text-[9px]">|</span>
-                    <span className="text-[9px] font-mono text-zinc-500">{product.stock} Stk.</span>
-                    
-                    {product.sellerName ? (
-                      <span className="text-[7px] font-mono uppercase bg-zinc-100 text-zinc-600 px-1.5 py-0.5 border border-zinc-200 font-bold ml-auto truncate max-w-[70px]" title={product.sellerName}>
-                        👨‍💼 {product.sellerName.split(' ')[0]}
-                      </span>
-                    ) : (
-                      <span className="text-[7px] font-mono uppercase bg-black text-white px-1.5 py-0.5 font-bold ml-auto">
-                        ⚙️ Admin
-                      </span>
-                    )}
+                  {/* 🎯 OPTIMIERT: Maximale Breite für das Stk.-Feld */}
+                  <div className="flex items-center justify-between w-full font-mono text-[10px] whitespace-nowrap overflow-hidden">
+                    <span className="text-zinc-900 font-bold flex-shrink-0">
+                      {Number(product.price).toFixed(2)} €
+                    </span>
+                    <span className="text-zinc-500 text-[9px] w-full text-right pl-2 truncate">
+                      {product.stock} Stk.
+                    </span>
                   </div>
                 </div>
-
-                {/* 🎯 KORRIGIERT: Perfekt skalierte, halbgroße Buttons für dezenten Admin-Eingriff */}
-                <div className="absolute top-1.5 right-1.5 flex gap-1 z-20">
+                
+                {/* Steuerungstasten oben rechts */}
+                <div className="absolute top-1 right-1 flex gap-1 z-20">
                   <button 
                     onClick={(e) => startEditing(e, product)} 
                     className="w-4.5 h-4.5 flex items-center justify-center bg-zinc-50 border border-zinc-200 hover:border-black hover:bg-black hover:text-white text-zinc-600 text-[9px] font-mono cursor-pointer transition-all duration-150"
-                    title="Katalog-Eintrag überschreiben"
+                    title="Artikel bearbeiten"
                   >
                     ✏
                   </button>
@@ -387,9 +383,9 @@ export default function ProductsTab() {
       {/* 🎯 GLOBAL ADMIN EDIT OVERLAY */}
       {editingProductId && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <form onSubmit={saveEdit} className="bg-white border border-red-500 p-6 max-w-xl w-full rounded-none shadow-2xl flex flex-col gap-4 font-mono text-xs animate-in fade-in zoom-in-95 duration-150 my-8">
-            <div className="border-b border-red-100 pb-3">
-              <span className="text-[8px] uppercase tracking-widest bg-red-600 text-white px-2 py-0.5 font-bold font-mono">⚠️ Authority // Global Override</span>
+          <form onSubmit={saveEdit} className="bg-white border border-zinc-200 p-6 max-w-xl w-full rounded-none shadow-2xl flex flex-col gap-4 font-mono text-xs animate-in fade-in zoom-in-95 duration-150 my-8">
+            <div className="border-b border-zinc-100 pb-3">
+              <span className="text-[8px] uppercase tracking-widest bg-black text-white px-2 py-0.5 font-bold font-mono">⚡ Authority // Global Override</span>
               <h3 className="text-sm font-bold uppercase tracking-wider text-black mt-2">Katalog-Eintrag überschreiben</h3>
             </div>
             
@@ -451,7 +447,7 @@ export default function ProductsTab() {
             {/* Actions */}
             <div className="flex justify-end gap-2 mt-2 text-[10px] uppercase tracking-widest pt-3 border-t border-zinc-100">
               <button type="button" onClick={() => setEditingProductId(null)} className="border border-zinc-200 hover:border-black text-black px-4 h-9 cursor-pointer bg-white">Abbrechen</button>
-              <button type="submit" disabled={isSaving} className="bg-red-600 hover:bg-red-700 text-white px-4 h-9 cursor-pointer disabled:opacity-50">
+              <button type="submit" disabled={isSaving} className="bg-black hover:bg-zinc-900 text-white px-4 h-9 cursor-pointer disabled:opacity-50">
                 {isSaving ? 'Speichere...' : 'Katalog Eintrag Überschreiben'}
               </button>
             </div>
