@@ -1,5 +1,5 @@
 import React from 'react';
-import ProfileWrapper from '@/components/account/ProfileWrapper';
+import ProfileWrapper from '@/components/account/AccountProfileWrapper';
 
 export default function ProfilePage() {
   return (

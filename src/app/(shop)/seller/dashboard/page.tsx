@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SellerCategoryChart from '@/components/seller/SellerCategoryChart';
 import SellerImportBox from '@/components/seller/SellerImportBox';
-import ProductPreviewGrid from '@/components/seller/ProductPreviewGrid';
+import ProductPreviewGrid from '@/components/seller/SellerProductPreviewGrid';
 import SellerProductsTab from '@/components/seller/SellerProductsTab'; // 🎯 NEU: Importieren
 
 interface SellerStats {

@@ -5,10 +5,10 @@ import React, { useState } from 'react';
 const ALLOWED_CATEGORIES = ['Notebooks', 'Smartphones', 'TV', 'Audio'];
 
 const SELLER_TEMPLATES = [
-  { title: 'UltraBook Pro 14', price: 999.00, category: 'Notebooks', brand: 'S4Y', stock: 15, description: 'High-End Arbeitsgerät mit CNC-Aluminium-Chassis und brillantem Panel.', images: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800', '', '', ''] },
-  { title: 'S4Y Phone Matrix', price: 799.00, category: 'Smartphones', brand: 'S4Y', stock: 30, description: 'Next-Gen Display mit ultradünnem Rahmen und nativer Krypto-Verschlüsselung.', images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', '', '', ''] },
-  { title: 'QuantumView OLED 55"', price: 1499.00, category: 'TV', brand: 'S4Y', stock: 10, description: 'Echtes Schwarz und unendlicher Kontrast dank modernster organischer Panel-Schicht.', images: ['https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800', '', '', ''] },
-  { title: 'StudioSound ANC ONE', price: 299.00, category: 'Audio', brand: 'S4Y', stock: 25, description: 'Aktive Geräuschunterdrückung in Studioqualität mit langanhaltendem Akku.', images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800', '', '', ''] }
+  { title: 'UltraBook Pro 14', price: 999.00, category: 'Notebooks', brand: 'Dell', stock: 15, description: 'High-End Arbeitsgerät mit CNC-Aluminium-Chassis und brillantem Panel.', images: ['https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800', '', '', ''] },
+  { title: 'S4Y Phone Matrix', price: 799.00, category: 'Smartphones', brand: 'Sony', stock: 30, description: 'Next-Gen Display mit ultradünnem Rahmen und nativer Krypto-Verschlüsselung.', images: ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800', '', '', ''] },
+  { title: 'QuantumView OLED 55"', price: 1499.00, category: 'TV', brand: 'Philips', stock: 10, description: 'Echtes Schwarz und unendlicher Kontrast dank modernster organischer Panel-Schicht.', images: ['https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=800', '', '', ''] },
+  { title: 'StudioSound ANC ONE', price: 299.00, category: 'Audio', brand: 'JBL', stock: 25, description: 'Aktive Geräuschunterdrückung in Studioqualität mit langanhaltendem Akku.', images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800', '', '', ''] }
 ];
 
 interface SellerImportBoxProps {

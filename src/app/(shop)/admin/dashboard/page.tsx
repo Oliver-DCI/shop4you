@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import OverviewTab from '@/components/admin/OverviewTab';
-import ProductsTab from '@/components/admin/ProductsTab';
-import SellersTab from '@/components/admin/SellersTab';
-import ImportTab from '@/components/admin/ImportTab';
-import AdminsTab from '@/components/admin/AdminsTab';
+import OverviewTab from '@/components/admin/AdminOverviewTab';
+import ProductsTab from '@/components/admin/AdminProductsTab';
+import SellersTab from '@/components/admin/AdminSellersTab';
+import ImportTab from '@/components/admin/AdminImportTab';
+import AdminsTab from '@/components/admin/AdminsRechteTab';
 
 // Definition des Seller-Interfaces passend zur Datenbank-Struktur
 interface Seller {
