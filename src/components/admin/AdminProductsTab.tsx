@@ -70,6 +70,9 @@ export default function ProductsTab() {
     fetchProducts();
   }, []);
 
+  // 🎯 Berechne den gesamten physischen Lagerbestand im System
+  const totalStockInSystem = products.reduce((sum, p) => sum + (p.stock || 0), 0);
+
   // Bearbeitungsstart
   const startEditing = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
@@ -206,7 +209,14 @@ export default function ProductsTab() {
       {/* HEADER BEREICH */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-xl uppercase tracking-wider font-light text-black">🛍️ Globaler Produkt-Katalog</h2>
+          {/* 🎯 Kompaktes Design direkt im Textfeld verankert */}
+          <h2 className="text-xl uppercase tracking-wider font-light text-black">
+            Produkt-Katalog {!loading && products.length > 0 && (
+                              <span className="text-sm normal-case font-mono text-zinc-500 tracking-normal">
+                                ({products.length} Artikel | Bestand {totalStockInSystem})
+                              </span>
+                            )}
+          </h2>
           <p className="text-zinc-400 text-[10px] uppercase tracking-widest mt-1 font-mono">Klicke auf einen Artikel, um ihn live im Shop anzusehen</p>
         </div>
         
