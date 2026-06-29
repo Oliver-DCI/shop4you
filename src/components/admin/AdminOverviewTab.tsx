@@ -25,7 +25,11 @@ export default function AdminOverviewTab() {
   const [timeFilter, setTimeFilter] = useState<'HEUTE' | '7 TAGE' | 'MONAT' | 'JAHR'>('MONAT');
   const [products, setProducts] = useState<Product[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [totalCustomers, setTotalCustomers] = useState<number>(0);
+  
+  // 🎯 NEU: Getrennte Zähler für ein transparentes KPI-Dashboard
+  const [userCount, setUserCount] = useState<number>(0);
+  const [sellerCount, setSellerCount] = useState<number>(0);
+  
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -46,9 +50,14 @@ export default function AdminOverviewTab() {
         if (usersResponse.ok) {
           const userData: User[] = await usersResponse.json();
           if (Array.isArray(userData)) {
-            const customerAccounts = userData.filter(user => user.role === 'USER');
-            setUsers(customerAccounts);
-            setTotalCustomers(customerAccounts.length);
+            // 🎯 FIX: Wir speichern jetzt das gesamte Array, filtern aber die Rollen für die Kachel separat
+            setUsers(userData);
+            
+            const onlyUsers = userData.filter(u => u.role === 'USER');
+            const onlySellers = userData.filter(u => u.role === 'SELLER');
+            
+            setUserCount(onlyUsers.length);
+            setSellerCount(onlySellers.length);
           }
         }
       } catch (error) {
@@ -76,14 +85,15 @@ export default function AdminOverviewTab() {
 
   const multiplier = getTimeMultiplier();
 
+  // 🎯 NEU: Wir ermitteln den exakten physischen Gesamtlagerbestand aller Produkte
+  const totalStockAll = products.reduce((sum, p) => sum + (p.stock || 0), 0);
+
   const totalDbVolume = products.reduce((sum, p) => sum + (Number(p.price) * (p.stock || 1)), 0);
   const dynamicGMV = totalDbVolume * multiplier;
   const dynamicPlatformRevenue = dynamicGMV * 0.10;
 
-  const averageProductPrice = products.length > 0 
-    ? products.reduce((sum, p) => sum + Number(p.price), 0) / products.length 
-    : 0;
-  const dynamicAOV = averageProductPrice > 0 ? averageProductPrice * 0.85 : 0;
+  // 🎯 FIX: Mathematisch korrekter AOV bezogen auf das Volumen geteilt durch Einheiten, skaliert mit dem Zeitfilter
+  const dynamicAOV = totalStockAll > 0 ? dynamicGMV / totalStockAll : 0;
 
   const getRealTopProducts = () => {
     if (products.length === 0) {
@@ -117,6 +127,7 @@ export default function AdminOverviewTab() {
     if (timeFilter === '7 TAGE') steps = 7;
 
     const sortedPrices = [...products].map(p => Number(p.price)).sort((a, b) => b - a);
+    const averageProductPrice = products.length > 0 ? sortedPrices.reduce((s, p) => s + p, 0) / products.length : 50;
     
     const points = Array.from({ length: steps }).map((_, idx) => {
       const basePrice = sortedPrices[idx] || averageProductPrice || 50;
@@ -148,11 +159,13 @@ export default function AdminOverviewTab() {
   };
 
   // =========================================================
-  // 🎯 NEU: DYNAMISCHE KUNDEN-KOHORTEN ANZEIGE NACH FILTER
+  // 🎯 DYNAMISCHE KUNDEN-KOHORTEN ANZEIGE NACH FILTER
   // =========================================================
   const getCohortData = () => {
     const cohorts = { c1: 0, c2: 0, c3: 0, c4: 0 };
     let labels = ['Woche 1', 'Woche 2', 'Woche 3', 'Woche 4'];
+
+    const totalAllUsers = users.length;
 
     if (timeFilter === 'JAHR') {
       labels = ['Q1', 'Q2', 'Q3', 'Q4'];
@@ -173,10 +186,8 @@ export default function AdminOverviewTab() {
         else cohorts.c4++;
       });
     } else {
-      // Für HEUTE / 7 TAGE: Da du aktuell 1 User hast, verteilen wir ihn visuell 
-      // passend zur Aktivität auf den aktuellsten Slot, damit der Filter reagiert.
       labels = ['Interval 1', 'Interval 2', 'Interval 3', 'Aktuell'];
-      cohorts.c4 = totalCustomers;
+      cohorts.c4 = totalAllUsers;
     }
 
     const maxVal = Math.max(cohorts.c1, cohorts.c2, cohorts.c3, cohorts.c4, 1);
@@ -219,8 +230,8 @@ export default function AdminOverviewTab() {
       {/* KPI KACHEL-GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="border border-zinc-200 p-6 bg-zinc-50 shadow-2xs">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Gross Merchandise Value (GMV)</p>
-          <p className="text-2xl font-mono mt-2 font-light tracking-tight">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Merchandise Value (GMV)</p>
+          <p className="text-xl font-mono mt-2 font-light tracking-tight">
             {isLoading ? '...' : `${dynamicGMV.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`}
           </p>
           <span className="text-[9px] text-emerald-600 font-mono font-bold mt-1 inline-block uppercase">
@@ -230,31 +241,33 @@ export default function AdminOverviewTab() {
 
         <div className="border border-zinc-200 p-6 bg-zinc-50 shadow-2xs">
           <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Marktplatz-Umsatz (10%)</p>
-          <p className="text-2xl font-mono mt-2 font-light tracking-tight">
+          <p className="text-xl font-mono mt-2 font-light tracking-tight">
             {isLoading ? '...' : `${dynamicPlatformRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`}
           </p>
-          <span className="text-[9px] text-black font-mono font-bold mt-1 inline-block uppercase tracking-wider">
+          <span className="text-[9px] text-zinc-500 font-mono mt-1 inline-block uppercase tracking-wider">
             REINER NETTO-GEWINN
           </span>
         </div>
 
+        {/* 🎯 FIX: Zeigt jetzt glasklar getrennt User und Seller in der Kachel an */}
         <div className="border border-zinc-200 p-6 bg-zinc-50 shadow-2xs">
           <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Aktive Kunden</p>
-          <p className="text-2xl font-mono mt-2 tracking-tight text-black font-bold">
-            {isLoading ? '...' : totalCustomers} <span className="text-xs font-light text-zinc-400 font-sans uppercase">User</span>
+          <p className="text-base font-mono mt-3 tracking-tight text-black font-medium">
+            {isLoading ? '...' : <>{userCount} <span className="text-zinc-400 text-xs font-sans">User</span> <span className="text-zinc-300 mx-1">|</span> {sellerCount} <span className="text-zinc-400 text-xs font-sans">Seller</span></>}
           </p>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-mono mt-1 inline-block">
+          <span className="text-[9px] text-zinc-500 uppercase tracking-widest font-mono mt-2.5 inline-block">
             Verifizierte Käuferkonten
           </span>
         </div>
         
+        {/* 🎯 FIX: Berechnung basiert nun auf dem echten GMV geteilt durch den echten Gesamtbestand */}
         <div className="border border-zinc-200 p-6 bg-zinc-50 shadow-2xs">
           <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-mono">Ø Warenwert (AOV)</p>
-          <p className="text-2xl font-mono mt-2 font-light tracking-tight">
+          <p className="text-xl font-mono mt-2 font-light tracking-tight">
             {isLoading ? '...' : `${dynamicAOV.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`}
           </p>
           <span className="text-[9px] text-zinc-500 font-mono mt-1 inline-block uppercase">
-            Basis: {products.length} gelistete Produkte
+            Basis: {products.length} Prod. (Lagerbestand: {totalStockAll} Stk.)
           </span>
         </div>
       </div>
@@ -342,19 +355,18 @@ export default function AdminOverviewTab() {
           </div>
         </div>
 
-        {/* 🎯 JETZT DYNAMISCH: Kundenakquise Kohorten-Verteilung */}
+        {/* Kundenakquise Kohorten-Verteilung */}
         <div className="border border-zinc-200 p-6 flex flex-col gap-4 bg-white shadow-2xs">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-black font-mono">Kundenwachstum & Skalierungsindex</p>
-            <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-mono">Kohorten-Verteilung der verifizierten shop4you Endnutzer</p>
+            <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-mono">Kohorten-Verteilung aller registrierten shop4you Benutzer</p>
           </div>
           
           <div className="h-32 flex items-end justify-between gap-6 font-mono text-[9px] text-zinc-400 pt-4 px-4 bg-zinc-50 border border-zinc-100">
             {cohortData.map((cohort, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group relative">
-                {/* Tooltip bei Hover, der die echte User-Anzahl in diesem Intervall anzeigt */}
                 <div className="absolute -top-6 bg-black text-white text-[8px] px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity font-mono">
-                  {cohort.count} User
+                  {cohort.count} Accounts
                 </div>
                 <div 
                   className={`w-full transition-all duration-300 ${idx === 3 ? 'bg-black' : 'bg-zinc-300 group-hover:bg-zinc-500'}`} 
