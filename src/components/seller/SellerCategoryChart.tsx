@@ -16,10 +16,12 @@ interface SellerCategoryChartProps {
 
 export default function SellerCategoryChart({ products }: SellerCategoryChartProps) {
   const categories = ['Notebooks', 'Smartphones', 'TV', 'Audio'];
+  
+  // 🎯 ERWEITERUNG: Wir zählen jetzt auch 'totalStock' pro Kategorie
   const dataMap = categories.reduce((acc, cat) => {
-    acc[cat] = { count: 0, totalValue: 0 };
+    acc[cat] = { count: 0, totalStock: 0, totalValue: 0 };
     return acc;
-  }, {} as Record<string, { count: number; totalValue: number }>);
+  }, {} as Record<string, { count: number; totalStock: number; totalValue: number }>);
 
   let totalValueAll = 0;
   let totalCountAll = 0;
@@ -29,6 +31,7 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
     if (dataMap[cat]) {
       const qty = (p as any).stock || (p as any).quantity || 1;
       dataMap[cat].count += 1;
+      dataMap[cat].totalStock += qty; // 🎯 Stückzahlen aufaddieren
       dataMap[cat].totalValue += p.price * qty;
       totalValueAll += p.price * qty;
       totalCountAll += 1;
@@ -76,7 +79,6 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
   });
 
   return (
-    /* 🎯 FIX: xl:-ml-[8px] schiebt den Container nach links, xl:w-[calc(100%+8px)] gleicht die Breite an, damit es bündig unter "Deine Angebote" einrastet */
     <div className="bg-white border border-zinc-200 p-6 flex flex-col h-full justify-between w-full xl:w-[calc(100%+8px)] xl:-ml-[16px] min-w-0">
       <div className="border-b border-zinc-100 pb-3">
         <h3 className="text-[10px] font-medium uppercase tracking-widest text-black font-mono">■ Bestands- & Portfolio-Volumen</h3>
@@ -113,10 +115,13 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
                 <div className="flex items-center gap-1.5 min-w-0 truncate">
                   <div className="w-2 h-2 shrink-0" style={{ backgroundColor: slice.color }} />
                   <span className="text-zinc-900 font-medium truncate">{slice.category}</span>
-                  <span className="text-zinc-400 text-[8px] shrink-0">({slice.count})</span>
+                  {/* 🎯 FIX: Zeigt jetzt glasklar z.B. (1 Art. / 15 Stk.) anstelle von nur (1) */}
+                  <span className="text-zinc-400 text-[8px] shrink-0">
+                    ({slice.count} Art. / {slice.totalStock} Stk.)
+                  </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="font-bold text-black text-[10px] tabular-nums">{slice.totalValue.toFixed(2)} €</div>
+                  <div className="font-bold text-black text-[10px] tabular-nums">{slice.totalValue.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</div>
                   <div className="text-[8px] text-zinc-400 font-light">{slice.percentage}%</div>
                 </div>
               </div>
@@ -127,7 +132,7 @@ export default function SellerCategoryChart({ products }: SellerCategoryChartPro
 
       <div className="border-t border-zinc-100 pt-3 mt-3 flex justify-between items-center text-[9px] font-mono text-zinc-400 w-full min-w-0">
         <span>GESAMTWERT LAGER:</span>
-        <span className="font-bold text-black text-[10px] tabular-nums shrink-0">{totalValueAll.toFixed(2)} €</span>
+        <span className="font-bold text-black text-[10px] tabular-nums shrink-0">{totalValueAll.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €</span>
       </div>
     </div>
   );
