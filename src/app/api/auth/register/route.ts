@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // 🎯 FIX: Zentrale Instanz nutzen!
+import { prisma } from '@/lib/prisma'; // 🎯 Zentrale Instanz nutzen
 import bcrypt from 'bcrypt';
 
 export async function POST(request: Request) {
@@ -32,14 +32,19 @@ export async function POST(request: Request) {
     // 3. Passwort-Hashing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. User-Erstellung
+    // 🎯 4. Validierung der erlaubten Rollen (Sicherheit)
+    // Wenn die mitgegebene Rolle gültig ist, verwenden wir sie, andernfalls Fallback auf 'USER'
+    const allowedRoles = ['USER', 'SELLER', 'ADMIN'];
+    const finalRole = allowedRoles.includes(role) ? role : 'USER';
+
+    // 5. User-Erstellung
     const newUser = await prisma.user.create({
       data: {
         firstName,
         lastName,
         email: formattedEmail,
         password: hashedPassword,
-        role: role === 'ADMIN' ? 'ADMIN' : 'USER',
+        role: finalRole, // 🎯 FIX: Speichert nun korrekt 'SELLER' oder 'USER' ab!
         street,
         zipCode,
         city,
