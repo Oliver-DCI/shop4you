@@ -9,7 +9,7 @@ interface OrderItem {
   title: string;
   quantity: number;
   price: number;
-  image?: string;
+  image?: string; // 🎯 Das Produktbild aus der API
 }
 
 interface OrderDetails {
@@ -90,10 +90,20 @@ export default function OrderDetailPage() {
               {order.items?.map((item) => (
                 <div key={item.id} className="p-4 flex items-center justify-between bg-white gap-4">
                   <div className="flex items-center gap-4">
-                    {/* Minimalistischer Platzhalter für Produktbild */}
-                    <div className="w-12 h-16 bg-zinc-50 border border-zinc-200 flex items-center justify-center text-[10px] text-samsung-muted font-mono">
-                      IMG
+                    
+                    {/* 🎯 NEU: Dynamisches Produktbild mit Schwarz-Weiß-Hover-Effekt */}
+                    <div className="w-12 h-16 bg-zinc-50 border border-zinc-200 flex items-center justify-center text-[10px] text-samsung-muted font-mono overflow-hidden shrink-0">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300 ease-in-out"
+                        />
+                      ) : (
+                        <span>NO IMG</span>
+                      )}
                     </div>
+
                     <div className="flex flex-col">
                       <span className="text-xs font-medium uppercase tracking-wider">{item.title}</span>
                       <span className="text-[10px] font-mono text-samsung-muted mt-0.5">
@@ -120,6 +130,8 @@ export default function OrderDetailPage() {
               <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${
                 order.status === 'GELIEFERT' 
                   ? 'bg-emerald-50/50 border-emerald-500 text-emerald-700' 
+                  : order.status === 'PENDING'
+                  ? 'bg-amber-50/50 border-amber-500 text-amber-700' // Schickes Orange/Gelb für ausstehende Bestellungen
                   : 'bg-zinc-100 border-zinc-300 text-samsung-muted'
               }`}>
                 ● {order.status}
