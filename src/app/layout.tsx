@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -35,8 +36,12 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-white text-black rounded-none" suppressHydrationWarning>
         <CartProvider>
-          {/* Globaler Header (wird im eckigen Samsung-Stil rendern) */}
-          <Header />
+          {/* Globaler Header – eingewickelt in Suspense, damit useSearchParams beim Pre-Rendering/404-Page nicht abbricht */}
+          <Suspense fallback={
+            <header className="w-full h-16 border-b border-zinc-200 bg-white" />
+          }>
+            <Header />
+          </Suspense>
           
           {/* Hauptinhalt nimmt die volle Breite ohne störende Abrundungen */}
           <main className="flex-1 w-full flex flex-col">

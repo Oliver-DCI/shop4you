@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '@/context/cartContext';
 
-export default function LoginPage() {
+// 1. Eigentliche Login-Formular-Komponente (nutzt useSearchParams)
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser } = useCart();
@@ -87,7 +88,6 @@ export default function LoginPage() {
         <div className="bg-white border border-zinc-200 p-8 rounded-none max-w-sm w-full text-left shadow-xl flex flex-col gap-6">
           <div>
             <h2 className="text-lg font-normal text-black uppercase tracking-widest">Scope: Administrator</h2>
-            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
             <p className="text-xs text-samsung-muted mt-1 font-mono">{authenticatedUser?.email}</p>
           </div>
           <div className="flex flex-col gap-2">
@@ -111,7 +111,6 @@ export default function LoginPage() {
         <div className="bg-white border border-zinc-200 p-8 rounded-none max-w-sm w-full text-left shadow-xl flex flex-col gap-6">
           <div>
             <h2 className="text-lg font-normal text-black uppercase tracking-widest">Rolle: Verkäufer</h2>
-            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
             <p className="text-xs text-samsung-muted mt-1 font-mono">{authenticatedUser?.email}</p>
           </div>
           <div className="flex flex-col gap-2">
@@ -130,13 +129,11 @@ export default function LoginPage() {
         <div className="text-left">
           <Link 
             href="/" 
-            /* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */
             className="text-[10px] font-mono uppercase tracking-widest text-samsung-muted hover:text-black transition-colors mb-4 inline-block"
           >
             ◀ ABBRECHEN // ZURÜCK ZUM SHOP
           </Link>
           <h1 className="text-xl font-normal uppercase tracking-widest text-black">Anmelden</h1>
-          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
           <p className="text-xs text-samsung-muted font-normal mt-0.5">Anmeldung mit E-Mail und Passwort</p>
         </div>
 
@@ -152,21 +149,17 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
             <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">E-Mail-Adresse</label>
             <input required type="email" disabled={loading} value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-12 border border-zinc-200 rounded-none px-4 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
           </div>
           
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center">
-              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
               <label className="text-[10px] font-medium text-samsung-muted uppercase tracking-widest">Passwort</label>
-              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
               <Link href="/forgot-password" className="text-[10px] font-normal text-samsung-muted hover:text-black underline transition-colors tracking-widest uppercase">Vergessen?</Link>
             </div>
             <div className="relative">
               <input required type={showPassword ? 'text' : 'password'} disabled={loading} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full h-12 border border-zinc-200 rounded-none pl-4 pr-11 text-xs bg-white text-black focus:outline-none focus:border-black transition-colors" />
-              {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-samsung-muted hover:text-black transition-colors p-1 cursor-pointer">
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
@@ -183,12 +176,24 @@ export default function LoginPage() {
         </form>
 
         <div className="text-left border-t border-zinc-200 pt-4">
-          {/* 🎯 KOSMETIK: text-zinc-400 -> text-samsung-muted */}
           <Link href="/register" className="text-xs text-samsung-muted hover:text-black transition-colors font-normal">
             Noch keine shop4you ID? <span className="text-black font-medium underline underline-offset-4">Hier erstellen</span>
           </Link>
         </div>
       </div>
     </div>
+  );
+}
+
+// 2. Exportierte Hauptseite mit Suspense-Ummantelung
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50 font-mono text-xs uppercase">
+        Lade Login...
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

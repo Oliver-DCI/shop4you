@@ -30,7 +30,7 @@ export async function POST(request: Request) {
             firstName: shippingAddress.firstName,
             lastName: shippingAddress.lastName,
             street: shippingAddress.street,
-            zip: shippingAddress.zip,
+            zipCode: shippingAddress.zip,
             city: shippingAddress.city,
           }
         });

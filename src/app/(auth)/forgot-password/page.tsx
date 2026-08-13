@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export default function ForgotPasswordPage() {
+// 1. Das eigentliche Formular als eigene Komponente
+function ForgotPasswordForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -206,5 +207,18 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 2. Exportierte Hauptseite, die das Formular in Suspense einbettet
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-zinc-50 font-mono text-xs uppercase">
+        Lade Wiederherstellung...
+      </div>
+    }>
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }
